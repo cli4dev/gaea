@@ -8,8 +8,8 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/micro-plat/hydra/component"
 	"github.com/micro-plat/hydra/hydra"
-	{{range $i,$m:=.modules}}
-	"{{$.projectName}}/services/{{pkgName $m "service"}}"
+	{{range $i,$m:=.pkgs}}
+	"{{$.projectName}}/services/{{$m}}"
 	{{end}}
 
 )
