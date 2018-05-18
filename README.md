@@ -66,12 +66,12 @@ gaea new project myproject/apiserver -m order/request -r
 `gaea new project [项目名称] -s[服务器类型]`
 
 ```sh
-gaea new project myproject/apiserver -m order/request -s api-cron
-创建文件: /home/colin/work/src/myproject/apiserver/main.go
-创建文件: /home/colin/work/src/myproject/apiserver/bind.go
-创建文件: /home/colin/work/src/myproject/apiserver/services/order/request.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/order/request.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/sql/order.go
+gaea new project myproject/myserver -m order/request -s api-cron
+创建文件: /home/colin/work/src/myproject/myserver/main.go
+创建文件: /home/colin/work/src/myproject/myserver/bind.go
+创建文件: /home/colin/work/src/myproject/myserver/services/order/request.go
+创建文件: /home/colin/work/src/myproject/myserver/modules/order/request.go
+创建文件: /home/colin/work/src/myproject/myserver/modules/sql/order.go
 项目生成完成
 ```
 
