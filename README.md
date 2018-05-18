@@ -4,7 +4,7 @@
 
 ### 一、安装
 ```sh
-  go get github.com/micro-plat/wechat-token-server
+  go get github.com/micro-plat/gaea
 ```
 
 ### 二、创建项目
