@@ -75,18 +75,34 @@ func (p *projectCmd) new(projectName string, serviceType string, modules []strin
 }
 
 func (p *projectCmd) createProject(projectPath string, data map[string]string) error {
+	checkAll := true
 	for k, v := range data {
 		path := filepath.Join(projectPath, k)
 		dir := filepath.Dir(path)
-		if _, err := os.Stat(dir); os.IsNotExist(err) {
+		_, err := os.Stat(dir)
+		if os.IsNotExist(err) {
 			err := os.MkdirAll(dir, 0755)
 			if err != nil {
 				err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
 				return err
 			}
 		}
+		_, err = os.Stat(path)
 
-		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY, 0755)
+		if err == nil {
+			if checkAll {
+				var c string
+				fmt.Printf("文件:%s已存在，是否覆盖(yes|NO|ALL):", path)
+				fmt.Scan(&c)
+				ninput := strings.ToUpper(c)
+				if ninput == "A" || ninput == "ALL" {
+					checkAll = false
+				} else if ninput != "Y" && ninput == "YES" {
+					continue
+				}
+			}
+		}
+		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755)
 		if err != nil {
 			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 			return err
@@ -96,7 +112,7 @@ func (p *projectCmd) createProject(projectPath string, data map[string]string) e
 		if err != nil {
 			return err
 		}
-		cmds.Log.Info("创建文件:", path)
+		cmds.Log.Info("生成文件:", path)
 	}
 	return nil
 
