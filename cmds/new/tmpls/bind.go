@@ -25,7 +25,7 @@ func bind(r *hydra.MicroApp) {
 	bindConf(r)
 	r.Initializing(func(c component.IContainer) error {
 
-		//获取微信配置
+		//获取配置
 		var conf AppConf
 		if err := c.GetAppConf(&conf); err != nil {
 			return err
