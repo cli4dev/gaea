@@ -1,0 +1,44 @@
+{
+	"ImportPath": "github.com/micro-plat/gaea",
+	"GoVersion": "go1.10",
+	"GodepVersion": "v80",
+	"Deps": [
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/concurrent/cmap",
+			"Rev": "01e6c1a9c8d2f893928b96afeecdca71a8202565"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/file",
+			"Rev": "01e6c1a9c8d2f893928b96afeecdca71a8202565"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/jsons",
+			"Rev": "01e6c1a9c8d2f893928b96afeecdca71a8202565"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/logger",
+			"Rev": "01e6c1a9c8d2f893928b96afeecdca71a8202565"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/net",
+			"Rev": "01e6c1a9c8d2f893928b96afeecdca71a8202565"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/security/md5",
+			"Rev": "01e6c1a9c8d2f893928b96afeecdca71a8202565"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/utility",
+			"Rev": "01e6c1a9c8d2f893928b96afeecdca71a8202565"
+		},
+		{
+			"ImportPath": "github.com/urfave/cli",
+			"Comment": "v1.20.0-73-g8e01ec4",
+			"Rev": "8e01ec4cd3e2d84ab2fe90d8210528ffbb06d8ff"
+		},
+		{
+			"ImportPath": "github.com/zkfy/log",
+			"Rev": "b2704c3ef8960f03712f350344e9232326286b31"
+		}
+	]
+}
