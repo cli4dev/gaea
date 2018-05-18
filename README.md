@@ -10,6 +10,9 @@
 ### 二、创建项目
 
 #### 1. 简单项目
+
+gaea new project [项目名称]
+
 ```sh
 gaea new project myproject/apiserver
 创建文件: /home/yanglei/work/src/myproject/apiserver/main.go
@@ -18,6 +21,7 @@ gaea new project myproject/apiserver
 ```
 
 ### 2. 生成包含有模块代码的项目
+gaea new project [项目名称] -m [模块名称]
 ```sh
 gaea new project myproject/apiserver -m order/request
 创建文件: /home/yanglei/work/src/myproject/apiserver/main.go
@@ -29,6 +33,7 @@ gaea new project myproject/apiserver -m order/request
 ```
 
 ### 3. 生成包含多个模块代码的项目
+gaea new project [项目名称] -m ["模块1 模块2"]
 ```sh
 gaea new project myproject/apiserver -m "order/request order/query"
 创建文件: /home/yanglei/work/src/myproject/apiserver/main.go
@@ -43,6 +48,7 @@ gaea new project myproject/apiserver -m "order/request order/query"
 
 
 ### 4. 生成Restful风格API代码
+gaea new project [项目名称] -r
 ```sh
 gaea new project myproject/apiserver -m order/request -r
 创建文件: /home/yanglei/work/src/myproject/apiserver/main.go
@@ -55,6 +61,7 @@ gaea new project myproject/apiserver -m order/request -r
 
 
 ### 5. 生成指定服务类型的项目
+gaea new project [项目名称] -s[服务器类型]
 ```sh
 gaea new project myproject/apiserver -m order/request -s api-cron
 创建文件: /home/yanglei/work/src/myproject/apiserver/main.go
