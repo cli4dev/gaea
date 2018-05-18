@@ -55,6 +55,7 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 	if err := p.new(projectName, serverType, modules, c.Bool("restful")); err != nil {
 		cmds.Log.Error(err)
 	}
+	cmds.Log.Info("项目生成完成")
 	return nil
 }
 
