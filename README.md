@@ -2,12 +2,12 @@
 用于创建，监控基于hydra的项目
 
 
-### 安装
+### 一、安装
 ```sh
   go get github.com/micro-plat/wechat-token-server
 ```
 
-### 创建项目
+### 二、创建项目
 
 #### 1. 简单项目
 ```sh
