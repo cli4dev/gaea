@@ -28,7 +28,7 @@ func (p *projectCmd) geStartFlags() []cli.Flag {
 	flags = append(flags, cli.StringFlag{
 		Name:  "server-type,s",
 		Value: "api",
-		Usage: "服务器类型",
+		Usage: "服务器类型(api,rpc,web,mqc,cron),多个用短横线分隔",
 	})
 	flags = append(flags, cli.StringSliceFlag{
 		Name:  "modules,m",
@@ -36,7 +36,7 @@ func (p *projectCmd) geStartFlags() []cli.Flag {
 	})
 	flags = append(flags, cli.BoolFlag{
 		Name:  "restful,r",
-		Usage: "按restful方式生成服务文件",
+		Usage: "生成restful风格的服务代码",
 	})
 	return flags
 }
