@@ -15,6 +15,7 @@ func getCmd() cli.Command {
 		Usage: "创建项目,文件，数据库等",
 		Subcommands: []cli.Command{
 			newProjectCmd(),
+			newModuleCmd(),
 		},
 	}
 }

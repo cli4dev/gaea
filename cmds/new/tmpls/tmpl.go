@@ -7,8 +7,28 @@ import (
 	"strings"
 )
 
-//GetTmpl 获取模板
-func GetTmpl(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
+//GetModuleTmpls 获取服务模块
+func GetModuleTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
+	rmodules := getRModules(modules)
+	input := makeParams(projectName, serverType, rmodules, restful)
+	out = make(map[string]string)
+	for _, m := range rmodules {
+		input["moduleName"] = m
+		if out[filepath.Join("services", m+".go")], err = translate(serviceTmpl, input); err != nil {
+			return nil, err
+		}
+		if out[filepath.Join("modules", m+".go")], err = translate(moduleTmpl, input); err != nil {
+			return nil, err
+		}
+		if out[filepath.Join("modules", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+
+//GetTmpls 获取模板
+func GetTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
 	rmodules := getRModules(modules)
 	input := makeParams(projectName, serverType, rmodules, restful)
 	out = make(map[string]string)
@@ -96,17 +116,26 @@ func fGetHumpName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	buff := bytes.NewBufferString("")
 	for _, v := range names {
+		buff.WriteString(fGetLoopHumpName(v, "."))
+	}
+	return strings.Replace(buff.String(), ".", "", -1)
+}
+func fGetLoopHumpName(n string, s string) string {
+	names := strings.Split(strings.Trim(n, s), s)
+	buff := bytes.NewBufferString("")
+	for _, v := range names {
 		buff.WriteString(strings.ToUpper(v[0:1]))
 		buff.WriteString(v[1:])
 	}
-	return buff.String()
+	return strings.Replace(buff.String(), ".", "", -1)
 }
+
 func fGetServicePackageName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	if len(names) == 1 {
 		return "services"
 	}
-	return strings.Join(names[0:len(names)-1], "/")
+	return strings.ToLower(strings.Join(names[0:len(names)-1], "/"))
 }
 func fGetPackageName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
@@ -120,14 +149,14 @@ func fGetModulePackageName(n string) string {
 	if len(names) == 1 {
 		return "modules"
 	}
-	return strings.Join(names[0:len(names)-1], "/")
+	return strings.ToLower(strings.Join(names[0:len(names)-1], "/"))
 }
 func fGetServicePackagePath(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	if len(names) == 1 {
 		return "services"
 	}
-	return filepath.Join("services", strings.Join(names[0:len(names)-1], "/"))
+	return strings.ToLower(filepath.Join("services", strings.Join(names[0:len(names)-1], "/")))
 }
 
 func fGetLastName(n string) string {
