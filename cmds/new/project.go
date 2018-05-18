@@ -75,7 +75,7 @@ func (p *projectCmd) new(projectName string, serviceType string, modules []strin
 }
 
 func (p *projectCmd) createProject(projectPath string, data map[string]string) error {
-	checkAll := true
+	//checkAll := true
 	for k, v := range data {
 		path := filepath.Join(projectPath, k)
 		dir := filepath.Dir(path)
@@ -87,21 +87,22 @@ func (p *projectCmd) createProject(projectPath string, data map[string]string) e
 				return err
 			}
 		}
-		_, err = os.Stat(path)
+		// _, err = os.Stat(path)
 
-		if err == nil {
-			if checkAll {
-				var c string
-				fmt.Printf("文件:%s已存在，是否覆盖(yes|NO|ALL):", path)
-				fmt.Scan(&c)
-				ninput := strings.ToUpper(c)
-				if ninput == "A" || ninput == "ALL" {
-					checkAll = false
-				} else if ninput != "Y" && ninput == "YES" {
-					continue
-				}
-			}
-		}
+		// if err == nil {
+		// 	if checkAll {
+		// 		var c string
+		// 		cmds.Log.Infof("文件:%s已存在，是否覆盖(yes|NO|ALL):", path)
+		// 		fmt.Scan(&c)
+		// 		//fmt.Printf("\n")
+		// 		ninput := strings.ToUpper(c)
+		// 		if ninput == "A" || ninput == "ALL" {
+		// 			checkAll = false
+		// 		} else if ninput != "Y" && ninput == "YES" {
+		// 			continue
+		// 		}
+		// 	}
+		// }
 		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755)
 		if err != nil {
 			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
