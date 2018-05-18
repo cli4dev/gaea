@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/api"
@@ -48,7 +49,7 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 		cli.ShowCommandHelp(c, c.Command.Name)
 		return err
 	}
-	projectName := c.Args().First()
+	projectName := strings.Trim(c.Args().First(), "/")
 	serverType := c.String("server-type")
 	modules := c.StringSlice("modules")
 
