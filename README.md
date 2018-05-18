@@ -30,7 +30,7 @@ gaea new project myproject/apiserver -m order/request
 
 ### 3. 生成包含多个模块代码的项目
 ```sh
-gaea new project myproject/apiserver -m order/request
+gaea new project myproject/apiserver -m "order/request order/query"
 创建文件: /home/yanglei/work/src/myproject/apiserver/main.go
 创建文件: /home/yanglei/work/src/myproject/apiserver/bind.go
 创建文件: /home/yanglei/work/src/myproject/apiserver/services/order/request.go
