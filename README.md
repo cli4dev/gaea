@@ -14,8 +14,8 @@
 
 ```sh
 gaea new project myproject/apiserver
-创建文件: /home/colin/work/src/myproject/apiserver/main.go
-创建文件: /home/colin/work/src/myproject/apiserver/bind.go
+生成文件: /home/colin/work/src/myproject/apiserver/main.go
+生成文件: /home/colin/work/src/myproject/apiserver/bind.go
 项目生成完成
 ```
 
@@ -24,11 +24,11 @@ gaea new project myproject/apiserver
 
 ```sh
 gaea new project myproject/apiserver -m order/request
-创建文件: /home/colin/work/src/myproject/apiserver/main.go
-创建文件: /home/colin/work/src/myproject/apiserver/bind.go
-创建文件: /home/colin/work/src/myproject/apiserver/services/order/request.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/order/request.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/sql/order.go
+生成文件: /home/colin/work/src/myproject/apiserver/main.go
+生成文件: /home/colin/work/src/myproject/apiserver/bind.go
+生成文件: /home/colin/work/src/myproject/apiserver/services/order/request.go
+生成文件: /home/colin/work/src/myproject/apiserver/modules/order/request.go
+生成文件: /home/colin/work/src/myproject/apiserver/modules/sql/order.go
 项目生成完成
 ```
 
@@ -37,13 +37,13 @@ gaea new project myproject/apiserver -m order/request
 
 ```sh
 gaea new project myproject/apiserver -m "order/request order/query"
-创建文件: /home/colin/work/src/myproject/apiserver/main.go
-创建文件: /home/colin/work/src/myproject/apiserver/bind.go
-创建文件: /home/colin/work/src/myproject/apiserver/services/order/request.go
-创建文件: /home/colin/work/src/myproject/apiserver/services/order/query.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/order/request.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/sql/order.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/order/query.go
+生成文件: /home/colin/work/src/myproject/apiserver/main.go
+生成文件: /home/colin/work/src/myproject/apiserver/bind.go
+生成文件: /home/colin/work/src/myproject/apiserver/services/order/request.go
+生成文件: /home/colin/work/src/myproject/apiserver/services/order/query.go
+生成文件: /home/colin/work/src/myproject/apiserver/modules/order/request.go
+生成文件: /home/colin/work/src/myproject/apiserver/modules/sql/order.go
+生成文件: /home/colin/work/src/myproject/apiserver/modules/order/query.go
 项目生成完成
 ```
 
@@ -53,11 +53,11 @@ gaea new project myproject/apiserver -m "order/request order/query"
 
 ```sh
 gaea new project myproject/apiserver -m order/request -r
-创建文件: /home/colin/work/src/myproject/apiserver/main.go
-创建文件: /home/colin/work/src/myproject/apiserver/bind.go
-创建文件: /home/colin/work/src/myproject/apiserver/services/order/request.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/order/request.go
-创建文件: /home/colin/work/src/myproject/apiserver/modules/sql/order.go
+生成文件: /home/colin/work/src/myproject/apiserver/main.go
+生成文件: /home/colin/work/src/myproject/apiserver/bind.go
+生成文件: /home/colin/work/src/myproject/apiserver/services/order/request.go
+生成文件: /home/colin/work/src/myproject/apiserver/modules/order/request.go
+生成文件: /home/colin/work/src/myproject/apiserver/modules/sql/order.go
 项目生成完成
 ```
 
@@ -67,11 +67,11 @@ gaea new project myproject/apiserver -m order/request -r
 
 ```sh
 gaea new project myproject/myserver -m order/request -s api-cron
-创建文件: /home/colin/work/src/myproject/myserver/main.go
-创建文件: /home/colin/work/src/myproject/myserver/bind.go
-创建文件: /home/colin/work/src/myproject/myserver/services/order/request.go
-创建文件: /home/colin/work/src/myproject/myserver/modules/order/request.go
-创建文件: /home/colin/work/src/myproject/myserver/modules/sql/order.go
+生成文件: /home/colin/work/src/myproject/myserver/main.go
+生成文件: /home/colin/work/src/myproject/myserver/bind.go
+生成文件: /home/colin/work/src/myproject/myserver/services/order/request.go
+生成文件: /home/colin/work/src/myproject/myserver/modules/order/request.go
+生成文件: /home/colin/work/src/myproject/myserver/modules/sql/order.go
 项目生成完成
 ```
 
