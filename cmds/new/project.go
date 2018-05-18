@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/api"
+	"github.com/micro-plat/gaea/cmds/new/tmpls"
 	"github.com/urfave/cli"
 )
 
@@ -66,7 +66,7 @@ func (p *projectCmd) new(projectName string, serviceType string, modules []strin
 		return err
 	}
 	projectPath := filepath.Join(gopath, "src", projectName)
-	tmpls, err := api.GetTmpl(projectName, serviceType, modules, restful)
+	tmpls, err := tmpls.GetTmpl(projectName, serviceType, modules, restful)
 	if err != nil {
 		return err
 	}
