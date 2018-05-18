@@ -8,10 +8,8 @@ import (
 	"github.com/asaskevich/govalidator"
 	"github.com/micro-plat/hydra/component"
 	"github.com/micro-plat/hydra/hydra"
-	{{range $i,$m:=.pkgs}}
-	"{{$.projectName}}/services/{{$m}}"
+	{{range $i,$m:=.pkgs}}"{{$.projectName}}/{{$m}}"
 	{{end}}
-
 )
 
 //AppConf 应用程序配置
@@ -40,8 +38,9 @@ func bind(r *hydra.MicroApp) {
 		if _, err := c.GetDB(); err != nil {
 			return err
 		}
-		{{range $i,$m:=.modules}}
-		r.Micro("{{$m}}", {{$m|pkgName|lName}}.New{{$m|lName|humpName}}Handler) //接口,用于添加微信公众号基础参数
+
+		{{range $i,$m:=.modules}}{{range $x,$s:=$.rss}}r.{{$s}}("{{$m}}", {{$m|spkgName|lName}}.New{{$m|lName|humpName}}Handler)
+		{{end}}
 		{{end}}
 		return nil
 	})

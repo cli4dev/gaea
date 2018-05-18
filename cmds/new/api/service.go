@@ -1,7 +1,7 @@
 package api
 
 const serviceTmpl = `
-package {{.moduleName|pkgName|lName}}
+package {{.moduleName|spkgName|lName}}
 
 import (
 	"github.com/micro-plat/hydra/component"
@@ -16,9 +16,26 @@ func New{{.moduleName|lName|humpName}}Handler(container component.IContainer) (u
 	return &{{.moduleName|lName|humpName}}Handler{container: container}
 }
 
+{{if .restful}}
+func (u *{{.moduleName|lName|humpName}}Handler) GetHandle(ctx *context.Context) (r interface{}) {
+	return "success"
+}
+func (u *{{.moduleName|lName|humpName}}Handler) PostHandle(ctx *context.Context) (r interface{}) {
+	return "success"
+}
+func (u *{{.moduleName|lName|humpName}}Handler) PutHandle(ctx *context.Context) (r interface{}) {
+	return "success"
+}
+func (u *{{.moduleName|lName|humpName}}Handler) DeleteHandle(ctx *context.Context) (r interface{}) {
+	return "success"
+}
+{{else}}
 func (u *{{.moduleName|lName|humpName}}Handler) Handle(ctx *context.Context) (r interface{}) {
 	return "success"
 }
+{{end}}
+
+
 
 
 `
