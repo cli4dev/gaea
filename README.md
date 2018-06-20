@@ -75,3 +75,13 @@ gaea new project myproject/myserver -m order/request -s api-cron
 项目生成完成
 ```
 
+
+### 6. 项目中添加模块
+`gaea new module [项目名称] -m ["模块1 模块2"]`
+
+```sh
+gaea new module myproject/myserver -m order/query
+生成文件: /home/colin/work/src/myproject/myserver/services/order/query.go
+生成文件: /home/colin/work/src/myproject/myserver/modules/order/query.go
+项目生成完成
+```
