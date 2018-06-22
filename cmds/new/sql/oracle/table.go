@@ -20,7 +20,7 @@ const tableTmpl = `
 		add constraint PK_{{.name}} primary key({{.pkname}});
 	{{end}}
 
-	{{range $i,$c:=.seqs}}
+	{{range $i,$c:=.seqs}}ddd
 	create sequence {{$c.name}}
 	minvalue {{$c.min}}
 	maxvalue {{$c.max}}
