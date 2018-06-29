@@ -20,7 +20,7 @@ func GetModuleTmpls(projectName string, serverType string, modules []string, res
 		if out[filepath.Join("modules", m+".go")], err = translate(moduleTmpl, input); err != nil {
 			return nil, err
 		}
-		if out[filepath.Join("modules", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
+		if out[filepath.Join("modules", "const", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
 			return nil, err
 		}
 	}
@@ -46,7 +46,7 @@ func GetTmpls(projectName string, serverType string, modules []string, restful b
 		if out[filepath.Join("modules", m+".go")], err = translate(moduleTmpl, input); err != nil {
 			return nil, err
 		}
-		if out[filepath.Join("modules", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
+		if out[filepath.Join("modules", "const", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
 			return nil, err
 		}
 	}
