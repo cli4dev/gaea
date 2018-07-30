@@ -6,6 +6,24 @@ import (
 	"github.com/micro-plat/lib4go/ut"
 )
 
+func TestTable0(t *testing.T) {
+	input := []string{
+		"### 一、媒资信息",
+		"#### 1. 媒资信息 [epg_media_info]",
+		"|字段名|类型|默认值|为空|约束|描述|",
+		"|---|---|---|---|---|---|",
+		"|media_id|number(20)|-|否|PK|编号|",
+		"#### 1. 媒资信息 [epg_media_info]",
+		"|字段名|类型|默认值|为空|约束|描述|",
+		"|---|---|---|---|---|---|",
+		"|media_id|number(20)|-|否|PK|编号|",
+	}
+	tables := markdown2Strings(input)
+	ut.ExpectSkip(t, len(tables), 2)
+	ut.ExpectSkip(t, len(tables[0]), 4)
+	ut.ExpectSkip(t, len(tables[1]), 4)
+}
+
 func TestTable(t *testing.T) {
 	input := []string{
 		"### 一、媒资信息",

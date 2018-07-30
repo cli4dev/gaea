@@ -3,6 +3,7 @@ package new
 import (
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/project"
+	"github.com/micro-plat/gaea/cmds/new/sql"
 	"github.com/urfave/cli"
 )
 
@@ -17,6 +18,7 @@ func getCmd() cli.Command {
 		Subcommands: []cli.Command{
 			project.NewProjectCmd(),
 			project.NewModuleCmd(),
+			sql.NewSqlCmd(),
 		},
 	}
 }

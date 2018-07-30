@@ -6,14 +6,18 @@ import (
 	"io"
 	"os"
 	"regexp"
-	"strconv"
 	"strings"
 
-	"github.com/micro-plat/gaea/cmds/new/sql"
+	"github.com/micro-plat/gaea/cmds/new/sql/entity"
 )
 
+type Line struct {
+	Text   string
+	LineID int
+}
+
 //Markdown2Table 读取markdown文件并转换为table对象
-func Markdown2Table(fn string) ([]*sql.Table, error) {
+func Markdown2Table(fn string) ([]*entity.Table, error) {
 	lines, err := readMarkdown(fn)
 	if err != nil {
 		return nil, err
@@ -23,33 +27,40 @@ func Markdown2Table(fn string) ([]*sql.Table, error) {
 }
 
 //readMarkdown 读取md文件
-func readMarkdown(name string) ([]string, error) {
+func readMarkdown(name string) ([]*Line, error) {
 	f, err := os.Open(name)
 	if err != nil {
 		return nil, err
 	}
 	defer f.Close()
-	lines := make([]string, 0, 64)
+	lines := make([]*Line, 0, 64)
 	rd := bufio.NewReader(f)
+	num := 0
 	for {
+		num++
 		line, err := rd.ReadString('\n')
 		if err != nil || io.EOF == err {
 			break
 		}
-		lines = append(lines, line)
+		line = strings.Trim(line, "\n")
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		lines = append(lines, &Line{Text: line, LineID: num})
 	}
 	return lines, nil
 }
 
 //markdown2Strings
-func markdown2Strings(lines []string) [][]string {
-	tables := make([][]string, 0, 10)
+func markdown2Strings(lines []*Line) [][]*Line {
+	tables := make([][]*Line, 0, 10)
 	index := make([]int, 0, 10)
 	for i, line := range lines {
-		if line == "|字段名|类型|默认值|为空|约束|描述|" {
+		nline := strings.TrimSpace(strings.Replace(line.Text, " ", "", -1))
+		if nline == "|字段名|类型|默认值|为空|约束|描述|" {
 			index = append(index, i-1)
 		}
-		if len(index)%2 == 1 && strings.Count(line, "|") != 7 {
+		if len(index)%2 == 1 && strings.Count(nline, "|") != 7 {
 			index = append(index, i-1)
 		}
 	}
@@ -62,8 +73,8 @@ func markdown2Strings(lines []string) [][]string {
 	}
 	return tables
 }
-func strings2Tables(tbs [][]string) ([]*sql.Table, error) {
-	tables := make([]*sql.Table, 0, len(tbs))
+func strings2Tables(tbs [][]*Line) ([]*entity.Table, error) {
+	tables := make([]*entity.Table, 0, len(tbs))
 	for _, tb := range tbs {
 		if len(tb) <= 3 {
 			continue
@@ -71,7 +82,7 @@ func strings2Tables(tbs [][]string) ([]*sql.Table, error) {
 		var name string
 		var des string
 		var err error
-		var table *sql.Table
+		var table *entity.Table
 		for i, line := range tb {
 			if i == 0 {
 				//获取表名，描述名称
@@ -81,21 +92,20 @@ func strings2Tables(tbs [][]string) ([]*sql.Table, error) {
 				if des, err = getTableDesc(line); err != nil {
 					return nil, err
 				}
-				table = sql.NewTable(name, des)
+				table = entity.NewTable(name, des)
 				continue
 			}
 			if i < 3 {
 				continue
 			}
-			if strings.Count(line, "|") != 7 {
-				return nil, fmt.Errorf("表结构有误")
+			if strings.Count(line.Text, "|") != 7 {
+				return nil, fmt.Errorf("表结构有误(行:%d)", line.LineID)
 			}
-
-			colums := strings.Split(strings.Trim(line, "|"), "|")
+			colums := strings.Split(strings.Trim(line.Text, "|"), "|")
 			if colums[0] == "" {
-				return nil, fmt.Errorf("表%s的字段名称不能为空 %v", name, colums)
+				return nil, fmt.Errorf("字段名称不能为空 %s(行:%d)", line.Text, line.LineID)
 			}
-			tp, l, err := getType(colums[1])
+			tp, l, err := getType(line)
 			if err != nil {
 				return nil, err
 			}
@@ -110,31 +120,34 @@ func strings2Tables(tbs [][]string) ([]*sql.Table, error) {
 	}
 	return tables, nil
 }
-func getTableDesc(line string) (string, error) {
+func getTableDesc(line *Line) (string, error) {
 	reg := regexp.MustCompile(`[^\d^\.]+[\p{Han}]+[^\[]+`)
-	names := reg.FindAllString(line, -1)
+	names := reg.FindAllString(line.Text, -1)
 	if len(names) == 0 {
-		return "", fmt.Errorf("未设置表描述:%s", line)
+		return "", fmt.Errorf("未设置表描述:%s(行:%d)", line.Text, line.LineID)
 	}
 	return strings.TrimSpace(names[0]), nil
 }
-func getTableName(line string) (string, error) {
+func getTableName(line *Line) (string, error) {
 	reg := regexp.MustCompile(`\[[\w]+\]`)
-	names := reg.FindAllString(line, -1)
+	names := reg.FindAllString(line.Text, -1)
 	if len(names) == 0 {
-		return "", fmt.Errorf("未设置表名称:%s", line)
+		return "", fmt.Errorf("未设置表名称:%s(行:%d)", line.Text, line.LineID)
 	}
 	return strings.TrimRight(strings.TrimLeft(names[0], "["), "]"), nil
 }
-func getType(line string) (string, int, error) {
+func getType(line *Line) (string, string, error) {
+	colums := strings.Split(strings.Trim(line.Text, "|"), "|")
+	if colums[0] == "" {
+		return "", "", fmt.Errorf("字段名称不能为空 %s(行:%d)", line.Text, line.LineID)
+	}
 	reg := regexp.MustCompile(`[\w]+`)
-	names := reg.FindAllString(line, -1)
-	if len(names) == 0 || len(names) > 2 {
-		return "", 0, fmt.Errorf("未设置字段类型:%v", names)
+	names := reg.FindAllString(colums[1], -1)
+	if len(names) == 0 || len(names) > 3 {
+		return "", "", fmt.Errorf("未设置字段类型:%v(行:%d)", names, line.LineID)
 	}
 	if len(names) == 1 {
-		return names[0], 0, nil
+		return names[0], "", nil
 	}
-	i, err := strconv.ParseInt(names[1], 10, 32)
-	return names[0], int(i), err
+	return names[0], strings.Join(names[1:], ","), nil
 }
