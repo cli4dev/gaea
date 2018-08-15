@@ -64,7 +64,7 @@ func (p *sqlCmd) action(c *cli.Context) (err error) {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Info("SQL生成完成")
+	cmds.Log.Infof("SQL生成完成,共生成%d个文件", len(tmpls))
 	return nil
 }
 

@@ -6,11 +6,11 @@ import (
 	"html/template"
 	"strings"
 
-	"github.com/micro-plat/gaea/cmds/new/sql/entity"
+	"github.com/micro-plat/gaea/cmds/new/sql/conf"
 )
 
 func translate(c string, input interface{}) (string, error) {
-	var tmpl = template.New("oracle")
+	var tmpl = template.New("oracle").Funcs(makeFunc())
 	np, err := tmpl.Parse(c)
 	if err != nil {
 		return "", err
@@ -34,7 +34,7 @@ func getDef(n string) string {
 	return "default " + n
 }
 
-func getUnqs(tb *entity.Table) (out []map[string]interface{}) {
+func getUnqs(tb *conf.Table) (out []map[string]interface{}) {
 	out = make([]map[string]interface{}, 0, 1)
 	seqs := make([]string, 0, 1)
 	for i, v := range tb.Cons {
@@ -52,7 +52,7 @@ func getUnqs(tb *entity.Table) (out []map[string]interface{}) {
 	return out
 }
 
-func getPks(tb *entity.Table) []string {
+func getPks(tb *conf.Table) []string {
 	out := make([]string, 0, 1)
 	for i, v := range tb.Cons {
 		if strings.Contains(v, "PK") {
@@ -61,7 +61,7 @@ func getPks(tb *entity.Table) []string {
 	}
 	return out
 }
-func getSeqs(tb *entity.Table) (out []map[string]interface{}) {
+func getSeqs(tb *conf.Table) (out []map[string]interface{}) {
 	out = make([]map[string]interface{}, 0, 1)
 	seqs := make(map[string]string)
 	for i, v := range tb.Cons {
@@ -79,7 +79,7 @@ func getSeqs(tb *entity.Table) (out []map[string]interface{}) {
 	return out
 }
 
-func GetTmples(tbs []*entity.Table) (out map[string]string, err error) {
+func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 	out = make(map[string]string, len(tbs))
 	for _, tb := range tbs {
 		columns := make([]map[string]interface{}, 0, len(tb.CNames))
@@ -109,4 +109,32 @@ func GetTmples(tbs []*entity.Table) (out map[string]string, err error) {
 		}
 	}
 	return out, nil
+}
+
+func makeFunc() map[string]interface{} {
+	return map[string]interface{}{
+		"cName": fGetCName,
+		"cType": fGetType,
+	}
+}
+func fGetCName(n string) string {
+	items := strings.Split(n, "_")
+	nitems := make([]string, 0, len(items))
+	for _, i := range items {
+		nitems = append(nitems, strings.ToUpper(i[0:1])+i[1:])
+	}
+	return strings.Join(nitems, "")
+}
+func fGetType(n string) string {
+	if strings.HasPrefix(n, "nvarchar") {
+		return "string"
+	} else if strings.HasPrefix(n, "number") {
+		if strings.Contains(n, ",") {
+			return "float64"
+		}
+		return "int64"
+	} else if strings.HasPrefix(n, "date") {
+		return "time.Time"
+	}
+	return "string"
 }

@@ -18,7 +18,10 @@ func getCmd() cli.Command {
 		Subcommands: []cli.Command{
 			project.NewProjectCmd(),
 			project.NewModuleCmd(),
+			project.NewServiceCmd(),
+			sql.NewInsertCmd(),
 			sql.NewSqlCmd(),
+			sql.NewStructCmd(),
 		},
 	}
 }

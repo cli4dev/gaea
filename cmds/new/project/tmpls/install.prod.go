@@ -14,10 +14,10 @@ import (
 )
 
 //bindConf 绑定启动配置， 启动时检查注册中心配置是否存在，不存在则引导用户输入配置参数并自动创建到注册中心
-func (s *SSO) install() {
+func (s *{{.projectName|lName}}) install() {
 	s.IsDebug = false	
 
-	s.Conf.SetInput("#host_port", "服务器端口号", "数字")
+	s.Conf.SetInput("#db_connection_string", "数据库连接串", "username/password@host")
 	s.Conf.API.SetMainConf("{'address':':#host_port'}")	
 	s.Conf.API.SetSubConf('header', "
 				{
@@ -102,6 +102,6 @@ func getSQLPath() (string, error) {
 	if len(path) == 0 {
 		return '', fmt.Errorf('环境变量GOPATH配置的路径为空')
 	}
-	return filepath.Join(path[0], 'src/github.com/micro-plat/sso/modules/const/sql'), nil
+	return filepath.Join(path[0], 'src/{{.projectName}}/modules/const/sql'), nil
 }
 `

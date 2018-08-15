@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-//GetModuleTmpls 获取服务模块
-func GetModuleTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
+//GetServiceTmpls 获取服务模块
+func GetServiceTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
 	rmodules := getRModules(modules)
 	input := makeParams(projectName, serverType, rmodules, restful)
 	out = make(map[string]string)
@@ -17,6 +17,17 @@ func GetModuleTmpls(projectName string, serverType string, modules []string, res
 		if out[filepath.Join("services", m+".go")], err = translate(serviceTmpl, input); err != nil {
 			return nil, err
 		}
+	}
+	return out, nil
+}
+
+//GetModuleTmpls 获取服务模块
+func GetModuleTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
+	rmodules := getRModules(modules)
+	input := makeParams(projectName, serverType, rmodules, restful)
+	out = make(map[string]string)
+	for _, m := range rmodules {
+		input["moduleName"] = m
 		if out[filepath.Join("modules", m+".go")], err = translate(moduleTmpl, input); err != nil {
 			return nil, err
 		}

@@ -27,13 +27,13 @@ func NewProjectCmd() cli.Command {
 func (p *projectCmd) geStartFlags() []cli.Flag {
 	flags := make([]cli.Flag, 0, 4)
 	flags = append(flags, cli.StringFlag{
-		Name:  "server-type,s",
+		Name:  "server-type,S",
 		Value: "api",
 		Usage: "服务器类型(api,rpc,web,mqc,cron),多个用短横线分隔",
 	})
 	flags = append(flags, cli.StringSliceFlag{
-		Name:  "modules,m",
-		Usage: "注册的模块名称",
+		Name:  "service,s",
+		Usage: "注册的服务名称",
 	})
 	flags = append(flags, cli.BoolFlag{
 		Name:  "restful,r",
@@ -80,13 +80,13 @@ func (p *projectCmd) createProject(projectPath string, data map[string]string) e
 		dir := filepath.Dir(path)
 		_, err := os.Stat(dir)
 		if os.IsNotExist(err) {
-			err := os.MkdirAll(dir, 0755)
+			err := os.MkdirAll(dir, 0777)
 			if err != nil {
 				err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
 				return err
 			}
 		}
-		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755)
+		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0777)
 		if err != nil {
 			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 			return err

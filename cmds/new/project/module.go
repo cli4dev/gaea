@@ -30,10 +30,6 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 		Name:  "modules,m",
 		Usage: "注册的模块名称",
 	})
-	flags = append(flags, cli.BoolFlag{
-		Name:  "restful,r",
-		Usage: "生成restful风格的服务代码",
-	})
 	return flags
 }
 
@@ -47,7 +43,7 @@ func (p *moduleCmd) action(c *cli.Context) (err error) {
 	projectName := strings.Trim(c.Args().First(), "/")
 	modules := c.StringSlice("modules")
 
-	if err := p.new(projectName, "", modules, c.Bool("restful")); err != nil {
+	if err := p.new(projectName, "", modules, false); err != nil {
 		cmds.Log.Error(err)
 	}
 	cmds.Log.Info("模块生成完成")
@@ -74,7 +70,7 @@ func (p *moduleCmd) createProject(projectPath string, data map[string]string) er
 		dir := filepath.Dir(path)
 		_, err := os.Stat(dir)
 		if os.IsNotExist(err) {
-			err := os.MkdirAll(dir, 0755)
+			err := os.MkdirAll(dir, 0777)
 			if err != nil {
 				err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
 				return err
@@ -84,7 +80,7 @@ func (p *moduleCmd) createProject(projectPath string, data map[string]string) er
 			cmds.Log.Warn("文件已存在:", path)
 			continue
 		}
-		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0755)
+		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0777)
 		if err != nil {
 			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 			return err

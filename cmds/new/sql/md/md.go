@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/micro-plat/gaea/cmds/new/sql/entity"
+	"github.com/micro-plat/gaea/cmds/new/sql/conf"
 )
 
 type Line struct {
@@ -17,7 +17,7 @@ type Line struct {
 }
 
 //Markdown2Table 读取markdown文件并转换为table对象
-func Markdown2Table(fn string) ([]*entity.Table, error) {
+func Markdown2Table(fn string) ([]*conf.Table, error) {
 	lines, err := readMarkdown(fn)
 	if err != nil {
 		return nil, err
@@ -73,8 +73,8 @@ func markdown2Strings(lines []*Line) [][]*Line {
 	}
 	return tables
 }
-func strings2Tables(tbs [][]*Line) ([]*entity.Table, error) {
-	tables := make([]*entity.Table, 0, len(tbs))
+func strings2Tables(tbs [][]*Line) ([]*conf.Table, error) {
+	tables := make([]*conf.Table, 0, len(tbs))
 	for _, tb := range tbs {
 		if len(tb) <= 3 {
 			continue
@@ -82,7 +82,7 @@ func strings2Tables(tbs [][]*Line) ([]*entity.Table, error) {
 		var name string
 		var des string
 		var err error
-		var table *entity.Table
+		var table *conf.Table
 		for i, line := range tb {
 			if i == 0 {
 				//获取表名，描述名称
@@ -92,7 +92,7 @@ func strings2Tables(tbs [][]*Line) ([]*entity.Table, error) {
 				if des, err = getTableDesc(line); err != nil {
 					return nil, err
 				}
-				table = entity.NewTable(name, des)
+				table = conf.NewTable(name, des)
 				continue
 			}
 			if i < 3 {
@@ -116,7 +116,6 @@ func strings2Tables(tbs [][]*Line) ([]*entity.Table, error) {
 		if table != nil {
 			tables = append(tables, table)
 		}
-
 	}
 	return tables, nil
 }
@@ -147,7 +146,7 @@ func getType(line *Line) (string, string, error) {
 		return "", "", fmt.Errorf("未设置字段类型:%v(行:%d)", names, line.LineID)
 	}
 	if len(names) == 1 {
-		return names[0], "", nil
+		return colums[1], "", nil
 	}
-	return names[0], strings.Join(names[1:], ","), nil
+	return colums[1], strings.Join(names[1:], ","), nil
 }
