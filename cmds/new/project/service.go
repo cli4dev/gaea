@@ -45,7 +45,7 @@ func (p *serviceCmd) action(c *cli.Context) (err error) {
 		return err
 	}
 	projectName := strings.Trim(c.Args().First(), "/")
-	modules := c.StringSlice("modules")
+	modules := c.StringSlice("service")
 
 	if err := p.new(projectName, "", modules, c.Bool("restful")); err != nil {
 		cmds.Log.Error(err)

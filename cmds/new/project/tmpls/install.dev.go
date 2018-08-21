@@ -29,9 +29,9 @@ func (s *{{.projectName|lName}}) install() {
 	s.Conf.Plat.SetVarConf('db', 'db', "{			
 			'provider':'ora',
 			'connString':'sso/123456@orcl136',
-			'maxOpen':10,
-			'maxIdle':1,
-			'lifeTime':10		
+			'maxOpen':20,
+			'maxIdle':10,
+			'lifeTime':600		
 	}")
 
 	s.Conf.Plat.SetVarConf('cache', 'cache', "

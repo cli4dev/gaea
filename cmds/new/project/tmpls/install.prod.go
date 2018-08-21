@@ -42,9 +42,9 @@ func (s *{{.projectName|lName}}) install() {
 	s.Conf.Plat.SetVarConf('db', 'db', "{			
 			'provider':'ora',
 			'connString':'#db_connection_string',
-			'maxOpen':100,
+			'maxOpen':200,
 			'maxIdle':10,
-			'lifeTime':100		
+			'lifeTime':600		
 	}")
 
 	s.Conf.Plat.SetVarConf('cache', 'cache', "
@@ -57,7 +57,7 @@ func (s *{{.projectName|lName}}) install() {
 			'dial_timeout':10,
 			'read_timeout':10,
 			'write_timeout':10,
-			'pool_size':10
+			'pool_size':100
 	}
 		")
 
