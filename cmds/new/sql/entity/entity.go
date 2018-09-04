@@ -45,6 +45,7 @@ func GetTmples(tbs []*conf.Table, path string, filters []string) (out map[string
 				"desc": tb.Descs[i],
 				"type": tb.Types[i],
 				"len":  tb.Lens[i],
+				"null": tb.IsNulls[i],
 			}
 			columns = append(columns, row)
 		}
@@ -58,7 +59,7 @@ func GetTmples(tbs []*conf.Table, path string, filters []string) (out map[string
 		if err != nil {
 			return nil, err
 		}
-		out[fmt.Sprintf("%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
+		out[fmt.Sprintf("%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(strings.Replace(content, "'", "`", -1), "&#34;", `"`, -1)
 		if err != nil {
 			return nil, err
 		}
@@ -71,6 +72,7 @@ func makeFunc() map[string]interface{} {
 		"cname": fGetCName,
 		"ctype": fGetType,
 		"lname": fGetLastName,
+		"valid": fValidName,
 	}
 }
 func fGetCName(n string) string {
@@ -122,4 +124,10 @@ func cSpecialName(v string) string {
 		return v[0:len(v)-2] + "ID"
 	}
 	return v
+}
+func fValidName(b bool) string {
+	if b {
+		return `valid:"required"`
+	}
+	return ""
 }
