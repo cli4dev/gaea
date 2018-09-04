@@ -64,7 +64,7 @@ gaea new service myproject/apiserver -s order/request
 
 ```sh
 gaea new struct ../src/coupon/coupon/coupon.md ../src/coupon/coupon -f "sys_product_info"
-生成文件: src/coupon/coupon/sys.product.info.go
+生成文件: ../src/coupon/coupon/sys.product.info.go
 
 struct生成完成,共生成1个文件
 ```
