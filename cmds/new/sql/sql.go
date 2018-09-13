@@ -18,7 +18,7 @@ func NewSqlCmd() cli.Command {
 	p := &sqlCmd{}
 	return cli.Command{
 		Name:   "sql",
-		Usage:  "创建SQL语言",
+		Usage:  "创建SQL语句",
 		Flags:  p.geStartFlags(),
 		Action: p.action,
 	}

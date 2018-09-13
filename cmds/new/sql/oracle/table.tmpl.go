@@ -2,7 +2,7 @@ package oracle
 
 const tableTmpl = `
 	create table {{.name}}(
-		{{range $i,$c:=.columns}}{{$c.name}} {{$c.type}}({{$c.len}}) {{$c.def}} {{$c.null}} {{if $c.end}},{{end}}
+		{{range $i,$c:=.columns}}{{$c.name}} {{$c.type}} {{$c.def}} {{$c.null}} {{if $c.end}},{{end}}
 		{{end}}		
   );
 
@@ -11,10 +11,10 @@ const tableTmpl = `
 	{{end}}
  
 	{{range $i,$c:=.pks}}alter table {{$.name}}
-	add constraint pk_{{$.name}} primary key({{$c}});{{end}}
+	add constraint pk_{{$.name|nName}} primary key({{$c}});{{end}}
 
 	{{range $i,$c:=.unqs}}alter table {{$.name}}
-  add constraint {{$c.name}} unique({{$c.flds}});{{end}}
+  add constraint {{$c.name|nName}} unique({{$c.flds}});{{end}}
 
 	{{range $i,$c:=.seqs}}
 	create sequence {{$c.name}}

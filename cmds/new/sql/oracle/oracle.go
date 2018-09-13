@@ -3,8 +3,8 @@ package oracle
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"strings"
+	"text/template"
 
 	"github.com/micro-plat/gaea/cmds/new/sql/conf"
 )
@@ -30,6 +30,9 @@ func getNull(n bool) string {
 func getDef(n string) string {
 	if n == "" {
 		return ""
+	}
+	if strings.TrimSpace(n) == "-" {
+		return "default '-'"
 	}
 	return "default " + n
 }
@@ -71,7 +74,7 @@ func getSeqs(tb *conf.Table) (out []map[string]interface{}) {
 	}
 	for _, v := range seqs {
 		out = append(out, map[string]interface{}{
-			"name": fmt.Sprintf("seq_%s_%s", tb.Name, v),
+			"name": fmt.Sprintf("seq_%s_%s", fGetNName(tb.Name), getFilterName(tb.Name, v)),
 			"min":  100,
 			"max":  99999999999,
 		})
@@ -86,7 +89,7 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 		for i, v := range tb.CNames {
 			row := map[string]interface{}{
 				"name": v,
-				"desc": tb.Descs[i],
+				"desc": strings.Replace(tb.Descs[i], ";", " ", -1),
 				"type": tb.Types[i],
 				"len":  tb.Lens[i],
 				"def":  getDef(tb.Defs[i]),
@@ -114,6 +117,7 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 func makeFunc() map[string]interface{} {
 	return map[string]interface{}{
 		"cName": fGetCName,
+		"nName": fGetNName,
 		"cType": fGetType,
 	}
 }
@@ -125,6 +129,14 @@ func fGetCName(n string) string {
 	}
 	return strings.Join(nitems, "")
 }
+func fGetNName(n string) string {
+	items := strings.Split(n, "_")
+	if len(items) <= 1 {
+		return n
+	}
+	return strings.Join(items[1:], "_")
+}
+
 func fGetType(n string) string {
 	if strings.HasPrefix(n, "nvarchar") {
 		return "string"
@@ -137,4 +149,27 @@ func fGetType(n string) string {
 		return "time.Time"
 	}
 	return "string"
+}
+
+func getFilterName(t string, f string) string {
+	text := make([]string, 0, 1)
+	tb := strings.Split(t, "_")
+	fs := strings.Split(f, "_")
+	for _, v := range fs {
+		ex := false
+		for _, k := range tb {
+			if v == k {
+				ex = true
+				break
+			}
+		}
+		if !ex {
+			text = append(text, v)
+		}
+	}
+	if len(text) == 0 {
+		return "id"
+	}
+	return strings.Join(text, "_")
+
 }

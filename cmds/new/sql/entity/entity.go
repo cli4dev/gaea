@@ -72,6 +72,7 @@ func makeFunc() map[string]interface{} {
 		"cname": fGetCName,
 		"ctype": fGetType,
 		"lname": fGetLastName,
+		"lower": fToLower,
 		"valid": fValidName,
 	}
 }
@@ -130,4 +131,7 @@ func fValidName(b bool) string {
 		return `valid:"required"`
 	}
 	return ""
+}
+func fToLower(s string) string {
+	return strings.ToLower(s)
 }
