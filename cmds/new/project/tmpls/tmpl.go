@@ -55,7 +55,7 @@ func GetTmpls(projectName string, serverType string, modules []string, restful b
 	if out["install.prod.go"], err = translate(strings.Replace(strings.Replace(installProdTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
-	if out["handing.go"], err = translate(strings.Replace(strings.Replace(handingTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
+	if out["handling.go"], err = translate(strings.Replace(strings.Replace(handingTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
 	if out[".gitignore"], err = translate(gitignoreTmpl, input); err != nil {
