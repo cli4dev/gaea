@@ -36,6 +36,9 @@ func getDef(n string) string {
 	if strings.TrimSpace(n) == "-" {
 		return "default '-'"
 	}
+	if strings.TrimSpace(n)=="sysdate"{
+		return "default now()"
+	}
 	return "default " + n
 }
 
@@ -57,21 +60,16 @@ func getUnqs(tb *conf.Table) (out []map[string]interface{}) {
 	return out
 }
 
-func getPks(tb *conf.Table) string {
-	out := make([]string, 0, 1)
-	for i, v := range tb.Cons {
-		if strings.Contains(v, "PK") {
-			out = append(out, tb.CNames[i])
-		}
+func getPk(c string) string {
+	if strings.Contains(c,"PK"){
+		return "PRIMARY KEY"
 	}
-	return strings.Join(out, ",")
+	return ""
 }
-func getSeqs(cons []string) string {
-	for _, v := range cons {
+func getSeqs(v string) string {
 		if strings.Contains(v, "SEQ") {
 			return "AUTO_INCREMENT"
 		}
-	}
 	return ""
 }
 
@@ -86,9 +84,11 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 				"type":    tb.Types[i],
 				"len":     tb.Lens[i],
 				"def":     getDef(tb.Defs[i]),
+			    "seqs":    getSeqs(tb.Cons[i]),
 				"null":    getNull(tb.IsNulls[i]),
-				"not_end": i < len(tb.CNames)-1 || getPks(tb) != "",
-				"has_pk":  getPks(tb) != "",
+				"pk":		getPk(tb.Cons[i]),
+				"not_end": i < len(tb.CNames)-1 ,
+				
 			}
 			columns = append(columns, row)
 		}
@@ -96,8 +96,6 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 			"name":    tb.Name,
 			"desc":    tb.Desc,
 			"columns": columns,
-			"seqs":    getSeqs(tb.Cons),
-			"pks":     getPks(tb),
 			"unqs":    getUnqs(tb),
 		}
 		out[fmt.Sprintf("%s.sql", tb.Name)], err = translate(tableTmpl, input)
@@ -143,13 +141,13 @@ func fGetType(n string) string {
 	case 2:
 		switch tps[0] {
 		case "nvarchar2", "varchar2", "varchar":
-			return "string"
+			return fmt.Sprintf("varchar(%s)",tps[1])
 		case "number":
 			num := types.GetInt(tps[1], -1)
 			if num <= 10 {
 				return "int"
 			}
-			return "gitint"
+			return "bigint"
 		}
 	case 3:
 		switch tps[0] {
