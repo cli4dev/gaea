@@ -3,10 +3,12 @@ package mysql
 import (
 	"bytes"
 	"fmt"
+	"regexp"
 	"strings"
 	"text/template"
 
 	"github.com/micro-plat/gaea/cmds/new/sql/conf"
+	"github.com/micro-plat/lib4go/types"
 )
 
 func translate(c string, input interface{}) (string, error) {
@@ -55,31 +57,22 @@ func getUnqs(tb *conf.Table) (out []map[string]interface{}) {
 	return out
 }
 
-func getPks(tb *conf.Table) []string {
+func getPks(tb *conf.Table) string {
 	out := make([]string, 0, 1)
 	for i, v := range tb.Cons {
 		if strings.Contains(v, "PK") {
 			out = append(out, tb.CNames[i])
 		}
 	}
-	return out
+	return strings.Join(out, ",")
 }
-func getSeqs(tb *conf.Table) (out []map[string]interface{}) {
-	out = make([]map[string]interface{}, 0, 1)
-	seqs := make(map[string]string)
-	for i, v := range tb.Cons {
+func getSeqs(cons []string) string {
+	for _, v := range cons {
 		if strings.Contains(v, "SEQ") {
-			seqs[tb.CNames[i]] = tb.CNames[i]
+			return "AUTO_INCREMENT"
 		}
 	}
-	for _, v := range seqs {
-		out = append(out, map[string]interface{}{
-			"name": fmt.Sprintf("seq_%s_%s", fGetNName(tb.Name), getFilterName(tb.Name, v)),
-			"min":  100,
-			"max":  99999999999,
-		})
-	}
-	return out
+	return ""
 }
 
 func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
@@ -88,13 +81,14 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 		columns := make([]map[string]interface{}, 0, len(tb.CNames))
 		for i, v := range tb.CNames {
 			row := map[string]interface{}{
-				"name": v,
-				"desc": strings.Replace(tb.Descs[i], ";", " ", -1),
-				"type": tb.Types[i],
-				"len":  tb.Lens[i],
-				"def":  getDef(tb.Defs[i]),
-				"null": getNull(tb.IsNulls[i]),
-				"end":  i != len(tb.CNames)-1,
+				"name":    v,
+				"desc":    strings.Replace(tb.Descs[i], ";", " ", -1),
+				"type":    tb.Types[i],
+				"len":     tb.Lens[i],
+				"def":     getDef(tb.Defs[i]),
+				"null":    getNull(tb.IsNulls[i]),
+				"not_end": i < len(tb.CNames)-1 || getPks(tb) != "",
+				"has_pk":  getPks(tb) != "",
 			}
 			columns = append(columns, row)
 		}
@@ -102,7 +96,7 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 			"name":    tb.Name,
 			"desc":    tb.Desc,
 			"columns": columns,
-			"seqs":    getSeqs(tb),
+			"seqs":    getSeqs(tb.Cons),
 			"pks":     getPks(tb),
 			"unqs":    getUnqs(tb),
 		}
@@ -138,17 +132,32 @@ func fGetNName(n string) string {
 }
 
 func fGetType(n string) string {
-	if strings.HasPrefix(n, "nvarchar") {
-		return "string"
-	} else if strings.HasPrefix(n, "number") {
-		if strings.Contains(n, ",") {
-			return "float64"
+	reg := regexp.MustCompile(`[\w]+`)
+	tps := reg.FindAllString(n, -1)
+	switch len(tps) {
+	case 1:
+		switch tps[0] {
+		case "date":
+			return "datetime"
 		}
-		return "int64"
-	} else if strings.HasPrefix(n, "date") {
-		return "time.Time"
+	case 2:
+		switch tps[0] {
+		case "nvarchar2", "varchar2", "varchar":
+			return "string"
+		case "number":
+			num := types.GetInt(tps[1], -1)
+			if num <= 10 {
+				return "int"
+			}
+			return "gitint"
+		}
+	case 3:
+		switch tps[0] {
+		case "number":
+			return fmt.Sprintf("decimal(%s,%s)", tps[1], tps[2])
+		}
 	}
-	return "string"
+	panic("未处理的类型:" + n)
 }
 
 func getFilterName(t string, f string) string {
@@ -171,5 +180,4 @@ func getFilterName(t string, f string) string {
 		return "id"
 	}
 	return strings.Join(text, "_")
-
 }

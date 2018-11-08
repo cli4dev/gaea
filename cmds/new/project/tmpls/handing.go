@@ -7,7 +7,7 @@ import (
 	"github.com/micro-plat/hydra/context"
 )
 
-//bind 检查应用程序配置文件，并根据配置初始化服务
+//handling 请求预处理(每个请求执行前执行)，用于检查用户权限，缓存用户状态，服务分发等
 func (r *{{.projectName|lName}}) handling() {
 	//每个请求执行前执行
 	r.Handling(func(ctx *context.Context) (rt interface{}) {

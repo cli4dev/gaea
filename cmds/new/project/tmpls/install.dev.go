@@ -4,7 +4,7 @@ const installDevTmpl = `// +build !prod
 
 package main
 
-//bindConf 绑定启动配置， 启动时检查注册中心配置是否存在，不存在则引导用户输入配置参数并自动创建到注册中心
+//install 用于配置开发环境参数，执行 install 命令时执行此函数进行配置安装。此处可以执行服务端口，跨域配置，数据库，缓存，消息队列，应用程序等配置
 func (s *{{.projectName|lName}}) install() {
 	s.Conf.API.SetMainConf("{'address':':9091'}")
 	s.Conf.API.SetSubConf('header', "

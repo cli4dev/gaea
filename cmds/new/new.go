@@ -20,7 +20,8 @@ func getCmd() cli.Command {
 			project.NewModuleCmd(),
 			project.NewServiceCmd(),
 			sql.NewInsertCmd(),
-			sql.NewSqlCmd(),
+			sql.NewOracleCmd(),
+			sql.NewMysqlCmd(),
 			sql.NewStructCmd(),
 		},
 	}

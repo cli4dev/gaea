@@ -13,7 +13,7 @@ import (
 	'github.com/micro-plat/hydra/component'
 )
 
-//bindConf 绑定启动配置， 启动时检查注册中心配置是否存在，不存在则引导用户输入配置参数并自动创建到注册中心
+//install 用于配置生产环境参数，这些参数使用以#开头的变量命名，当执行 install 命令时会引导安装人员进行参数设置
 func (s *{{.projectName|lName}}) install() {
 	s.IsDebug = false	
 

@@ -14,7 +14,7 @@ import (
 //AppConf 应用程序配置
 type AppConf struct {
 }
-//init 检查应用程序配置文件，并根据配置初始化服务
+//init 检查app，数据库，缓存，队列等配置是否正确，并注册服务
 func (r *{{.projectName|lName}}) init() {
 	r.Initializing(func(c component.IContainer) error {
 	//获取配置
