@@ -36,7 +36,7 @@ func getDef(n string) string {
 	if strings.TrimSpace(n) == "-" {
 		return "default '-'"
 	}
-	if strings.TrimSpace(n)=="sysdate"{
+	if strings.TrimSpace(n) == "sysdate" {
 		return "default now()"
 	}
 	return "default " + n
@@ -61,15 +61,15 @@ func getUnqs(tb *conf.Table) (out []map[string]interface{}) {
 }
 
 func getPk(c string) string {
-	if strings.Contains(c,"PK"){
+	if strings.Contains(c, "PK") {
 		return "PRIMARY KEY"
 	}
 	return ""
 }
 func getSeqs(v string) string {
-		if strings.Contains(v, "SEQ") {
-			return "AUTO_INCREMENT"
-		}
+	if strings.Contains(v, "SEQ") {
+		return "AUTO_INCREMENT"
+	}
 	return ""
 }
 
@@ -84,11 +84,10 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 				"type":    tb.Types[i],
 				"len":     tb.Lens[i],
 				"def":     getDef(tb.Defs[i]),
-			    "seqs":    getSeqs(tb.Cons[i]),
+				"seqs":    getSeqs(tb.Cons[i]),
 				"null":    getNull(tb.IsNulls[i]),
-				"pk":		getPk(tb.Cons[i]),
-				"not_end": i < len(tb.CNames)-1 ,
-				
+				"pk":      getPk(tb.Cons[i]),
+				"not_end": i < len(tb.CNames)-1,
 			}
 			columns = append(columns, row)
 		}
@@ -141,7 +140,7 @@ func fGetType(n string) string {
 	case 2:
 		switch tps[0] {
 		case "nvarchar2", "varchar2", "varchar":
-			return fmt.Sprintf("varchar(%s)",tps[1])
+			return fmt.Sprintf("varchar(%s)", tps[1])
 		case "number":
 			num := types.GetInt(tps[1], -1)
 			if num <= 10 {

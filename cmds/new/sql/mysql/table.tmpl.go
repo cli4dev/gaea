@@ -1,6 +1,8 @@
 package mysql
 
 const tableTmpl = `
+ drop table {{.name}};
+
 	create table {{.name}}(
 		{{range $i,$c:=.columns}}{{$c.name}}  {{$c.type|cType}} {{$c.def}} {{$c.null}} {{$c.pk}} {{$c.seqs}}  comment '{{$c.desc}}' {{if $c.not_end}},{{end}}
 		{{end}}		
@@ -10,7 +12,8 @@ const tableTmpl = `
 
 
 
-	{{range $i,$c:=.unqs}}alter table {{$.name}}
- CREATE UNIQUE INDEX {{$c.name|nName}} ON {{$.name}}({{$c.flds}});
+{{range $i,$c:=.unqs}}
+	drop index {{$c.name|nName}} ON {{$.name}};
+ create unique index {{$c.name|nName}} ON {{$.name}}({{$c.flds}});
  {{end}}
 `
