@@ -29,7 +29,10 @@ func getNull(n bool) string {
 	}
 	return ""
 }
-func getDef(n string) string {
+func getDef(n string, c string) string {
+	if strings.Contains(c, "SEQ") {
+		return ""
+	}
 	if n == "" {
 		return ""
 	}
@@ -73,6 +76,17 @@ func getSeqs(v string) string {
 	return ""
 }
 
+func getAutoIncrement(tbs *conf.Table) string {
+	for i, v := range tbs.Cons {
+		if strings.Contains(v, "SEQ") {
+			if tbs.Defs[i] != "" {
+				return fmt.Sprintf("AUTO_INCREMENT=%s,", strings.TrimSpace(strings.TrimLeft(tbs.Defs[i], "default")))
+			}
+		}
+	}
+	return ""
+}
+
 func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 	out = make(map[string]string, len(tbs))
 	for _, tb := range tbs {
@@ -83,7 +97,7 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 				"desc":    strings.Replace(tb.Descs[i], ";", " ", -1),
 				"type":    tb.Types[i],
 				"len":     tb.Lens[i],
-				"def":     getDef(tb.Defs[i]),
+				"def":     getDef(tb.Defs[i], tb.Cons[i]),
 				"seqs":    getSeqs(tb.Cons[i]),
 				"null":    getNull(tb.IsNulls[i]),
 				"pk":      getPk(tb.Cons[i]),
@@ -92,10 +106,11 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 			columns = append(columns, row)
 		}
 		input := map[string]interface{}{
-			"name":    tb.Name,
-			"desc":    tb.Desc,
-			"columns": columns,
-			"unqs":    getUnqs(tb),
+			"name":      tb.Name,
+			"desc":      tb.Desc,
+			"columns":   columns,
+			"unqs":      getUnqs(tb),
+			"seq_value": getAutoIncrement(tb),
 		}
 		out[fmt.Sprintf("%s.sql", tb.Name)], err = translate(tableTmpl, input)
 		if err != nil {

@@ -4,9 +4,9 @@ const tableTmpl = `
  drop table {{.name}};
 
 	create table {{.name}}(
-		{{range $i,$c:=.columns}}{{$c.name}}  {{$c.type|cType}} {{$c.def}} {{$c.null}} {{$c.pk}} {{$c.seqs}}  comment '{{$c.desc}}' {{if $c.not_end}},{{end}}
+		{{range $i,$c:=.columns}}{{$c.name}} {{$c.type|cType}} {{$c.def}} {{$c.null}} {{$c.pk}} {{$c.seqs}}  comment '{{$c.desc}}' {{if $c.not_end}},{{end}}
 		{{end}}		
-  )COMMENT='{{.desc}}';
+  ){{.seq_value}}COMMENT='{{.desc}}';
 
  
 
