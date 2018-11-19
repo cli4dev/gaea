@@ -92,16 +92,16 @@ func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 }
 func (p *moduleCmd) makeSQL(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if c.Bool("c") {
-		return p.makeInsertSQL(filePath, filters, outPath)
+		p.makeInsertSQL(filePath, filters, outPath)
 	}
 	if c.Bool("r") {
-		return p.makeSelectSQL(filePath, filters, outPath)
+		p.makeSelectSQL(filePath, filters, outPath)
 	}
 	if c.Bool("u") {
-		return p.makeUpdateSQL(filePath, filters, outPath)
+		p.makeUpdateSQL(filePath, filters, outPath)
 	}
 	if c.Bool("d") {
-		return p.makeDeleteSQL(filePath, filters, outPath)
+		p.makeDeleteSQL(filePath, filters, outPath)
 	}
 	return nil
 }

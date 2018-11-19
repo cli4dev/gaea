@@ -3,8 +3,10 @@ package project
 import (
 	"fmt"
 
+	"github.com/micro-plat/gaea/cmds/new/sql/update"
+
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/sql/insert"
+
 	"github.com/micro-plat/gaea/cmds/new/sql/md"
 )
 
@@ -95,7 +97,8 @@ func (p *moduleCmd) makeUpdateSQL(filePath string, filters []string, outPath str
 		cmds.Log.Error(err)
 		return err
 	}
-	tmpls, err := insert.GetTmples(tables, "", filters)
+	tmpls, err := update.GetTmples(tables, "", filters)
+
 	if err != nil {
 		cmds.Log.Error(err)
 		return err

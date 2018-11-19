@@ -10,7 +10,7 @@ import (
 )
 
 func translate(c string, input interface{}) (string, error) {
-	var tmpl = template.New("insert").Funcs(makeFunc())
+	var tmpl = template.New("update").Funcs(makeFunc())
 	np, err := tmpl.Parse(c)
 	if err != nil {
 		return "", err
@@ -40,8 +40,9 @@ func GetTmples(tbs []*conf.Table, path string, filters []string) (out map[string
 		}
 		columns := make([]map[string]interface{}, 0, len(tb.CNames))
 		for i, v := range tb.CNames {
-			//获取可插入数据的字段
-			if strings.Contains(tb.Cons[i], "I") {
+			//获取可更新的数据的字段
+			s := strings.Replace(tb.Cons[i], "UNQ", "", -1)
+			if strings.Contains(s, "U") {
 				row := map[string]interface{}{
 					"name": v,
 					"desc": tb.Descs[i],
@@ -58,8 +59,9 @@ func GetTmples(tbs []*conf.Table, path string, filters []string) (out map[string
 			"desc":    tb.Desc,
 			"columns": columns,
 			"path":    path,
+			"pk":      getPks(tb),
 		}
-		content, err := translate(insertTmpl, input)
+		content, err := translate(updateTmpl, input)
 		if err != nil {
 			return nil, err
 		}
@@ -102,4 +104,14 @@ func fGetType(n string) string {
 func fGetLastName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	return names[len(names)-1]
+}
+
+func getPks(tb *conf.Table) []string {
+	out := make([]string, 0, 1)
+	for i, v := range tb.Cons {
+		if strings.Contains(v, "PK") {
+			out = append(out, tb.CNames[i])
+		}
+	}
+	return out
 }
