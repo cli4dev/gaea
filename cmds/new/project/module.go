@@ -52,18 +52,11 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 }
 
 func (p *moduleCmd) action(c *cli.Context) (err error) {
-	//没有指定md和输出路径
-	if c.String("t") == "" && c.String("t") == "" {
+	//没有指定md路径，和生成文件输出路径
+	if c.String("t") == "" && c.String("o") == "" {
 		return p.creatDefautModule(c)
 	}
-	projectName := strings.Trim(c.Args().First(), "/")
-	modules := c.StringSlice("modules")
-	crud := c.StringSlice("crud")
-	fmt.Println(crud)
-	if err := p.new(projectName, "", modules, false); err != nil {
-		cmds.Log.Error(err)
-	}
-	cmds.Log.Info("模块生成完成")
+
 	return nil
 }
 
@@ -73,6 +66,7 @@ func (p *moduleCmd) action(c *cli.Context) (err error) {
 func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 	//得到表名
 	tables := c.StringSlice("f")
+	fmt.Println(tables)
 	//查找*.md文件
 	mdList := cmds.GetMDPath()
 	fmt.Println("md 文件", mdList)
@@ -81,6 +75,7 @@ func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 		err = fmt.Errorf("未找到任何 *.md 文件")
 		return err
 	}
+
 	//获取modules文件路径位置
 	modulPath := cmds.GetLocation()
 	fmt.Println("modules path:", modulPath)
@@ -88,8 +83,31 @@ func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 	for _, v := range mdList {
 		p.makeSQL(c, v, tables, "")
 	}
+
+	//生成crud函数
+	for _, v := range mdList {
+		p.makeCrudFunc(c, v, tables, "")
+	}
+
 	return nil
 }
+
+func (p *moduleCmd) makeCrudFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
+	if c.Bool("c") {
+		p.makeInsertFunc(filePath, filters, outPath)
+	}
+	if c.Bool("r") {
+		p.makeSelectFunc(filePath, filters, outPath)
+	}
+	if c.Bool("u") {
+		p.makeUpdateFunc(filePath, filters, outPath)
+	}
+	if c.Bool("d") {
+		p.makeDeleteFunc(filePath, filters, outPath)
+	}
+	return nil
+}
+
 func (p *moduleCmd) makeSQL(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if c.Bool("c") {
 		p.makeInsertSQL(filePath, filters, outPath)
@@ -108,29 +126,56 @@ func (p *moduleCmd) makeSQL(c *cli.Context, filePath string, filters []string, o
 
 //createFile .
 //创建并生成文件
-func createFile(root string, data map[string]string) error {
+func createFile(root string, data map[string]map[string]string) error {
 	for k, v := range data {
 		path := filepath.Join(root, k)
+
 		dir := filepath.Dir(path)
-		_, err := os.Stat(dir)
+		fmt.Println("path: ", path)
+		_, err := os.Stat(path)
 		if os.IsNotExist(err) {
 			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
 			if err != nil {
 				err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
 				return err
 			}
+			if strings.Contains(path, "sql") {
+				f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
+				if err != nil {
+					err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
+					return err
+				}
+				_, err = f.WriteString("package sql")
+				if err != nil {
+					return err
+				}
+				f.Close()
+			} else {
+				m := strings.Split(path, "/")
+				f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
+				if err != nil {
+					err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
+					return err
+				}
+				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2]))
+				if err != nil {
+					return err
+				}
+				f.Close()
+			}
+
 		}
 		if _, err := os.Stat(path); err == nil || os.IsExist(err) {
 			cmds.Log.Warn("文件已存在:", path)
-			continue
+			//continue
 		}
-		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.ModeAppend|os.ModePerm)
+		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 		if err != nil {
 			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 			return err
 		}
 		defer srcf.Close()
-		_, err = srcf.WriteString(v)
+		_, err = srcf.WriteString(v[k])
 		if err != nil {
 			return err
 		}

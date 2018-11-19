@@ -1,4 +1,4 @@
-package update
+package delete
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 )
 
 func translate(c string, input interface{}) (string, error) {
-	var tmpl = template.New("update").Funcs(makeFunc())
+	var tmpl = template.New("delete").Funcs(makeFunc())
 	np, err := tmpl.Parse(c)
 	if err != nil {
 		return "", err
@@ -42,9 +42,8 @@ func GetTmples(tplName string, tbs []*conf.Table, path string, filters []string,
 		columns := make([]map[string]interface{}, 0, len(tb.CNames))
 		columnsOriginal := make([]map[string]interface{}, 0, len(tb.CNames))
 		for i, v := range tb.CNames {
-			//获取可更新的数据的字段
-			s := strings.Replace(tb.Cons[i], "UNQ", "", -1)
-			if strings.Contains(s, "U") {
+			//获取可删除的数据的字段
+			if strings.Contains(tb.Cons[i], "D") {
 				row := map[string]interface{}{
 					"name": v,
 					"desc": tb.Descs[i],
@@ -108,7 +107,6 @@ func makeFunc() map[string]interface{} {
 		"ctype": fGetType,
 		"lname": fGetLastName,
 		"lower": fToLower,
-		"valid": fValidName,
 	}
 }
 func fGetCName(n string) string {
@@ -147,12 +145,6 @@ func getPks(tb *conf.Table) []string {
 	return out
 }
 
-func fValidName(b bool) string {
-	if b {
-		return `valid:"required"`
-	}
-	return ""
-}
 func fToLower(s string) string {
 	return strings.ToLower(s)
 }

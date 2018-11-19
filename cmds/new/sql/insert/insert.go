@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds/new/sql/conf"
+	"github.com/micro-plat/gaea/cmds/new/sql/tpl"
 )
 
 func translate(c string, input interface{}) (string, error) {
@@ -23,13 +24,13 @@ func translate(c string, input interface{}) (string, error) {
 }
 
 //GetTmples .
-func GetTmples(tbs []*conf.Table, path string, filters []string) (out map[string]string, err error) {
-	out = make(map[string]string, len(tbs))
+func GetTmples(tplName string, tbs []*conf.Table, path string, filters []string, makeFunc bool) (out map[string]map[string]string, err error) {
+	out = map[string]map[string]string{}
 	for _, tb := range tbs {
 		if len(filters) > 0 {
 			e := false
 			for _, f := range filters {
-				if strings.Contains(tb.Name, f) {
+				if strings.EqualFold(tb.Name, f) {
 					e = true
 					break
 				}
@@ -39,6 +40,7 @@ func GetTmples(tbs []*conf.Table, path string, filters []string) (out map[string
 			}
 		}
 		columns := make([]map[string]interface{}, 0, len(tb.CNames))
+		columnsOriginal := make([]map[string]interface{}, 0, len(tb.CNames))
 		for i, v := range tb.CNames {
 			//获取可插入数据的字段
 			if strings.Contains(tb.Cons[i], "I") {
@@ -51,19 +53,46 @@ func GetTmples(tbs []*conf.Table, path string, filters []string) (out map[string
 				}
 				columns = append(columns, row)
 			}
+			rows := map[string]interface{}{
+				"name": v,
+				"desc": tb.Descs[i],
+				"type": tb.Types[i],
+				"len":  tb.Lens[i],
+				"end":  i != len(tb.CNames)-1,
+			}
+			columnsOriginal = append(columnsOriginal, rows)
 		}
-		columns[len(columns)-1]["end"] = false
+		if len(columns) > 0 {
+			columns[len(columns)-1]["end"] = false
+		}
 		input := map[string]interface{}{
-			"name":    tb.Name,
-			"desc":    tb.Desc,
-			"columns": columns,
-			"path":    path,
+			"name":            tb.Name,
+			"desc":            tb.Desc,
+			"columns":         columns,
+			"columnsOriginal": columnsOriginal,
+			"path":            path,
 		}
-		content, err := translate(insertTmpl, input)
+		content, err := translate(tplName, input)
 		if err != nil {
 			return nil, err
 		}
-		out[fmt.Sprintf("%s.go", tb.Name)] = strings.Replace(content, "'", "`", -1)
+		if makeFunc {
+			c := make(map[string]string)
+			c[fmt.Sprintf("%s.go", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
+
+			head, err := translate(tpl.DbTpl, input)
+			if err != nil {
+				return nil, err
+			}
+			c["head"] = strings.Replace(head, "'", "`", -1)
+			out[fmt.Sprintf("%s.go", strings.Replace(tb.Name, "_", "/", -1))] = c
+		} else {
+			c := make(map[string]string)
+			c[fmt.Sprintf("%s.go", tb.Name)] = strings.Replace(content, "'", "`", -1)
+			out[fmt.Sprintf("%s.go", tb.Name)] = c
+
+		}
+
 		if err != nil {
 			return nil, err
 		}
@@ -76,6 +105,7 @@ func makeFunc() map[string]interface{} {
 		"cname": fGetCName,
 		"ctype": fGetType,
 		"lname": fGetLastName,
+		"lower": fToLower,
 	}
 }
 func fGetCName(n string) string {
@@ -102,4 +132,18 @@ func fGetType(n string) string {
 func fGetLastName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	return names[len(names)-1]
+}
+
+func getPks(tb *conf.Table) []string {
+	out := make([]string, 0, 1)
+	for i, v := range tb.Cons {
+		if strings.Contains(v, "PK") {
+			out = append(out, tb.CNames[i])
+		}
+	}
+	return out
+}
+
+func fToLower(s string) string {
+	return strings.ToLower(s)
 }

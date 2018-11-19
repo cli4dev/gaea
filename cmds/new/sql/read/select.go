@@ -1,4 +1,4 @@
-package update
+package read
 
 import (
 	"bytes"
@@ -42,9 +42,9 @@ func GetTmples(tplName string, tbs []*conf.Table, path string, filters []string,
 		columns := make([]map[string]interface{}, 0, len(tb.CNames))
 		columnsOriginal := make([]map[string]interface{}, 0, len(tb.CNames))
 		for i, v := range tb.CNames {
-			//获取可更新的数据的字段
-			s := strings.Replace(tb.Cons[i], "UNQ", "", -1)
-			if strings.Contains(s, "U") {
+			//获取可查询的数据的字段
+			s := strings.Replace(tb.Cons[i], "SEQ", "", -1)
+			if strings.Contains(s, "S") {
 				row := map[string]interface{}{
 					"name": v,
 					"desc": tb.Descs[i],
@@ -94,7 +94,6 @@ func GetTmples(tplName string, tbs []*conf.Table, path string, filters []string,
 			out[fmt.Sprintf("%s.go", tb.Name)] = c
 
 		}
-
 		if err != nil {
 			return nil, err
 		}
@@ -108,7 +107,6 @@ func makeFunc() map[string]interface{} {
 		"ctype": fGetType,
 		"lname": fGetLastName,
 		"lower": fToLower,
-		"valid": fValidName,
 	}
 }
 func fGetCName(n string) string {
@@ -147,12 +145,6 @@ func getPks(tb *conf.Table) []string {
 	return out
 }
 
-func fValidName(b bool) string {
-	if b {
-		return `valid:"required"`
-	}
-	return ""
-}
 func fToLower(s string) string {
 	return strings.ToLower(s)
 }

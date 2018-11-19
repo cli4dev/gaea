@@ -10,22 +10,22 @@ import (
 	"github.com/micro-plat/gaea/cmds/new/sql/update"
 )
 
-//makeInsertSQL .
-//生成inster sql语句
+//makeInsertFunc .
+//生成inster 函数
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeInsertSQL(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeInsertFunc(filePath string, filters []string, outPath string) error {
 	//获取默认输出路径
 	if outPath == "" {
-		outPath = cmds.GetLocation() + "/const/sql"
+		outPath = cmds.GetLocation()
 	}
 	tables, err := md.Markdown2Table(filePath)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	tmpls, err := insert.GetTmples(insert.InsertTmpl, tables, "", filters, false)
+	tmpls, err := insert.GetTmples(insert.InsertFunc, tables, "", filters, true)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
@@ -39,18 +39,18 @@ func (p *moduleCmd) makeInsertSQL(filePath string, filters []string, outPath str
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个insert语句", len(tmpls))
+	cmds.Log.Infof("生成完成,共生成%d个insert函数", len(tmpls))
 	return nil
 }
 
-//makeSelectSQL .
-//生成select sql语句
+//makeSelectFunc .
+//生成select 函数
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeSelectSQL(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeSelectFunc(filePath string, filters []string, outPath string) error {
 	if outPath == "" {
-		outPath = cmds.GetLocation() + "/const/sql"
+		outPath = cmds.GetLocation()
 	}
 	//获取默认输出路径
 	tables, err := md.Markdown2Table(filePath)
@@ -58,7 +58,7 @@ func (p *moduleCmd) makeSelectSQL(filePath string, filters []string, outPath str
 		cmds.Log.Error(err)
 		return err
 	}
-	tmpls, err := read.GetTmples(read.SelectTmpl, tables, "", filters, false)
+	tmpls, err := read.GetTmples(read.SelectFunc, tables, "", filters, true)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
@@ -67,26 +67,23 @@ func (p *moduleCmd) makeSelectSQL(filePath string, filters []string, outPath str
 		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
 		return nil
 	}
-	// for k, v := range tmpls {
-	// 	fmt.Println(k)
-	// 	fmt.Println(v)
-	// }
+
 	if err = createFile(outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个select语句", len(tmpls))
+	cmds.Log.Infof("生成完成,共生成%d个select函数", len(tmpls))
 	return nil
 }
 
-//makeUpdateSQL .
-//生成update sql语句
+//makeUpdateFunc .
+//生成update 函数
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeUpdateSQL(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeUpdateFunc(filePath string, filters []string, outPath string) error {
 	if outPath == "" {
-		outPath = cmds.GetLocation() + "/const/sql"
+		outPath = cmds.GetLocation()
 	}
 	//获取默认输出路径
 	tables, err := md.Markdown2Table(filePath)
@@ -94,7 +91,7 @@ func (p *moduleCmd) makeUpdateSQL(filePath string, filters []string, outPath str
 		cmds.Log.Error(err)
 		return err
 	}
-	tmpls, err := update.GetTmples(update.UpdateTmpl, tables, "", filters, false)
+	tmpls, err := update.GetTmples(update.UpdateFunc, tables, "", filters, true)
 
 	if err != nil {
 		cmds.Log.Error(err)
@@ -104,26 +101,23 @@ func (p *moduleCmd) makeUpdateSQL(filePath string, filters []string, outPath str
 		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
 		return nil
 	}
-	// for k, v := range tmpls {
-	// 	fmt.Println(k)
-	// 	fmt.Println(v)
-	// }
+
 	if err = createFile(outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个update语句", len(tmpls))
+	cmds.Log.Infof("生成完成,共生成%d个update函数", len(tmpls))
 	return nil
 }
 
-//makeDeleteSQL .
-//生成delete sql语句
+//makeDeleteFunc .
+//生成delete 函数
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeDeleteSQL(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeDeleteFunc(filePath string, filters []string, outPath string) error {
 	if outPath == "" {
-		outPath = cmds.GetLocation() + "/const/sql"
+		outPath = cmds.GetLocation()
 	}
 	//获取默认输出路径
 	tables, err := md.Markdown2Table(filePath)
@@ -131,7 +125,7 @@ func (p *moduleCmd) makeDeleteSQL(filePath string, filters []string, outPath str
 		cmds.Log.Error(err)
 		return err
 	}
-	tmpls, err := delete.GetTmples(delete.DeleteTmpl, tables, "", filters, false)
+	tmpls, err := delete.GetTmples(delete.DeleteFunc, tables, "", filters, true)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
@@ -140,11 +134,10 @@ func (p *moduleCmd) makeDeleteSQL(filePath string, filters []string, outPath str
 		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
 		return nil
 	}
-
 	if err = createFile(outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个delete语句", len(tmpls))
+	cmds.Log.Infof("生成完成,共生成%d个delete函数", len(tmpls))
 	return nil
 }
