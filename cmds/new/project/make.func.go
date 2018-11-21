@@ -2,6 +2,7 @@ package project
 
 import (
 	"github.com/micro-plat/gaea/cmds"
+	"github.com/urfave/cli"
 
 	"github.com/micro-plat/gaea/cmds/new/sql/delete"
 	"github.com/micro-plat/gaea/cmds/new/sql/insert"
@@ -15,7 +16,7 @@ import (
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeInsertFunc(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeInsertFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
 	//获取默认输出路径
 	if outPath == "" {
 		outPath = cmds.GetLocation()
@@ -35,11 +36,11 @@ func (p *moduleCmd) makeInsertFunc(filePath string, filters []string, outPath st
 		return nil
 	}
 
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(c, outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个insert函数", len(tmpls))
+	cmds.Log.Infof("发现%d个insert函数", len(tmpls))
 	return nil
 }
 
@@ -48,7 +49,7 @@ func (p *moduleCmd) makeInsertFunc(filePath string, filters []string, outPath st
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeSelectFunc(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeSelectFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if outPath == "" {
 		outPath = cmds.GetLocation()
 	}
@@ -68,11 +69,11 @@ func (p *moduleCmd) makeSelectFunc(filePath string, filters []string, outPath st
 		return nil
 	}
 
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(c, outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个select函数", len(tmpls))
+	cmds.Log.Infof("发现%d个select函数", len(tmpls))
 	return nil
 }
 
@@ -81,7 +82,7 @@ func (p *moduleCmd) makeSelectFunc(filePath string, filters []string, outPath st
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeUpdateFunc(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeUpdateFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if outPath == "" {
 		outPath = cmds.GetLocation()
 	}
@@ -102,11 +103,11 @@ func (p *moduleCmd) makeUpdateFunc(filePath string, filters []string, outPath st
 		return nil
 	}
 
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(c, outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个update函数", len(tmpls))
+	cmds.Log.Infof("发现%d个update函数", len(tmpls))
 	return nil
 }
 
@@ -115,7 +116,7 @@ func (p *moduleCmd) makeUpdateFunc(filePath string, filters []string, outPath st
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeDeleteFunc(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeDeleteFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if outPath == "" {
 		outPath = cmds.GetLocation()
 	}
@@ -134,10 +135,10 @@ func (p *moduleCmd) makeDeleteFunc(filePath string, filters []string, outPath st
 		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
 		return nil
 	}
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(c, outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个delete函数", len(tmpls))
+	cmds.Log.Infof("发现%d个delete函数", len(tmpls))
 	return nil
 }

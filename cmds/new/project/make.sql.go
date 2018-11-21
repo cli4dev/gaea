@@ -2,6 +2,7 @@ package project
 
 import (
 	"github.com/micro-plat/gaea/cmds"
+	"github.com/urfave/cli"
 
 	"github.com/micro-plat/gaea/cmds/new/sql/delete"
 	"github.com/micro-plat/gaea/cmds/new/sql/insert"
@@ -15,7 +16,7 @@ import (
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeInsertSQL(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeInsertSQL(c *cli.Context, filePath string, filters []string, outPath string) error {
 	//获取默认输出路径
 	if outPath == "" {
 		outPath = cmds.GetLocation() + "/const/sql"
@@ -35,11 +36,11 @@ func (p *moduleCmd) makeInsertSQL(filePath string, filters []string, outPath str
 		return nil
 	}
 
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(c, outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个insert语句", len(tmpls))
+	cmds.Log.Infof("发现%d个insert语句", len(tmpls))
 	return nil
 }
 
@@ -48,7 +49,7 @@ func (p *moduleCmd) makeInsertSQL(filePath string, filters []string, outPath str
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeSelectSQL(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeSelectSQL(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if outPath == "" {
 		outPath = cmds.GetLocation() + "/const/sql"
 	}
@@ -71,11 +72,11 @@ func (p *moduleCmd) makeSelectSQL(filePath string, filters []string, outPath str
 	// 	fmt.Println(k)
 	// 	fmt.Println(v)
 	// }
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(c, outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个select语句", len(tmpls))
+	cmds.Log.Infof("发现%d个select语句", len(tmpls))
 	return nil
 }
 
@@ -84,7 +85,7 @@ func (p *moduleCmd) makeSelectSQL(filePath string, filters []string, outPath str
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeUpdateSQL(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeUpdateSQL(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if outPath == "" {
 		outPath = cmds.GetLocation() + "/const/sql"
 	}
@@ -108,11 +109,11 @@ func (p *moduleCmd) makeUpdateSQL(filePath string, filters []string, outPath str
 	// 	fmt.Println(k)
 	// 	fmt.Println(v)
 	// }
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(c, outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个update语句", len(tmpls))
+	cmds.Log.Infof("发现%d个update语句", len(tmpls))
 	return nil
 }
 
@@ -121,7 +122,7 @@ func (p *moduleCmd) makeUpdateSQL(filePath string, filters []string, outPath str
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeDeleteSQL(filePath string, filters []string, outPath string) error {
+func (p *moduleCmd) makeDeleteSQL(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if outPath == "" {
 		outPath = cmds.GetLocation() + "/const/sql"
 	}
@@ -141,10 +142,10 @@ func (p *moduleCmd) makeDeleteSQL(filePath string, filters []string, outPath str
 		return nil
 	}
 
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(c, outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	cmds.Log.Infof("生成完成,共生成%d个delete语句", len(tmpls))
+	cmds.Log.Infof("发现%d个delete语句", len(tmpls))
 	return nil
 }

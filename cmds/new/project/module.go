@@ -47,6 +47,12 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 	}, cli.StringFlag{
 		Name:  "o",
 		Usage: "生成的文件输出路径",
+	}, cli.BoolFlag{
+		Name:  "add",
+		Usage: "是否执行追加crud函数和sql语句操作",
+	}, cli.BoolFlag{
+		Name:  "cover",
+		Usage: "是否执行覆盖crud函数和sql语句操作",
 	})
 	return flags
 }
@@ -56,12 +62,20 @@ func (p *moduleCmd) action(c *cli.Context) (err error) {
 	if c.String("t") == "" && c.String("o") == "" {
 		return p.creatDefautModule(c)
 	}
-
+	if c.String("t") != "" && c.String("o") == "" {
+		return p.createMdModule(c)
+	}
+	if c.String("t") == "" && c.String("o") != "" {
+		return p.createOutPutModule(c)
+	}
+	if c.String("t") != "" && c.String("o") != "" {
+		return p.createModule(c)
+	}
 	return nil
 }
 
 //creatDefautModule .
-//gaea new module -crud "trd_order_info trd_stock_info"
+//gaea new module -c -r -u -d
 //基于当前目录,根据trd_order_info表结构生成crud函数,SQL语句，输入参数实体等文件
 func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 	//得到表名
@@ -69,6 +83,36 @@ func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 	fmt.Println(tables)
 	//查找*.md文件
 	mdList := cmds.GetMDPath()
+	fmt.Println("md 文件", mdList)
+	//判断是否有文件
+	if len(mdList) == 0 {
+		err = fmt.Errorf("未找到任何 *.md 文件")
+		return err
+	}
+
+	//获取modules文件路径位置
+	modulPath := cmds.GetLocation()
+	fmt.Println("modules path:", modulPath)
+	//生成数据表对应的sql语句函数
+	for _, v := range mdList {
+		p.makeSQL(c, v, tables, "")
+	}
+	//生成crud函数
+	for _, v := range mdList {
+		p.makeCrudFunc(c, v, tables, "")
+	}
+	return nil
+}
+
+//createMdModule .
+//gaea new module -c -t ./db.md
+//指定mdwen文件,根据trd_order_info表结构生成crud函数,SQL语句，输入参数实体等文件
+func (p *moduleCmd) createMdModule(c *cli.Context) (err error) {
+	//得到表名
+	tables := c.StringSlice("f")
+	fmt.Println(tables)
+	//查找*.md文件
+	mdList := []string{c.String("t")}
 	fmt.Println("md 文件", mdList)
 	//判断是否有文件
 	if len(mdList) == 0 {
@@ -92,54 +136,136 @@ func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 	return nil
 }
 
+//createOutPutModule .
+//gaea new module -c -o ./modules
+//指定输出文件,根据trd_order_info表结构生成crud函数,SQL语句，输入参数实体等文件
+func (p *moduleCmd) createOutPutModule(c *cli.Context) (err error) {
+	//得到表名
+	tables := c.StringSlice("f")
+	fmt.Println(tables)
+	//查找*.md文件
+	mdList := cmds.GetMDPath()
+	fmt.Println("md 文件", mdList)
+	//判断是否有文件
+	if len(mdList) == 0 {
+		err = fmt.Errorf("未找到任何 *.md 文件")
+		return err
+	}
+
+	//获取modules文件输出路径位置
+	modulPath := c.String("o")
+	fmt.Println("modules path:", modulPath)
+	//生成数据表对应的sql语句函数
+	for _, v := range mdList {
+		p.makeSQL(c, v, tables, modulPath)
+	}
+
+	//生成crud函数
+	for _, v := range mdList {
+		p.makeCrudFunc(c, v, tables, modulPath)
+	}
+
+	return nil
+}
+
+//createModule .
+//gaea new module -c -t ./db.md -o ./modules
+//指定输出文件,根据trd_order_info表结构生成crud函数,SQL语句，输入参数实体等文件
+func (p *moduleCmd) createModule(c *cli.Context) (err error) {
+	//得到表名
+	tables := c.StringSlice("f")
+	fmt.Println(tables)
+	//查找*.md文件
+	mdList := []string{c.String("t")}
+	fmt.Println("md 文件", mdList)
+	//判断是否有文件
+	if len(mdList) == 0 {
+		err = fmt.Errorf("未找到任何 *.md 文件")
+		return err
+	}
+
+	//获取modules文件输出路径位置
+	modulPath := c.String("o")
+	fmt.Println("modules path:", modulPath)
+	//生成数据表对应的sql语句函数
+	for _, v := range mdList {
+		p.makeSQL(c, v, tables, modulPath)
+	}
+
+	//生成crud函数
+	for _, v := range mdList {
+		p.makeCrudFunc(c, v, tables, modulPath)
+	}
+
+	return nil
+}
+
 func (p *moduleCmd) makeCrudFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if c.Bool("c") {
-		p.makeInsertFunc(filePath, filters, outPath)
+		p.makeInsertFunc(c, filePath, filters, outPath)
 	}
 	if c.Bool("r") {
-		p.makeSelectFunc(filePath, filters, outPath)
+		p.makeSelectFunc(c, filePath, filters, outPath)
 	}
 	if c.Bool("u") {
-		p.makeUpdateFunc(filePath, filters, outPath)
+		p.makeUpdateFunc(c, filePath, filters, outPath)
 	}
 	if c.Bool("d") {
-		p.makeDeleteFunc(filePath, filters, outPath)
+		p.makeDeleteFunc(c, filePath, filters, outPath)
 	}
 	return nil
 }
 
 func (p *moduleCmd) makeSQL(c *cli.Context, filePath string, filters []string, outPath string) error {
 	if c.Bool("c") {
-		p.makeInsertSQL(filePath, filters, outPath)
+		p.makeInsertSQL(c, filePath, filters, outPath)
 	}
 	if c.Bool("r") {
-		p.makeSelectSQL(filePath, filters, outPath)
+		p.makeSelectSQL(c, filePath, filters, outPath)
 	}
 	if c.Bool("u") {
-		p.makeUpdateSQL(filePath, filters, outPath)
+		p.makeUpdateSQL(c, filePath, filters, outPath)
 	}
 	if c.Bool("d") {
-		p.makeDeleteSQL(filePath, filters, outPath)
+		p.makeDeleteSQL(c, filePath, filters, outPath)
 	}
 	return nil
 }
 
 //createFile .
 //创建并生成文件
-func createFile(root string, data map[string]map[string]string) error {
+func createFile(c *cli.Context, root string, data map[string]map[string]string) error {
 	for k, v := range data {
-		path := filepath.Join(root, k)
 
+		path := filepath.Join(root, k)
 		dir := filepath.Dir(path)
 		fmt.Println("path: ", path)
+		if c.Bool("cover") {
+			os.Remove(path)
+			cmds.Log.Warn("将对文件进行覆盖操作", path)
+		}
 		_, err := os.Stat(path)
 		if os.IsNotExist(err) {
-			err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
-			if err != nil {
-				err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
-				return err
-			}
-			if strings.Contains(path, "sql") {
+			if strings.Contains(path, "sql") || strings.Contains(path, "_") {
+				if !strings.Contains(path, "sql") {
+
+					p := strings.Split(path, "/")
+					s := strings.Join(p[:len(p)-1], "/")
+					path = strings.Join([]string{s, "/const/sql/"}, "")
+					err := os.MkdirAll(path, os.ModeDir|os.ModePerm)
+					if err != nil {
+						err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
+						return err
+					}
+					path = strings.Join([]string{path, p[len(p)-1]}, "")
+				} else {
+
+					err := os.MkdirAll(root, os.ModeDir|os.ModePerm)
+					if err != nil {
+						err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
+						return err
+					}
+				}
 				f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 				if err != nil {
 					err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
@@ -150,24 +276,67 @@ func createFile(root string, data map[string]map[string]string) error {
 					return err
 				}
 				f.Close()
+				srcf, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
+				if err != nil {
+					err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
+					return err
+				}
+				defer srcf.Close()
+				_, err = srcf.WriteString(v[k])
+				if err != nil {
+					return err
+				}
+				cmds.Log.Info("生成文件:", path)
+				continue
 			} else {
+				err := os.MkdirAll(dir, os.ModeDir|os.ModePerm)
+				if err != nil {
+					err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
+					return err
+				}
 				m := strings.Split(path, "/")
 				f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 				if err != nil {
 					err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 					return err
 				}
-				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2]))
+				absPath, _ := filepath.Abs(path)
+				fmt.Println("absPath", absPath)
+				absPathArr := strings.Split(absPath, "/")
+				var projectName string
+				for i := 0; i < len(absPathArr); i++ {
+					if absPathArr[i] == "modules" {
+						projectName = absPathArr[i-1]
+					}
+				}
+				fmt.Println("projectName", projectName)
+				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2], projectName))
 				if err != nil {
 					return err
 				}
 				f.Close()
+				srcf, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
+				if err != nil {
+					err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
+					return err
+				}
+				defer srcf.Close()
+				_, err = srcf.WriteString(v[k])
+				if err != nil {
+					return err
+				}
+				cmds.Log.Info("生成文件:", path)
+				continue
 			}
 
 		}
 		if _, err := os.Stat(path); err == nil || os.IsExist(err) {
-			cmds.Log.Warn("文件已存在:", path)
-			//continue
+			if c.Bool("add") {
+				//继续执行追加操作
+			} else {
+				cmds.Log.Warn("文件已存在:", path, "未输入 -add 不执行追加操作")
+				continue
+			}
 		}
 		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 		if err != nil {
