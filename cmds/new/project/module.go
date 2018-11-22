@@ -58,17 +58,15 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 }
 
 func (p *moduleCmd) action(c *cli.Context) (err error) {
-	//没有指定md路径，和生成文件输出路径
-	if c.String("t") == "" && c.String("o") == "" {
+
+	switch {
+	case c.String("t") == "" && c.String("o") == "":
 		return p.creatDefautModule(c)
-	}
-	if c.String("t") != "" && c.String("o") == "" {
+	case c.String("t") != "" && c.String("o") == "":
 		return p.createMdModule(c)
-	}
-	if c.String("t") == "" && c.String("o") != "" {
+	case c.String("t") == "" && c.String("o") != "":
 		return p.createOutPutModule(c)
-	}
-	if c.String("t") != "" && c.String("o") != "" {
+	case c.String("t") != "" && c.String("o") != "":
 		return p.createModule(c)
 	}
 	return nil
