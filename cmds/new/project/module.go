@@ -78,16 +78,14 @@ func (p *moduleCmd) action(c *cli.Context) (err error) {
 func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 	//得到表名
 	tables := c.StringSlice("f")
-	fmt.Println(tables)
 	//查找*.md文件
 	mdList := cmds.GetMDPath()
-	fmt.Println("md 文件", mdList)
+	fmt.Println("md 文件列表：", mdList)
 	//判断是否有文件
 	if len(mdList) == 0 {
 		err = fmt.Errorf("未找到任何 *.md 文件")
 		return err
 	}
-
 	//获取modules文件路径位置
 	modulPath := cmds.GetLocation()
 	fmt.Println("modules path:", modulPath)
@@ -108,10 +106,9 @@ func (p *moduleCmd) creatDefautModule(c *cli.Context) (err error) {
 func (p *moduleCmd) createMdModule(c *cli.Context) (err error) {
 	//得到表名
 	tables := c.StringSlice("f")
-	fmt.Println(tables)
 	//查找*.md文件
 	mdList := []string{c.String("t")}
-	fmt.Println("md 文件", mdList)
+	fmt.Println("md 文件列表：", mdList)
 	//判断是否有文件
 	if len(mdList) == 0 {
 		err = fmt.Errorf("未找到任何 *.md 文件")
@@ -140,10 +137,9 @@ func (p *moduleCmd) createMdModule(c *cli.Context) (err error) {
 func (p *moduleCmd) createOutPutModule(c *cli.Context) (err error) {
 	//得到表名
 	tables := c.StringSlice("f")
-	fmt.Println(tables)
 	//查找*.md文件
 	mdList := cmds.GetMDPath()
-	fmt.Println("md 文件", mdList)
+	fmt.Println("md 文件列表：", mdList)
 	//判断是否有文件
 	if len(mdList) == 0 {
 		err = fmt.Errorf("未找到任何 *.md 文件")
@@ -172,10 +168,9 @@ func (p *moduleCmd) createOutPutModule(c *cli.Context) (err error) {
 func (p *moduleCmd) createModule(c *cli.Context) (err error) {
 	//得到表名
 	tables := c.StringSlice("f")
-	fmt.Println(tables)
 	//查找*.md文件
 	mdList := []string{c.String("t")}
-	fmt.Println("md 文件", mdList)
+	fmt.Println("md 文件列表：", mdList)
 	//判断是否有文件
 	if len(mdList) == 0 {
 		err = fmt.Errorf("未找到任何 *.md 文件")
@@ -234,10 +229,8 @@ func (p *moduleCmd) makeSQL(c *cli.Context, filePath string, filters []string, o
 //创建并生成文件
 func createFile(c *cli.Context, root string, data map[string]map[string]string) error {
 	for k, v := range data {
-
 		path := filepath.Join(root, k)
 		dir := filepath.Dir(path)
-
 		if c.Bool("cover") {
 			os.Remove(path)
 			cmds.Log.Warn("将对文件进行覆盖操作", path)
@@ -247,7 +240,6 @@ func createFile(c *cli.Context, root string, data map[string]map[string]string) 
 			_, ok := v["head"]
 			if strings.Contains(path, "sql") || !ok {
 				if !strings.Contains(path, "sql") {
-
 					p := strings.Split(path, "/")
 					s := strings.Join(p[:len(p)-1], "/")
 					path = strings.Join([]string{s, "/const/sql/"}, "")
@@ -303,7 +295,6 @@ func createFile(c *cli.Context, root string, data map[string]map[string]string) 
 					return err
 				}
 				absPath, _ := filepath.Abs(path)
-				fmt.Println("absPath", absPath)
 				absPathArr := strings.Split(absPath, "/")
 				var projectName string
 				for i := 0; i < len(absPathArr); i++ {
@@ -311,7 +302,7 @@ func createFile(c *cli.Context, root string, data map[string]map[string]string) 
 						projectName = absPathArr[i-1]
 					}
 				}
-				fmt.Println("projectName", projectName)
+				fmt.Println("projectName: ", projectName)
 				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2], projectName))
 				if err != nil {
 					return err
