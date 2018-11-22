@@ -42,13 +42,13 @@ type IDb{{.name|cname}} interface {
 	//Create 创建
 	Create(input *Create{{.name|cname}}) (error)
 	//Get 单条查询
-	Get(id {{range $i,$c:=.pk -}}{{$c.type|ctype}}{{end -}})(db.QueryRow,error)
+	Get({{range $i,$c:=.pk -}}{{$c.name|cname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}})(db.QueryRow,error)
 	//Query 列表查询
 	Query(input *Query{{.name|cname}}) (db.QueryRows,error)
 	//Update 更新
 	Update(input *Update{{.name|cname}}) (err error)
 	//Delete 删除
-	Delete(id {{range $i,$c:=.pk -}}{{$c.type|ctype}}{{end -}}) (err error)
+	Delete({{range $i,$c:=.pk -}}{{$c.name|cname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) (err error)
 }
 //Db{{.name|cname}} {{.desc}}对象
 type Db{{.name|cname}} struct {
