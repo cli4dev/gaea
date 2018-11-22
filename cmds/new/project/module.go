@@ -48,7 +48,7 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 		Name:  "o",
 		Usage: "生成的文件输出路径",
 	}, cli.BoolFlag{
-		Name:  "add",
+		Name:  "add,a",
 		Usage: "是否执行追加crud函数和sql语句操作",
 	}, cli.BoolFlag{
 		Name:  "cover",
@@ -246,7 +246,8 @@ func createFile(c *cli.Context, root string, data map[string]map[string]string) 
 		}
 		_, err := os.Stat(path)
 		if os.IsNotExist(err) {
-			if strings.Contains(path, "sql") || strings.Contains(path, "_") {
+			_, ok := v["head"]
+			if strings.Contains(path, "sql") || !ok {
 				if !strings.Contains(path, "sql") {
 
 					p := strings.Split(path, "/")
@@ -258,8 +259,11 @@ func createFile(c *cli.Context, root string, data map[string]map[string]string) 
 						return err
 					}
 					path = strings.Join([]string{path, p[len(p)-1]}, "")
+					_, err = os.Stat(path)
+					if !os.IsNotExist(err) {
+						goto TO
+					}
 				} else {
-
 					err := os.MkdirAll(root, os.ModeDir|os.ModePerm)
 					if err != nil {
 						err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
@@ -330,9 +334,11 @@ func createFile(c *cli.Context, root string, data map[string]map[string]string) 
 			}
 
 		}
+	TO:
 		if _, err := os.Stat(path); err == nil || os.IsExist(err) {
 			if c.Bool("add") {
 				//继续执行追加操作
+				cmds.Log.Warn("文件已存在:", path, "执行追加操作")
 			} else {
 				cmds.Log.Warn("文件已存在:", path, "未输入 -add 不执行追加操作")
 				continue

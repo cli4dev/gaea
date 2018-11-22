@@ -21,14 +21,17 @@ func(d *Db{{.name|cname}}) Get(id string) (db.QueryRow,error){
 		return nil, fmt.Errorf("获取{{.desc}}数据表发生错误(err:%v),sql:%s,输入参数:%v,", err, q, a)
 	}
 
-	return data, nil
+	return data.Get(0), nil
 }
 
 //Query 获取{{.desc}}列表
-func(d *Db{{.name|cname}}) Query(input Query{{.name|cname}}) (db.QueryRows,error){
+func(d *Db{{.name|cname}}) Query(input *Query{{.name|cname}}) (db.QueryRows,error){
+
 	db := d.c.GetRegularDB()
 	data, q, a, err := db.Query(sql.Query{{.name|cname}}, map[string]interface{}{
-		{{range $i,$c:=.querycolumns}}"{{$c.name}}":input.{{$c.name|cname}},{{end}}
+		{{range $i,$c:=.querycolumns -}}
+		"{{$c.name}}":input.{{$c.name|cname}},
+		{{end -}}
 	})
 	if err != nil {
 		return nil, fmt.Errorf("获取{{.desc}}数据表发生错误(err:%v),sql:%s,输入参数:%v,", err, q, a)

@@ -8,13 +8,14 @@ values({{range $i,$c:=.createcolumns}}@{{$c.name}}{{if $c.end}},{{end}}{{end}})'
 `
 const InsertFunc = `
 //Create 添加{{.desc}}
-func(d *Db{{.name|cname}}) Create(input Create{{.name|cname}}) error {
-	db := d.c.GetRegularDB()
+func(d *Db{{.name|cname}}) Create(input *Create{{.name|cname}}) error {
 
-	params := map[string]interface{}{
-		{{range $i,$c:=.createcolumns}}"{{$c.name}}": input.{{$c.name|cname}} {{if $c.end}},{{end}}{{end}},
-	}
-	_, q, a, err := db.Execute(sql.Insert{{.name|cname}}, params)
+	db := d.c.GetRegularDB()
+	_, q, a, err := db.Execute(sql.Insert{{.name|cname}}, map[string]interface{}{
+		{{range $i,$c:=.createcolumns -}}
+		"{{$c.name}}": input.{{$c.name|cname}},
+		{{end -}}
+	})
 	if err != nil {
 		return fmt.Errorf("添加{{.desc}}数据发生错误(err:%v),sql:%s,参数：%v", err, q, a)
 	}

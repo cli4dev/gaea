@@ -57,8 +57,8 @@ func GetTmples(tplName string, tbs []*conf.Table, path string, filters []string,
 			out[fmt.Sprintf("%s.go", strings.Replace(tb.Name, "_", "/", -1))] = c
 		} else {
 			c := make(map[string]string)
-			c[fmt.Sprintf("%s.go", tb.Name)] = strings.Replace(content, "'", "`", -1)
-			out[fmt.Sprintf("%s.go", tb.Name)] = c
+			c[fmt.Sprintf("%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
+			out[fmt.Sprintf("%s.go", strings.Replace(tb.Name, "_", ".", -1))] = c
 
 		}
 
