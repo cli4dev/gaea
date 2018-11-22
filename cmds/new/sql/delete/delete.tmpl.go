@@ -6,7 +6,7 @@ const Delete{{.name|cname}} = 'delete from {{.name}} where {{range $i,$c:=.pk}}{
 `
 const DeleteFunc = `
 //Delete 删除{{.desc}}
-func(d *Db{{.name|cname}}) Delete(id string) error {
+func(d *Db{{.name|cname}}) Delete(id {{range $i,$c:=.pk -}}{{$c.type|ctype}}{{end -}}) error {
 
 	db := d.c.GetRegularDB()
 	_, q, a, err := db.Execute(sql.Delete{{.name|cname}}, map[string]interface{}{

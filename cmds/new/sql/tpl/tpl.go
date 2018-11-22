@@ -6,9 +6,8 @@ package %s
 import (
 	"fmt"
 	"github.com/micro-plat/%s/modules/const/sql"
-	"github.com/micro-plat/lib4go/db"
 	"github.com/micro-plat/hydra/component"
-
+	"github.com/micro-plat/lib4go/db"
 )
 
 //Create{{.name|cname}} 创建{{.desc}} 
@@ -43,13 +42,13 @@ type IDb{{.name|cname}} interface {
 	//Create 创建
 	Create(input *Create{{.name|cname}}) (error)
 	//Get 单条查询
-	Get(id string)(db.QueryRow,error)
+	Get(id {{range $i,$c:=.pk -}}{{$c.type|ctype}}{{end -}})(db.QueryRow,error)
 	//Query 列表查询
 	Query(input *Query{{.name|cname}}) (db.QueryRows,error)
 	//Update 更新
 	Update(input *Update{{.name|cname}}) (err error)
 	//Delete 删除
-	Delete(id string) (err error)
+	Delete(id {{range $i,$c:=.pk -}}{{$c.type|ctype}}{{end -}}) (err error)
 }
 //Db{{.name|cname}} {{.desc}}对象
 type Db{{.name|cname}} struct {

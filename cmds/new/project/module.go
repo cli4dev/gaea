@@ -237,7 +237,7 @@ func createFile(c *cli.Context, root string, data map[string]map[string]string) 
 
 		path := filepath.Join(root, k)
 		dir := filepath.Dir(path)
-		fmt.Println("path: ", path)
+
 		if c.Bool("cover") {
 			os.Remove(path)
 			cmds.Log.Warn("将对文件进行覆盖操作", path)

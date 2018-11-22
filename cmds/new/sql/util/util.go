@@ -1,6 +1,7 @@
 package util
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds/new/sql/conf"
@@ -153,17 +154,33 @@ func fGetCName(n string) string {
 	return strings.Join(nitems, "")
 }
 func fGetType(n string) string {
-	if strings.HasPrefix(n, "nvarchar") {
+	switch {
+	case strings.Contains(n, "varchar"):
 		return "string"
-	} else if strings.HasPrefix(n, "number") {
+	case strings.Contains(n, "number"):
 		if strings.Contains(n, ",") {
 			return "float64"
 		}
+		var i, j int
+		for k, v := range n {
+			if v == '(' {
+				i = k
+			}
+			if v == ')' {
+				j = k
+			}
+		}
+		ii, _ := strconv.Atoi(n[i+1 : j])
+		if ii < 10 {
+			return "int"
+		}
 		return "int64"
-	} else if strings.HasPrefix(n, "date") {
+
+	case strings.Contains(n, "date"):
 		return "time.Time"
+	default:
+		return "string"
 	}
-	return "string"
 }
 func fGetLastName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
