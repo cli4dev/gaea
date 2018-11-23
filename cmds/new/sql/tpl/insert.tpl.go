@@ -1,11 +1,14 @@
-package insert
+package tpl
 
+//InsertTmpl insert sql 模板
 const InsertTmpl = `
 //Create{{.name|cname}} 添加{{.desc}}
 const Insert{{.name|cname}} = 'insert into {{.name}}
 ({{range $i,$c:=.createcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}})
 values({{range $i,$c:=.createcolumns}}@{{$c.name}}{{if $c.end}},{{end}}{{end}})'
 `
+
+//InsertFunc  insert 函数模板
 const InsertFunc = `
 //Create 添加{{.desc}}
 func(d *Db{{.name|cname}}) Create(input *Create{{.name|cname}}) error {

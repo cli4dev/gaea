@@ -19,7 +19,6 @@ func getCmd() cli.Command {
 			project.NewProjectCmd(),
 			project.NewModuleCmd(),
 			project.NewServiceCmd(),
-			sql.NewInsertCmd(),
 			sql.NewSqlCmd(),
 			sql.NewStructCmd(),
 		},

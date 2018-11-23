@@ -1,9 +1,12 @@
-package delete
+package tpl
 
+//DeleteTmpl delete sql 模板
 const DeleteTmpl = `
 //Delete{{.name|cname}} 删除{{.desc}}
 const Delete{{.name|cname}} = 'delete from {{.name}} where {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 `
+
+//DeleteFunc delete 函数模板
 const DeleteFunc = `
 //Delete 删除{{.desc}}
 func(d *Db{{.name|cname}}) Delete({{range $i,$c:=.pk -}}{{$c.name|cname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) error {

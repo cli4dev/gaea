@@ -20,53 +20,37 @@ func GetGoPath() (string, error) {
 	return path[0], nil
 }
 
-var listfile []string    //获取文件列表
-var modulesfile []string //获取文件列表
-//Listfunc .
-func Listfunc(path string, f os.FileInfo, err error) error {
-	if f == nil {
-		return err
-	}
-	if f.IsDir() {
-		return nil
-	}
-	//排除指定文件夹
-	if strings.Contains(path, ".git") || strings.Contains(path, "vendor") || strings.Contains(path, "README") {
-		return nil
-	}
-	//用strings.HasSuffix(src, suffix)
-	//判断src中是否包含 suffix结尾
-	ok := strings.HasSuffix(path, ".md")
-	if ok {
-		//将目录push到listfile []string中
-		listfile = append(listfile, path)
-	}
-	return nil
-}
+func getMDFileList(path string) (mdListfile []string, err error) {
 
-func getFileList(path string) string {
-	//var strRet string
-	err := filepath.Walk(path, Listfunc) //
-
+	err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
+		if f == nil {
+			return err
+		}
+		if f.IsDir() {
+			return nil
+		}
+		//排除指定文件夹
+		if strings.Contains(path, ".git") || strings.Contains(path, "vendor") || strings.Contains(path, "README") {
+			return nil
+		}
+		//用strings.HasSuffix(src, suffix)
+		//判断src中是否包含 suffix结尾
+		ok := strings.HasSuffix(path, ".md")
+		if ok {
+			//将目录push到listfile []string中
+			mdListfile = append(mdListfile, path)
+		}
+		return nil
+	})
 	if err != nil {
-		fmt.Printf("filepath.Walk() returned %v\n", err)
+		return nil, err
 	}
-	return " "
-}
-
-//ListFileFunc .
-func ListFileFunc(p []string) []string {
-	s := []string{}
-	for _, value := range p {
-		s = append(s, value)
-	}
-	return s
+	return mdListfile, nil
 }
 
 //getMDPathRec .
 func getMDPathRec(path string) []string {
-	getFileList(path)
-	s := ListFileFunc(listfile)
+	s, _ := getMDFileList(path)
 	if len(s) == 0 {
 		return getMDPathRec("../" + path)
 	}
@@ -78,9 +62,9 @@ func GetMDPath() []string {
 	return getMDPathRec(".")
 }
 
-//GetLocation .
+//GetModulePath .
 //path  有modules的目录   比如 /github.com/micro-plat/gaea/modules/
-func GetLocation() (path string) {
+func GetModulePath() (path string) {
 	pwd, _ := os.Getwd()
 	//在modules里面
 	if strings.Contains(pwd, "modules") {
@@ -97,37 +81,29 @@ func getModulesPath() string {
 }
 
 func getModulesPathRec(path string) []string {
-	getModulesList(path)
-	s := ListFileFunc(modulesfile)
+	s, _ := getModulesList(path)
 	if len(s) == 0 {
 		return getModulesPathRec("../" + path)
 	}
 	return s
 }
 
-func getModulesList(path string) string {
-	//var strRet string
-	err := filepath.Walk(path, ListModulesfunc) //
+func getModulesList(path string) (modulesfile []string, err error) {
 
-	if err != nil {
-		fmt.Printf("filepath.Walk() returned %v\n", err)
-	}
-	return " "
-}
+	err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
 
-//ListModulesfunc .
-func ListModulesfunc(path string, f os.FileInfo, err error) error {
-
-	if f == nil {
-		return err
-	}
-	//排除指定文件夹
-	if !strings.Contains(path, "modules") {
+		if f == nil {
+			return err
+		}
+		//排除指定文件夹
+		if !strings.Contains(path, "modules") {
+			return nil
+		}
+		modulesfile = append(modulesfile, path)
 		return nil
+	})
+	if err != nil {
+		return nil, err
 	}
-
-	//将目录push到listfile []string中
-	modulesfile = append(modulesfile, path)
-
-	return nil
+	return modulesfile, nil
 }

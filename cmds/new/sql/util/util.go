@@ -1,14 +1,22 @@
 package util
 
 import (
+	"bytes"
+	"fmt"
+	"html/template"
+	"os"
+	"path"
+	"path/filepath"
 	"strconv"
 	"strings"
 
+	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/sql/conf"
+	"github.com/micro-plat/gaea/cmds/new/sql/tpl"
 )
 
 //GetInputData 获取模板数据
-func GetInputData(tb *conf.Table, path string) map[string]interface{} {
+func getInputData(tb *conf.Table) map[string]interface{} {
 	input := map[string]interface{}{
 		"name":          tb.Name,
 		"desc":          tb.Desc,
@@ -17,7 +25,6 @@ func GetInputData(tb *conf.Table, path string) map[string]interface{} {
 		"updatecolumns": getUpdateColumns(tb),
 		"selectcolumns": getSelectColumns(tb),
 		"pk":            getPks(tb),
-		"path":          path,
 	}
 
 	return input
@@ -132,7 +139,7 @@ func getPks(tb *conf.Table) []map[string]interface{} {
 	return columns
 }
 
-func MakeFunc() map[string]interface{} {
+func makeFunc() map[string]interface{} {
 	return map[string]interface{}{
 		"cname": fGetCName,
 		"ctype": fGetType,
@@ -184,4 +191,158 @@ func fGetLastName(n string) string {
 
 func fToLower(s string) string {
 	return strings.ToLower(s)
+}
+
+//translate  .
+func translate(tag string, tplName string, input interface{}) (string, error) {
+	var tmpl = template.New(tag).Funcs(makeFunc())
+	np, err := tmpl.Parse(tplName)
+	if err != nil {
+		return "", err
+	}
+	buff := bytes.NewBufferString("")
+	if err := np.Execute(buff, input); err != nil {
+		return "", err
+	}
+	return buff.String(), nil
+}
+
+//makeOutData 构架模板数据
+func makeOutData(makeFunc bool, tbName string, content string, input map[string]interface{}, modulePath string) (map[string]map[string]string, error) {
+	out := map[string]map[string]string{}
+	if makeFunc { //生成函数
+		c := make(map[string]string)
+		if strings.Contains(modulePath, "sql") {
+			modulePath = "modules"
+		}
+		c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tbName, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
+		head, err := translate("head", tpl.DbHeadTpl, input)
+		if err != nil {
+			return nil, err
+		}
+		c["head"] = strings.Replace(head, "'", "`", -1)
+		out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tbName, "_", "/", -1))] = c
+	} else { //生成sql
+		c := make(map[string]string)
+		if !strings.Contains(modulePath, "sql") {
+			modulePath = strings.Join([]string{modulePath, "/const/sql"}, "")
+		}
+		c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tbName, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
+		out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tbName, "_", ".", -1))] = c
+	}
+	return out, nil
+}
+
+//GetTmples 获取模板
+//@tag 模板标签
+//@tplName 模板名字
+//@tbs 表结构体
+//@filters 过滤字段
+//@makeFunc 是否生成函数
+//return out 返回数据
+func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFunc bool, modulePath string) (out map[string]map[string]string, err error) {
+	out = map[string]map[string]string{}
+	for _, tb := range tbs {
+		if len(filters) > 0 {
+			e := false
+			for _, f := range filters {
+				if strings.EqualFold(tb.Name, f) {
+					e = true
+					break
+				}
+			}
+			if !e {
+				continue
+			}
+		}
+		//获取模板数据
+		input := getInputData(tb)
+		//翻译模板
+		content, err := translate(tag, tplName, input)
+
+		if err != nil {
+			return nil, err
+		}
+		out, err = makeOutData(makeFunc, tb.Name, content, input, modulePath)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+
+//CreateFile .
+//创建并生成文件
+func CreateFile(add, cover bool, data map[string]map[string]string) error {
+	for k, v := range data {
+		if cover {
+			cmds.Log.Warnf("覆盖文件：%s", k)
+			os.Remove(k)
+		}
+		_, ok := v["head"]
+		if ok { //生成函数文件头
+			_, err := os.Stat(k)
+			//不存在则创建
+			if err != nil {
+				add = true
+				os.MkdirAll(path.Dir(k), os.ModePerm)
+				f, err := os.Create(k)
+				if err != nil {
+					err = fmt.Errorf("无法创建文件:%s(err:%v)", k, err)
+					return err
+				}
+				defer f.Close()
+				m := strings.Split(k, "/")
+				absPath, _ := filepath.Abs(k)
+				absPathArr := strings.Split(absPath, "/")
+				var projectName string
+				for i := 0; i < len(absPathArr); i++ {
+					if absPathArr[i] == "modules" {
+						projectName = absPathArr[i-1]
+					}
+				}
+				fmt.Println("projectName: ", projectName)
+				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2], projectName))
+				if err != nil {
+					return err
+				}
+				cmds.Log.Info("写入文件成功:", k)
+			}
+		} else { //生成sql文件头
+			_, err := os.Stat(k)
+			//不存在则创建
+			if err != nil {
+				add = true
+				os.MkdirAll(path.Dir(k), os.ModePerm)
+				f, err := os.Create(k)
+				if err != nil {
+					err = fmt.Errorf("无法创建文件:%s(err:%v)", k, err)
+					return err
+				}
+				defer f.Close()
+				_, err = f.WriteString("package sql")
+				if err != nil {
+					return err
+				}
+				cmds.Log.Info("写入文件成功:", k)
+			}
+		}
+		if !add {
+			cmds.Log.Warn("未输入 -add 不执行任何操作")
+			continue
+		}
+		srcf, err := os.OpenFile(k, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
+		if err != nil {
+			err = fmt.Errorf("无法打开文件:%s(err:%v)", k, err)
+			return err
+		}
+		defer srcf.Close()
+		_, err = srcf.WriteString(v[k])
+		if err != nil {
+			return err
+		}
+		cmds.Log.Info("写入文件成功:", k)
+	}
+	return nil
+
 }

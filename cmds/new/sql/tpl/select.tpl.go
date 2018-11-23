@@ -1,5 +1,6 @@
-package read
+package tpl
 
+//SelectTmpl Select sql 模板
 const SelectTmpl = `
 //Get{{.name|cname}} 查询单条数据{{.desc}}
 const Get{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
@@ -9,6 +10,8 @@ from {{.name}} where {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 const Query{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
 from {{.name}} where {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}}'
 `
+
+//SelectFunc select 函数模板
 const SelectFunc = `
 //Get 查询单条数据{{.desc}}
 func(d *Db{{.name|cname}}) Get({{range $i,$c:=.pk -}}{{$c.name|cname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) (db.QueryRow,error){

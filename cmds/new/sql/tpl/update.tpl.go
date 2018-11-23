@@ -1,11 +1,14 @@
-package update
+package tpl
 
+//UpdateTmpl update sql 模板
 const UpdateTmpl = `
 //Update{{.name|cname}} 更新{{.desc}}
 const Update{{.name|cname}} = 'update {{.name}} set
 {{range $i,$c:=.updatecolumns}}{{$c.name}}=@{{$c.name}}{{if $c.end}},{{end}}{{end}}
 where {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 `
+
+//UpdateFunc update 函数模板
 const UpdateFunc = `
 //Update 更新{{.desc}}
 func(d *Db{{.name|cname}}) Update(input *Update{{.name|cname}}) error {

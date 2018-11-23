@@ -2,41 +2,32 @@ package project
 
 import (
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/urfave/cli"
 
-	"github.com/micro-plat/gaea/cmds/new/sql/delete"
-	"github.com/micro-plat/gaea/cmds/new/sql/insert"
-	"github.com/micro-plat/gaea/cmds/new/sql/md"
-	"github.com/micro-plat/gaea/cmds/new/sql/read"
-	"github.com/micro-plat/gaea/cmds/new/sql/update"
+	"github.com/micro-plat/gaea/cmds/new/sql/conf"
+
+	"github.com/micro-plat/gaea/cmds/new/sql/tpl"
+	"github.com/micro-plat/gaea/cmds/new/sql/util"
 )
 
 //makeInsertFunc .
 //生成inster 函数
 //@filePath md文件路径
 //@filters 表名
-//@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeInsertFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
-	//获取默认输出路径
-	if outPath == "" {
-		outPath = cmds.GetLocation()
-	}
-	tables, err := md.Markdown2Table(filePath)
-	if err != nil {
-		cmds.Log.Error(err)
-		return err
-	}
-	tmpls, err := insert.GetTmples(insert.InsertFunc, tables, "", filters, true)
+//@modulePath 输出路径，为空则根据默认规则输出
+func (p *moduleCmd) makeInsertFunc(add, cover bool, tables []*conf.Table, filters []string, modulePath string) error {
+	//获取模板数据
+
+	tmpls, err := util.GetTmples("insert func", tpl.InsertFunc, tables, filters, true, modulePath)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 	if len(tmpls) == 0 {
-		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
+		cmds.Log.Error("生成 insert函数时未找到数据表信息")
 		return nil
 	}
 
-	if err = createFile(c, outPath, tmpls); err != nil {
+	if err = util.CreateFile(add, cover, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
@@ -49,27 +40,19 @@ func (p *moduleCmd) makeInsertFunc(c *cli.Context, filePath string, filters []st
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeSelectFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
-	if outPath == "" {
-		outPath = cmds.GetLocation()
-	}
-	//获取默认输出路径
-	tables, err := md.Markdown2Table(filePath)
-	if err != nil {
-		cmds.Log.Error(err)
-		return err
-	}
-	tmpls, err := read.GetTmples(read.SelectFunc, tables, "", filters, true)
+func (p *moduleCmd) makeSelectFunc(add, cover bool, tables []*conf.Table, filters []string, modulePath string) error {
+
+	tmpls, err := util.GetTmples("select func", tpl.SelectFunc, tables, filters, true, modulePath)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 	if len(tmpls) == 0 {
-		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
+		cmds.Log.Errorf("生成 select函数时未找到数据表信息")
 		return nil
 	}
 
-	if err = createFile(c, outPath, tmpls); err != nil {
+	if err = util.CreateFile(add, cover, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
@@ -82,28 +65,20 @@ func (p *moduleCmd) makeSelectFunc(c *cli.Context, filePath string, filters []st
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeUpdateFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
-	if outPath == "" {
-		outPath = cmds.GetLocation()
-	}
-	//获取默认输出路径
-	tables, err := md.Markdown2Table(filePath)
-	if err != nil {
-		cmds.Log.Error(err)
-		return err
-	}
-	tmpls, err := update.GetTmples(update.UpdateFunc, tables, "", filters, true)
+func (p *moduleCmd) makeUpdateFunc(add, cover bool, tables []*conf.Table, filters []string, modulePath string) error {
+
+	tmpls, err := util.GetTmples("update func", tpl.UpdateFunc, tables, filters, true, modulePath)
 
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 	if len(tmpls) == 0 {
-		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
+		cmds.Log.Errorf("生成 update函数时未找到数据表信息")
 		return nil
 	}
 
-	if err = createFile(c, outPath, tmpls); err != nil {
+	if err = util.CreateFile(add, cover, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
@@ -116,26 +91,19 @@ func (p *moduleCmd) makeUpdateFunc(c *cli.Context, filePath string, filters []st
 //@filePath md文件路径
 //@filters 表名
 //@outPath 输出路径，为空则根据默认规则输出
-func (p *moduleCmd) makeDeleteFunc(c *cli.Context, filePath string, filters []string, outPath string) error {
-	if outPath == "" {
-		outPath = cmds.GetLocation()
-	}
-	//获取默认输出路径
-	tables, err := md.Markdown2Table(filePath)
-	if err != nil {
-		cmds.Log.Error(err)
-		return err
-	}
-	tmpls, err := delete.GetTmples(delete.DeleteFunc, tables, "", filters, true)
+func (p *moduleCmd) makeDeleteFunc(add, cover bool, tables []*conf.Table, filters []string, modulePath string) error {
+
+	tmpls, err := util.GetTmples("delete func", tpl.DeleteFunc, tables, filters, true, modulePath)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 	if len(tmpls) == 0 {
-		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
+		cmds.Log.Error("生成 delete函数时未找到数据表信息")
 		return nil
 	}
-	if err = createFile(c, outPath, tmpls); err != nil {
+
+	if err = util.CreateFile(add, cover, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}

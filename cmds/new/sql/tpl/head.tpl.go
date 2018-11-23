@@ -1,7 +1,7 @@
 package tpl
 
-//DbTpl .
-const DbTpl = `
+//DbHeadTpl Db文件头模板
+const DbHeadTpl = `
 package %s
 import (
 	"fmt"
