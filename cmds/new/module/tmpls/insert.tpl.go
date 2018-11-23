@@ -1,4 +1,4 @@
-package tpl
+package tmpls
 
 //InsertTmpl insert sql 模板
 const InsertTmpl = `

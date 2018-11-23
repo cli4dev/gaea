@@ -1,4 +1,4 @@
-package tpl
+package tmpls
 
 //DeleteTmpl delete sql 模板
 const DeleteTmpl = `

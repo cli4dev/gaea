@@ -1,4 +1,4 @@
-package tpl
+package tmpls
 
 //DbHeadTpl Db文件头模板
 const DbHeadTpl = `

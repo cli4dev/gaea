@@ -1,4 +1,4 @@
-package sql
+package entity
 
 import (
 	"fmt"

@@ -1,4 +1,4 @@
-package tpl
+package tmpls
 
 //UpdateTmpl update sql 模板
 const UpdateTmpl = `

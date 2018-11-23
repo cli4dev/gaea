@@ -1,12 +1,12 @@
-package project
+package module
 
 import (
 	"fmt"
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/sql/conf"
-	"github.com/micro-plat/gaea/cmds/new/sql/md"
+	"github.com/micro-plat/gaea/cmds/new/util/md"
+	"github.com/micro-plat/gaea/cmds/new/util/tb"
 	"github.com/urfave/cli"
 )
 

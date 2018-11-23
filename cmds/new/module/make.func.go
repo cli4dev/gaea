@@ -1,12 +1,10 @@
-package project
+package module
 
 import (
 	"github.com/micro-plat/gaea/cmds"
 
-	"github.com/micro-plat/gaea/cmds/new/sql/conf"
-
-	"github.com/micro-plat/gaea/cmds/new/sql/tpl"
-	"github.com/micro-plat/gaea/cmds/new/sql/util"
+	"github.com/micro-plat/gaea/cmds/new/util/data"
+	"github.com/micro-plat/gaea/cmds/new/util/tb"
 )
 
 //makeInsertFunc .

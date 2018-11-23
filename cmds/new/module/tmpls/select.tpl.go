@@ -1,4 +1,4 @@
-package tpl
+package tmpls
 
 //SelectTmpl Select sql 模板
 const SelectTmpl = `

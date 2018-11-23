@@ -11,8 +11,7 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/sql/conf"
-	"github.com/micro-plat/gaea/cmds/new/sql/tpl"
+	"github.com/micro-plat/gaea/cmds/new/util/tb"
 )
 
 //GetInputData 获取模板数据
