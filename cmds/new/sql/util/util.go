@@ -27,7 +27,6 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
-		//获取可插入数据的字段,排除自增
 		if strings.Contains(tb.Cons[i], "I") && !strings.Contains(tb.Cons[i], "SEQ") {
 			row := map[string]interface{}{
 				"name": v,
@@ -50,7 +49,6 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
-		//获取可插入数据的字段,排除自增
 		if strings.Contains(tb.Cons[i], "Q") && !strings.Contains(tb.Cons[i], "SEQ") {
 			row := map[string]interface{}{
 				"name": v,
@@ -73,8 +71,7 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
-		//获取可插入数据的字段,排除自增
-		if strings.Contains(tb.Cons[i], "U") && !strings.Contains(tb.Cons[i], "SEQ") {
+		if strings.Contains(tb.Cons[i], "U") && !strings.Contains(tb.Cons[i], "SEQ") && !strings.Contains(tb.Cons[i], "PK") {
 			row := map[string]interface{}{
 				"name": v,
 				"desc": tb.Descs[i],
@@ -96,7 +93,6 @@ func getSelectColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
-		//获取可插入数据的字段
 		if strings.Contains(tb.Cons[i], "S") {
 			row := map[string]interface{}{
 				"name": v,
@@ -118,7 +114,6 @@ func getPks(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
-		//获取可插入数据的字段
 		if strings.Contains(tb.Cons[i], "PK") {
 			row := map[string]interface{}{
 				"name": v,
