@@ -50,7 +50,15 @@ func getMDFileList(path string) (mdListfile []string, err error) {
 
 //getMDPathRec .
 func getMDPathRec(path string) []string {
-	s, _ := getMDFileList(path)
+	if strings.Contains(path, "../../") {
+		Log.Error("没有找到 md 文件")
+		return nil
+	}
+	s, err := getMDFileList(path)
+	if err != nil {
+		Log.Error("没有找到 md 文件")
+		os.Exit(1)
+	}
 	if len(s) == 0 {
 		return getMDPathRec("../" + path)
 	}
@@ -77,11 +85,22 @@ func GetModulePath() (path string) {
 
 func getModulesPath() string {
 	p := getModulesPathRec(".")
-	return p[0]
+	if len(p) >= 1 {
+		return p[0]
+	}
+	return ""
 }
 
 func getModulesPathRec(path string) []string {
-	s, _ := getModulesList(path)
+	if strings.Contains(path, "../../") {
+		Log.Error("没有找到 modules 文件夹，请手动创建")
+		return []string{}
+	}
+	s, err := getModulesList(path)
+	if err != nil {
+		Log.Error("没有找到 modules 文件夹，请手动创建")
+		os.Exit(1)
+	}
 	if len(s) == 0 {
 		return getModulesPathRec("../" + path)
 	}

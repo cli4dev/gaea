@@ -5,7 +5,7 @@ const DbHeadTpl = `
 package %s
 import (
 	"fmt"
-	"github.com/micro-plat/%s/modules/const/sql"
+	"%smodules/const/sql"
 	"github.com/micro-plat/hydra/component"
 	"github.com/micro-plat/lib4go/db"
 )

@@ -76,6 +76,7 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 	if t == "" {
 		mdList = cmds.GetMDPath()
 	}
+	fmt.Println("md 文件:", mdList)
 	//判断是否有文件
 	if len(mdList) == 0 {
 		err = fmt.Errorf("未找到任何 *.md 文件")
@@ -86,6 +87,10 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 	if o == "" {
 		modulePath = cmds.GetModulePath()
 	}
+	if modulePath == "" {
+		return nil
+	}
+	fmt.Println("modulePath:", modulePath)
 	for _, v := range mdList {
 		//获取数据表
 		tables, err := md.Markdown2Table(v)

@@ -207,7 +207,7 @@ func translate(tag string, tplName string, input interface{}) (string, error) {
 	return buff.String(), nil
 }
 
-//makeOutData 构架模板数据
+//makeOutData 构建模板数据
 func makeOutData(makeFunc bool, tbName string, content string, input map[string]interface{}, modulePath string) (map[string]map[string]string, error) {
 	out := map[string]map[string]string{}
 	if makeFunc { //生成函数
@@ -294,19 +294,14 @@ func CreateFile(add, cover bool, data map[string]map[string]string) error {
 				defer f.Close()
 				m := strings.Split(k, "/")
 				absPath, _ := filepath.Abs(k)
-				absPathArr := strings.Split(absPath, "/")
-				var projectName string
-				for i := 0; i < len(absPathArr); i++ {
-					if absPathArr[i] == "modules" {
-						projectName = absPathArr[i-1]
-					}
-				}
-				fmt.Println("projectName: ", projectName)
-				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2], projectName))
+				fmt.Println("absPath", absPath)
+				i := strings.Index(absPath, "src")
+				j := strings.Index(absPath, "modules")
+				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2], absPath[i+4:j]))
 				if err != nil {
 					return err
 				}
-				cmds.Log.Info("写入文件成功:", k)
+				cmds.Log.Info("写入crud函数头部文件成功:", k)
 			}
 		} else { //生成sql文件头
 			_, err := os.Stat(k)
@@ -324,7 +319,7 @@ func CreateFile(add, cover bool, data map[string]map[string]string) error {
 				if err != nil {
 					return err
 				}
-				cmds.Log.Info("写入文件成功:", k)
+				cmds.Log.Info("写入sql头部文件成功:", k)
 			}
 		}
 		if !add {
