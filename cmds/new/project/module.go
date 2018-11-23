@@ -2,6 +2,7 @@ package project
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/sql/conf"
@@ -76,7 +77,6 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 	if t == "" {
 		mdList = cmds.GetMDPath()
 	}
-	fmt.Println("md 文件:", mdList)
 	//判断是否有文件
 	if len(mdList) == 0 {
 		err = fmt.Errorf("未找到任何 *.md 文件")
@@ -87,10 +87,10 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 	if o == "" {
 		modulePath = cmds.GetModulePath()
 	}
-	if modulePath == "" {
+	if modulePath == "" || !strings.Contains(modulePath, "modules") {
+		cmds.Log.Error("没有指定 modules,或 'modules' 输入错误")
 		return nil
 	}
-	fmt.Println("modulePath:", modulePath)
 	for _, v := range mdList {
 		//获取数据表
 		tables, err := md.Markdown2Table(v)
@@ -99,41 +99,47 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 			continue
 		}
 		//生成数据表对应的sql语句
-		p.makeSQL(c, r, u, d, add, cover, tables, f, modulePath)
+		err = p.makeSQL(c, r, u, d, add, cover, tables, f, modulePath)
+		if err != nil {
+			return err
+		}
 		//生成crud函数
-		p.makeCrudFunc(c, r, u, d, add, cover, tables, f, modulePath)
+		err = p.makeCrudFunc(c, r, u, d, add, cover, tables, f, modulePath)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, modulePath string) error {
+func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, modulePath string) (err error) {
 	if c {
-		p.makeInsertFunc(add, cover, tables, filters, modulePath)
+		err = p.makeInsertFunc(add, cover, tables, filters, modulePath)
 	}
 	if r {
-		p.makeSelectFunc(add, cover, tables, filters, modulePath)
+		err = p.makeSelectFunc(add, cover, tables, filters, modulePath)
 	}
 	if u {
-		p.makeUpdateFunc(add, cover, tables, filters, modulePath)
+		err = p.makeUpdateFunc(add, cover, tables, filters, modulePath)
 	}
 	if d {
-		p.makeDeleteFunc(add, cover, tables, filters, modulePath)
+		err = p.makeDeleteFunc(add, cover, tables, filters, modulePath)
 	}
-	return nil
+	return err
 }
 
-func (p *moduleCmd) makeSQL(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, modulePath string) error {
+func (p *moduleCmd) makeSQL(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, modulePath string) (err error) {
 	if c {
-		p.makeInsertSQL(add, cover, tables, filters, modulePath)
+		err = p.makeInsertSQL(add, cover, tables, filters, modulePath)
 	}
 	if r {
-		p.makeSelectSQL(add, cover, tables, filters, modulePath)
+		err = p.makeSelectSQL(add, cover, tables, filters, modulePath)
 	}
 	if u {
-		p.makeUpdateSQL(add, cover, tables, filters, modulePath)
+		err = p.makeUpdateSQL(add, cover, tables, filters, modulePath)
 	}
 	if d {
-		p.makeDeleteSQL(add, cover, tables, filters, modulePath)
+		err = p.makeDeleteSQL(add, cover, tables, filters, modulePath)
 	}
-	return nil
+	return err
 }

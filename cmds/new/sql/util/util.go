@@ -207,32 +207,6 @@ func translate(tag string, tplName string, input interface{}) (string, error) {
 	return buff.String(), nil
 }
 
-//makeOutData 构建模板数据
-func makeOutData(makeFunc bool, tbName string, content string, input map[string]interface{}, modulePath string) (map[string]map[string]string, error) {
-	out := map[string]map[string]string{}
-	if makeFunc { //生成函数
-		c := make(map[string]string)
-		if strings.Contains(modulePath, "sql") {
-			modulePath = "modules"
-		}
-		c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tbName, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
-		head, err := translate("head", tpl.DbHeadTpl, input)
-		if err != nil {
-			return nil, err
-		}
-		c["head"] = strings.Replace(head, "'", "`", -1)
-		out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tbName, "_", "/", -1))] = c
-	} else { //生成sql
-		c := make(map[string]string)
-		if !strings.Contains(modulePath, "sql") {
-			modulePath = strings.Join([]string{modulePath, "/const/sql"}, "")
-		}
-		c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tbName, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
-		out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tbName, "_", ".", -1))] = c
-	}
-	return out, nil
-}
-
 //GetTmples 获取模板
 //@tag 模板标签
 //@tplName 模板名字
@@ -263,7 +237,26 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 		if err != nil {
 			return nil, err
 		}
-		out, err = makeOutData(makeFunc, tb.Name, content, input, modulePath)
+		if makeFunc { //生成函数
+			c := make(map[string]string)
+			if strings.Contains(modulePath, "sql") {
+				modulePath = "modules"
+			}
+			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
+			head, err := translate("head", tpl.DbHeadTpl, input)
+			if err != nil {
+				return nil, err
+			}
+			c["head"] = strings.Replace(head, "'", "`", -1)
+			out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = c
+		} else { //生成sql
+			c := make(map[string]string)
+			if !strings.Contains(modulePath, "sql") {
+				modulePath = strings.Join([]string{modulePath, "/const/sql"}, "")
+			}
+			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
+			out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = c
+		}
 		if err != nil {
 			return nil, err
 		}
@@ -294,7 +287,6 @@ func CreateFile(add, cover bool, data map[string]map[string]string) error {
 				defer f.Close()
 				m := strings.Split(k, "/")
 				absPath, _ := filepath.Abs(k)
-				fmt.Println("absPath", absPath)
 				i := strings.Index(absPath, "src")
 				j := strings.Index(absPath, "modules")
 				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2], absPath[i+4:j]))
