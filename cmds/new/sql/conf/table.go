@@ -1,15 +1,15 @@
 package conf
 
 type Table struct {
-	Name    string
-	Desc    string
-	CNames  []string
-	Lens    []string
-	Types   []string
-	Defs    []string
-	IsNulls []bool
-	Cons    []string
-	Descs   []string
+	Name    string   //表名
+	Desc    string   //表描述
+	CNames  []string //字段名
+	Lens    []string //长度
+	Types   []string //类型
+	Defs    []string //默认值
+	IsNulls []bool   //为空
+	Cons    []string //约束
+	Descs   []string //描述
 }
 
 func NewTable(name string, desc string) *Table {

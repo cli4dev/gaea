@@ -1,4 +1,4 @@
-package insert
+package read
 
 import (
 	"bytes"
@@ -12,7 +12,7 @@ import (
 )
 
 func translate(c string, input interface{}) (string, error) {
-	var tmpl = template.New("insert").Funcs(util.MakeFunc())
+	var tmpl = template.New("select").Funcs(util.MakeFunc())
 	np, err := tmpl.Parse(c)
 	if err != nil {
 		return "", err
@@ -26,12 +26,12 @@ func translate(c string, input interface{}) (string, error) {
 
 //GetTmples .
 func GetTmples(tplName string, tbs []*conf.Table, path string, filters []string, makeFunc bool) (out map[string]map[string]string, err error) {
-	out = map[string]map[string]string{}
+	out = make(map[string]map[string]string, len(tbs))
 	for _, tb := range tbs {
 		if len(filters) > 0 {
 			e := false
 			for _, f := range filters {
-				if strings.EqualFold(tb.Name, f) {
+				if strings.Contains(tb.Name, f) {
 					e = true
 					break
 				}
@@ -40,11 +40,9 @@ func GetTmples(tplName string, tbs []*conf.Table, path string, filters []string,
 				continue
 			}
 		}
-		//获取模板数据
 		input := util.GetInputData(tb, path)
-		//翻译模板
-		content, err := translate(tplName, input)
 
+		content, err := translate(tplName, input)
 		if err != nil {
 			return nil, err
 		}
@@ -64,7 +62,6 @@ func GetTmples(tplName string, tbs []*conf.Table, path string, filters []string,
 			out[fmt.Sprintf("%s.go", strings.Replace(tb.Name, "_", ".", -1))] = c
 
 		}
-
 		if err != nil {
 			return nil, err
 		}

@@ -48,7 +48,7 @@ func (p *insertCmd) action(c *cli.Context) (err error) {
 		cmds.Log.Error(err)
 		return err
 	}
-	tmpls, err := insert.GetTmples(tables, "", filters)
+	tmpls, err := insert.GetTmples(insert.InsertTmpl, tables, "", filters, false)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
@@ -85,7 +85,7 @@ func (p *insertCmd) createFile(root string, data map[string]string) error {
 			cmds.Log.Warn("文件已存在:", path)
 			continue
 		}
-		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.ModeAppend|os.ModePerm)
+		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 		if err != nil {
 			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 			return err
