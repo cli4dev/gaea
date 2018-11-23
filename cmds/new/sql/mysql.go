@@ -24,7 +24,7 @@ func NewMysqlCmd() cli.Command {
 	}
 }
 func (p *mysqlCmd) geStartFlags() []cli.Flag {
-	flags := make([]cli.Flag, 0, 4)
+	flags := make([]cli.Flag, 0, 0)
 	return flags
 }
 func (p *mysqlCmd) action(c *cli.Context) (err error) {

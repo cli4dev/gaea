@@ -40,7 +40,7 @@ func getDef(n string, c string) string {
 		return "default '-'"
 	}
 	if strings.TrimSpace(n) == "sysdate" {
-		return "default now()"
+		return "default current_timestamp"
 	}
 	return "default " + n
 }
