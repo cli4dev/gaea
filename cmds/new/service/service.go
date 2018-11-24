@@ -8,6 +8,7 @@ import (
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/project/tmpls"
+	"github.com/micro-plat/gaea/cmds/new/util/path"
 	"github.com/urfave/cli"
 )
 
@@ -55,7 +56,7 @@ func (p *serviceCmd) action(c *cli.Context) (err error) {
 }
 
 func (p *serviceCmd) new(projectName string, serviceType string, modules []string, restful bool) error {
-	gopath, err := cmds.GetGoPath()
+	gopath, err := path.GetGoPath()
 	if err != nil {
 		return err
 	}

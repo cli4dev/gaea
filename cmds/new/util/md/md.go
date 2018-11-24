@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/micro-plat/gaea/cmds/new/sql/conf"
+	"github.com/micro-plat/gaea/cmds/new/util/conf"
 )
 
 type Line struct {

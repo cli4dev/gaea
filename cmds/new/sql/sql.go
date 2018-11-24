@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/sql/md"
 	"github.com/micro-plat/gaea/cmds/new/sql/oracle"
+	"github.com/micro-plat/gaea/cmds/new/util/md"
 	"github.com/urfave/cli"
 )
 

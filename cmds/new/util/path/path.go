@@ -1,10 +1,12 @@
-package cmds
+package path
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/micro-plat/gaea/cmds"
 )
 
 //GetGoPath 获取$GOPATH路径
@@ -51,12 +53,12 @@ func getMDFileList(path string) (mdListfile []string, err error) {
 //getMDPathRec .
 func getMDPathRec(path string) []string {
 	if strings.Contains(path, "../../") {
-		Log.Error("没有找到 md 文件")
+		cmds.Log.Error("没有找到 md 文件")
 		return nil
 	}
 	s, err := getMDFileList(path)
 	if err != nil {
-		Log.Error("没有找到 md 文件")
+		cmds.Log.Error("没有找到 md 文件")
 		os.Exit(1)
 	}
 	if len(s) == 0 {
@@ -93,12 +95,12 @@ func getModulesPath() string {
 
 func getModulesPathRec(path string) []string {
 	if strings.Contains(path, "../../") {
-		Log.Error("没有找到 modules 文件夹，请手动创建")
+		cmds.Log.Error("没有找到 modules 文件夹，请手动创建")
 		return []string{}
 	}
 	s, err := getModulesList(path)
 	if err != nil {
-		Log.Error("没有找到 modules 文件夹，请手动创建")
+		cmds.Log.Error("没有找到 modules 文件夹，请手动创建")
 		os.Exit(1)
 	}
 	if len(s) == 0 {

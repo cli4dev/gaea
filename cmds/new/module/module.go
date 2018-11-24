@@ -5,8 +5,9 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
+	"github.com/micro-plat/gaea/cmds/new/util/conf"
 	"github.com/micro-plat/gaea/cmds/new/util/md"
-	"github.com/micro-plat/gaea/cmds/new/util/tb"
+	"github.com/micro-plat/gaea/cmds/new/util/path"
 	"github.com/urfave/cli"
 )
 
@@ -24,6 +25,7 @@ func NewModuleCmd() cli.Command {
 }
 
 func (p *moduleCmd) geStartFlags() []cli.Flag {
+
 	flags := make([]cli.Flag, 0, 4)
 	flags = append(flags, cli.BoolFlag{
 		Name:  "c",
@@ -43,6 +45,9 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 	}, cli.StringFlag{
 		Name:  "t",
 		Usage: "指定数据表 md 文件",
+	}, cli.StringFlag{
+		Name:  "db",
+		Usage: "指定生成 mysql 或 oracle 的函数和sql,默认为 mysql",
 	}, cli.StringFlag{
 		Name:  "o",
 		Usage: "生成的文件输出路径",
@@ -67,30 +72,41 @@ func (p *moduleCmd) action(c *cli.Context) (err error) {
 		c.Bool("cover"),
 		c.String("t"),
 		c.String("o"),
-		c.StringSlice("f"))
+		c.StringSlice("f"),
+		c.String("db"),
+	)
 }
 
-func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []string) (err error) {
+func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []string, db string) (err error) {
 
 	//查找*.md文件
 	mdList := []string{t}
 	if t == "" {
-		mdList = cmds.GetMDPath()
+		mdList = path.GetMDPath()
 	}
+
+	//获取db 类型
+	if db == "" || !strings.Contains(db, "oracle") {
+		db = "mysql"
+	}
+
 	//判断是否有文件
 	if len(mdList) == 0 {
 		err = fmt.Errorf("未找到任何 *.md 文件")
 		return err
 	}
+
 	//获取modules文件路径位置
 	modulePath := o
 	if o == "" {
-		modulePath = cmds.GetModulePath()
+		modulePath = path.GetModulePath()
 	}
 	if modulePath == "" || !strings.Contains(modulePath, "modules") {
 		cmds.Log.Error("没有指定 modules,或 'modules' 输入错误")
 		return nil
 	}
+
+	//创建文件
 	for _, v := range mdList {
 		//获取数据表
 		tables, err := md.Markdown2Table(v)
@@ -99,7 +115,7 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 			continue
 		}
 		//生成数据表对应的sql语句
-		err = p.makeSQL(c, r, u, d, add, cover, tables, f, modulePath)
+		err = p.makeSQL(c, r, u, d, add, cover, db, tables, f, modulePath)
 		if err != nil {
 			return err
 		}
@@ -113,6 +129,7 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 }
 
 func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, modulePath string) (err error) {
+
 	if c {
 		err = p.makeInsertFunc(add, cover, tables, filters, modulePath)
 	}
@@ -128,9 +145,10 @@ func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, tables []*conf.Tab
 	return err
 }
 
-func (p *moduleCmd) makeSQL(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, modulePath string) (err error) {
+func (p *moduleCmd) makeSQL(c, r, u, d, add, cover bool, db string, tables []*conf.Table, filters []string, modulePath string) (err error) {
+
 	if c {
-		err = p.makeInsertSQL(add, cover, tables, filters, modulePath)
+		err = p.makeInsertSQL(add, cover, db, tables, filters, modulePath)
 	}
 	if r {
 		err = p.makeSelectSQL(add, cover, tables, filters, modulePath)

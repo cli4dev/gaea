@@ -1,4 +1,4 @@
-package util
+package data
 
 import (
 	"bytes"
@@ -11,7 +11,8 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/util/tb"
+	"github.com/micro-plat/gaea/cmds/new/module/tmpls"
+	"github.com/micro-plat/gaea/cmds/new/util/conf"
 )
 
 //GetInputData 获取模板数据
@@ -24,6 +25,7 @@ func getInputData(tb *conf.Table) map[string]interface{} {
 		"updatecolumns": getUpdateColumns(tb),
 		"selectcolumns": getSelectColumns(tb),
 		"pk":            getPks(tb),
+		"seqs":          getSeqs(tb),
 	}
 
 	return input
@@ -138,6 +140,59 @@ func getPks(tb *conf.Table) []map[string]interface{} {
 	return columns
 }
 
+func getSeqs(tb *conf.Table) []map[string]interface{} {
+	columns := make([]map[string]interface{}, 0, len(tb.CNames))
+
+	for i, v := range tb.CNames {
+		if strings.Contains(tb.Cons[i], "SEQ") {
+			row := map[string]interface{}{
+				"name":    v,
+				"seqname": fmt.Sprintf("seq_%s_%s", fGetNName(tb.Name), getFilterName(tb.Name, v)),
+				"desc":    tb.Descs[i],
+				"type":    tb.Types[i],
+				"len":     tb.Lens[i],
+				"end":     i != len(tb.CNames)-1,
+			}
+			columns = append(columns, row)
+		}
+	}
+	if len(columns) > 0 {
+		columns[len(columns)-1]["end"] = false
+	}
+	return columns
+}
+
+func fGetNName(n string) string {
+	items := strings.Split(n, "_")
+	if len(items) <= 1 {
+		return n
+	}
+	return strings.Join(items[1:], "_")
+}
+
+func getFilterName(t string, f string) string {
+	text := make([]string, 0, 1)
+	tb := strings.Split(t, "_")
+	fs := strings.Split(f, "_")
+	for _, v := range fs {
+		ex := false
+		for _, k := range tb {
+			if v == k {
+				ex = true
+				break
+			}
+		}
+		if !ex {
+			text = append(text, v)
+		}
+	}
+	if len(text) == 0 {
+		return "id"
+	}
+	return strings.Join(text, "_")
+
+}
+
 func makeFunc() map[string]interface{} {
 	return map[string]interface{}{
 		"cname": fGetCName,
@@ -242,7 +297,7 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 				modulePath = "modules"
 			}
 			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
-			head, err := translate("head", tpl.DbHeadTpl, input)
+			head, err := translate("head", tmpls.DbHeadTpl, input)
 			if err != nil {
 				return nil, err
 			}

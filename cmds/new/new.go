@@ -3,7 +3,6 @@ package new
 import (
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/module"
-	"github.com/micro-plat/gaea/cmds/new/service"
 	"github.com/micro-plat/gaea/cmds/new/sql"
 	"github.com/urfave/cli"
 )
@@ -17,11 +16,11 @@ func getCmd() cli.Command {
 		Name:  "new",
 		Usage: "创建项目,文件，数据库等",
 		Subcommands: []cli.Command{
-			project.NewProjectCmd(),
+			//project.NewProjectCmd(),
 			module.NewModuleCmd(),
-			service.NewServiceCmd(),
+			//service.NewServiceCmd(),
 			sql.NewSqlCmd(),
-			sql.NewStructCmd(),
+			//sql.NewStructCmd(),
 		},
 	}
 }
