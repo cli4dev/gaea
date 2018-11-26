@@ -28,10 +28,6 @@
 			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
 		},
 		{
-			"ImportPath": "github.com/micro-plat/lib4go/types",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
-		},
-		{
 			"ImportPath": "github.com/micro-plat/lib4go/utility",
 			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
 		},
@@ -43,10 +39,6 @@
 		{
 			"ImportPath": "github.com/zkfy/log",
 			"Rev": "b2704c3ef8960f03712f350344e9232326286b31"
-		},
-		{
-			"ImportPath": "github.com/micro-plat/lib4go/logger/vendor/github.com/zkfy/log",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
 		}
 	]
 }
