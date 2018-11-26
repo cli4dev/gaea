@@ -2,7 +2,7 @@ package tmpls
 
 //InsertMysqlTmpl mysql insert sql 模板
 const InsertMysqlTmpl = `
-//Create{{.name|cname}} 添加{{.desc}}
+//Insert{{.name|cname}} 添加{{.desc}}
 const Insert{{.name|cname}} = 'insert into {{.name}}
 ({{range $i,$c:=.createcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}})
 values({{range $i,$c:=.createcolumns}}@{{$c.name}}{{if $c.end}},{{end}}{{end}})'

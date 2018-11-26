@@ -82,7 +82,8 @@ func GetModulePath() (path string) {
 		return strings.Join([]string{pwd[:comma-1], "/modules"}, "")
 	}
 	//不在modules里面
-	return getModulesPath()
+	//return getModulesPath()
+	return "./modules"
 }
 
 func getModulesPath() string {

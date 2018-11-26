@@ -9,12 +9,12 @@ const Delete{{.name|cname}} = 'delete from {{.name}} where {{range $i,$c:=.pk}}&
 //DeleteFunc delete 函数模板
 const DeleteFunc = `
 //Delete 删除{{.desc}}
-func(d *Db{{.name|cname}}) Delete({{range $i,$c:=.pk -}}{{$c.name|cname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) error {
+func(d *Db{{.name|cname}}) Delete({{range $i,$c:=.pk -}}{{$c.name|aname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) error {
 
 	db := d.c.GetRegularDB()
 	_, q, a, err := db.Execute(sql.Delete{{.name|cname}}, map[string]interface{}{
 		  {{range $i,$c:=.pk -}}
-		  "{{$c.name}}":{{$c.name|cname}},
+		  "{{$c.name}}":{{$c.name|aname}},
 		  {{end -}}
 	})
 	if err != nil {

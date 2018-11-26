@@ -14,12 +14,12 @@ from {{.name}} where {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}}'
 //SelectFunc select 函数模板
 const SelectFunc = `
 //Get 查询单条数据{{.desc}}
-func(d *Db{{.name|cname}}) Get({{range $i,$c:=.pk -}}{{$c.name|cname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) (db.QueryRow,error){
+func(d *Db{{.name|cname}}) Get({{range $i,$c:=.pk -}}{{$c.name|aname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) (db.QueryRow,error){
 
 	db := d.c.GetRegularDB()
 	data, q, a, err := db.Query(sql.Get{{.name|cname}}, map[string]interface{}{
 		{{range $i,$p:=.pk -}}
-		"{{$p.name}}":{{$p.name|cname}},
+		"{{$p.name}}":{{$p.name|aname}},
 		{{end -}}
 	})
 	if err != nil {

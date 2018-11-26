@@ -35,6 +35,9 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic("数据表没有指定约束")
+		}
 		if strings.Contains(tb.Cons[i], "I") && !strings.Contains(tb.Cons[i], "SEQ") {
 			row := map[string]interface{}{
 				"name": v,
@@ -57,6 +60,9 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic("数据表没有指定约束")
+		}
 		if strings.Contains(tb.Cons[i], "Q") && !strings.Contains(tb.Cons[i], "SEQ") {
 			row := map[string]interface{}{
 				"name": v,
@@ -79,6 +85,9 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic("数据表没有指定约束")
+		}
 		if strings.Contains(tb.Cons[i], "U") && !strings.Contains(tb.Cons[i], "SEQ") && !strings.Contains(tb.Cons[i], "PK") {
 			row := map[string]interface{}{
 				"name": v,
@@ -101,6 +110,9 @@ func getSelectColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic("数据表没有指定约束")
+		}
 		if strings.Contains(tb.Cons[i], "S") {
 			row := map[string]interface{}{
 				"name": v,
@@ -132,7 +144,6 @@ func getPks(tb *conf.Table) []map[string]interface{} {
 			}
 			columns = append(columns, row)
 		}
-
 	}
 	if len(columns) > 0 {
 		columns[len(columns)-1]["end"] = false
@@ -195,12 +206,29 @@ func getFilterName(t string, f string) string {
 
 func makeFunc() map[string]interface{} {
 	return map[string]interface{}{
+		"aname": fGetAName,
 		"cname": fGetCName,
 		"ctype": fGetType,
 		"lname": fGetLastName,
 		"lower": fToLower,
 	}
 }
+
+func fGetAName(n string) string {
+	items := strings.Split(n, "_")
+	nitems := make([]string, 0, len(items))
+	for k, i := range items {
+		if k == 0 {
+			nitems = append(nitems, i)
+		}
+		if k > 0 {
+			nitems = append(nitems, strings.ToUpper(i[0:1])+i[1:])
+		}
+
+	}
+	return strings.Join(nitems, "")
+}
+
 func fGetCName(n string) string {
 	items := strings.Split(n, "_")
 	nitems := make([]string, 0, len(items))
@@ -267,7 +295,7 @@ func translate(tag string, tplName string, input interface{}) (string, error) {
 //@tbs 表结构体
 //@filters 过滤字段
 //@makeFunc 是否生成函数
-//return out 返回数据
+//@return out 返回数据
 func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFunc bool, modulePath string) (out map[string]map[string]string, err error) {
 	out = map[string]map[string]string{}
 	for _, tb := range tbs {
@@ -293,7 +321,7 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 		}
 		if makeFunc { //生成函数
 			c := make(map[string]string)
-			if strings.Contains(modulePath, "sql") {
+			if strings.Contains(modulePath, "sql") || !strings.Contains(modulePath, "modules") {
 				modulePath = "modules"
 			}
 			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
@@ -305,9 +333,9 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 			out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = c
 		} else { //生成sql
 			c := make(map[string]string)
-			if !strings.Contains(modulePath, "sql") {
-				modulePath = strings.Join([]string{modulePath, "/const/sql"}, "")
-			}
+
+			modulePath = "modules/const/sql"
+
 			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
 			out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = c
 		}
@@ -318,14 +346,10 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 	return out, nil
 }
 
-//CreateFile .
+//createFile
 //创建并生成文件
-func CreateFile(add, cover bool, data map[string]map[string]string) error {
+func createFile(add bool, data map[string]map[string]string) error {
 	for k, v := range data {
-		if cover {
-			cmds.Log.Warnf("覆盖文件：%s", k)
-			os.Remove(k)
-		}
 		_, ok := v["head"]
 		if ok { //生成函数文件头
 			_, err := os.Stat(k)
@@ -369,8 +393,7 @@ func CreateFile(add, cover bool, data map[string]map[string]string) error {
 			}
 		}
 		if !add {
-			cmds.Log.Warn("未输入 -add 不执行任何操作")
-			continue
+			return fmt.Errorf("文件已经存在：%s，未输入 -add 不执行任何操作", k)
 		}
 		srcf, err := os.OpenFile(k, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 		if err != nil {
@@ -383,7 +406,24 @@ func CreateFile(add, cover bool, data map[string]map[string]string) error {
 			return err
 		}
 		cmds.Log.Info("写入文件成功:", k)
+
 	}
 	return nil
 
+}
+
+//CreateModulesFile 创建 modules 文件
+func CreateModulesFile(add, cover bool, tmpls map[string]map[string]string) (err error) {
+	if cover {
+		for k := range tmpls {
+			cmds.Log.Warnf("覆盖文件：%s", k)
+			os.Remove(k)
+		}
+	}
+	//创建文件
+	if err = createFile(add, tmpls); err != nil {
+		cmds.Log.Error(err)
+		return err
+	}
+	return nil
 }

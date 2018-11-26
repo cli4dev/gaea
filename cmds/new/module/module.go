@@ -6,6 +6,8 @@ import (
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
+	"github.com/micro-plat/gaea/cmds/new/util/data"
+
 	"github.com/micro-plat/gaea/cmds/new/util/md"
 	"github.com/micro-plat/gaea/cmds/new/util/path"
 	"github.com/urfave/cli"
@@ -102,10 +104,11 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 		modulePath = path.GetModulePath()
 	}
 	if modulePath == "" || !strings.Contains(modulePath, "modules") {
-		cmds.Log.Error("没有指定 modules,或 'modules' 输入错误")
-		return nil
+		modulePath = "modules/" + o
 	}
-
+	if cover {
+		add = true
+	}
 	//创建文件
 	for _, v := range mdList {
 		//获取数据表
@@ -131,16 +134,53 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, modulePath string) (err error) {
 
 	if c {
-		err = p.makeInsertFunc(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeInsertFunc(add, cover, tables, filters, modulePath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateModulesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
 	}
 	if r {
-		err = p.makeSelectFunc(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeSelectFunc(add, cover, tables, filters, modulePath)
+		if err != nil {
+			return err
+		}
+		err = data.CreateModulesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
 	}
 	if u {
-		err = p.makeUpdateFunc(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeUpdateFunc(add, cover, tables, filters, modulePath)
+		if err != nil {
+			return err
+		}
+		err = data.CreateModulesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
 	}
 	if d {
-		err = p.makeDeleteFunc(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeDeleteFunc(add, cover, tables, filters, modulePath)
+		if err != nil {
+			return err
+		}
+		err = data.CreateModulesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
 	}
 	return err
 }
@@ -148,16 +188,56 @@ func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, tables []*conf.Tab
 func (p *moduleCmd) makeSQL(c, r, u, d, add, cover bool, db string, tables []*conf.Table, filters []string, modulePath string) (err error) {
 
 	if c {
-		err = p.makeInsertSQL(add, cover, db, tables, filters, modulePath)
+		tmpls, err := p.makeInsertSQL(add, cover, db, tables, filters, modulePath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateModulesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
 	}
 	if r {
-		err = p.makeSelectSQL(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeSelectSQL(add, cover, tables, filters, modulePath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateModulesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
 	}
 	if u {
-		err = p.makeUpdateSQL(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeUpdateSQL(add, cover, tables, filters, modulePath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateModulesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
 	}
 	if d {
-		err = p.makeDeleteSQL(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeDeleteSQL(add, cover, tables, filters, modulePath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateModulesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
 	}
 	return err
 }
