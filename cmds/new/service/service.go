@@ -30,16 +30,16 @@ func (p *serviceCmd) geStartFlags() []cli.Flag {
 	flags := make([]cli.Flag, 0, 4)
 	flags = append(flags, cli.BoolFlag{
 		Name:  "c",
-		Usage: "根据表结构生成 insert 函数,insert SQL语句，输入参数实体等文件",
+		Usage: "根据表结构生成 post handle函数",
 	}, cli.BoolFlag{
 		Name:  "r",
-		Usage: "根据表结构生成 select 函数,select SQL语句，输入参数实体等文件",
+		Usage: "根据表结构生成 get and query handle 函数",
 	}, cli.BoolFlag{
 		Name:  "u",
-		Usage: "根据表结构生成 update 函数,update SQL语句，输入参数实体等文件",
+		Usage: "根据表结构生成 update handle函数",
 	}, cli.BoolFlag{
 		Name:  "d",
-		Usage: "根据表结构生成 delete 函数,delet SQL语句，输入参数实体等文件",
+		Usage: "根据表结构生成 delete handle函数",
 	}, cli.StringSliceFlag{
 		Name:  "f",
 		Usage: "过滤器，指定表明或关键字",
@@ -51,10 +51,10 @@ func (p *serviceCmd) geStartFlags() []cli.Flag {
 		Usage: "生成的文件输出路径",
 	}, cli.BoolFlag{
 		Name:  "add,a",
-		Usage: "是否执行追加crud函数和sql语句操作",
+		Usage: "是否执行追加 handle 函数",
 	}, cli.BoolFlag{
 		Name:  "cover",
-		Usage: "是否执行覆盖crud函数和sql语句操作",
+		Usage: "是否执行覆盖 handle 函数操作",
 	})
 	return flags
 }

@@ -2,6 +2,7 @@ package new
 
 import (
 	"github.com/micro-plat/gaea/cmds"
+	"github.com/micro-plat/gaea/cmds/new/key"
 	"github.com/micro-plat/gaea/cmds/new/module"
 	"github.com/micro-plat/gaea/cmds/new/service"
 	"github.com/micro-plat/gaea/cmds/new/sql"
@@ -21,6 +22,7 @@ func getCmd() cli.Command {
 			module.NewModuleCmd(),
 			service.NewServiceCmd(),
 			sql.NewSqlCmd(),
+			key.NewKeyCmd(),
 			//sql.NewStructCmd(),
 		},
 	}
