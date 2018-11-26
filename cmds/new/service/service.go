@@ -1,13 +1,13 @@
-package project
+package service
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/project/tmpls"
+	"github.com/micro-plat/gaea/cmds/new/util/conf"
+	"github.com/micro-plat/gaea/cmds/new/util/data"
+	"github.com/micro-plat/gaea/cmds/new/util/md"
 	"github.com/micro-plat/gaea/cmds/new/util/path"
 	"github.com/urfave/cli"
 )
@@ -15,6 +15,7 @@ import (
 type serviceCmd struct {
 }
 
+//NewServiceCmd .
 func NewServiceCmd() cli.Command {
 	p := &serviceCmd{}
 	return cli.Command{
@@ -27,76 +28,148 @@ func NewServiceCmd() cli.Command {
 
 func (p *serviceCmd) geStartFlags() []cli.Flag {
 	flags := make([]cli.Flag, 0, 4)
-	flags = append(flags, cli.StringSliceFlag{
-		Name:  "service,s",
-		Usage: "注册的模块名称",
-	})
 	flags = append(flags, cli.BoolFlag{
-		Name:  "restful,r",
-		Usage: "生成restful风格的服务代码",
+		Name:  "c",
+		Usage: "根据表结构生成 insert 函数,insert SQL语句，输入参数实体等文件",
+	}, cli.BoolFlag{
+		Name:  "r",
+		Usage: "根据表结构生成 select 函数,select SQL语句，输入参数实体等文件",
+	}, cli.BoolFlag{
+		Name:  "u",
+		Usage: "根据表结构生成 update 函数,update SQL语句，输入参数实体等文件",
+	}, cli.BoolFlag{
+		Name:  "d",
+		Usage: "根据表结构生成 delete 函数,delet SQL语句，输入参数实体等文件",
+	}, cli.StringSliceFlag{
+		Name:  "f",
+		Usage: "过滤器，指定表明或关键字",
+	}, cli.StringFlag{
+		Name:  "t",
+		Usage: "指定数据表 md 文件",
+	}, cli.StringFlag{
+		Name:  "o",
+		Usage: "生成的文件输出路径",
+	}, cli.BoolFlag{
+		Name:  "add,a",
+		Usage: "是否执行追加crud函数和sql语句操作",
+	}, cli.BoolFlag{
+		Name:  "cover",
+		Usage: "是否执行覆盖crud函数和sql语句操作",
 	})
 	return flags
 }
 
 func (p *serviceCmd) action(c *cli.Context) (err error) {
-	if c.NArg() == 0 {
-		err = fmt.Errorf("未指定项目名称")
-		fmt.Println(err)
-		cli.ShowCommandHelp(c, c.Command.Name)
-		return err
-	}
-	projectName := strings.Trim(c.Args().First(), "/")
-	modules := c.StringSlice("service")
 
-	if err := p.new(projectName, "", modules, c.Bool("restful")); err != nil {
-		cmds.Log.Error(err)
-	}
-	cmds.Log.Info("服务生成完成")
-	return nil
+	return p.createServices(
+		c.Bool("c"),
+		c.Bool("r"),
+		c.Bool("u"),
+		c.Bool("d"),
+		c.Bool("add"),
+		c.Bool("cover"),
+		c.String("t"),
+		c.String("o"),
+		c.StringSlice("f"),
+	)
 }
 
-func (p *serviceCmd) new(projectName string, serviceType string, modules []string, restful bool) error {
-	gopath, err := path.GetGoPath()
-	if err != nil {
+func (p *serviceCmd) createServices(c, r, u, d, add, cover bool, t, o string, f []string) (err error) {
+
+	//查找*.md文件
+	mdList := []string{t}
+	if t == "" {
+		mdList = path.GetMDPath()
+	}
+
+	//判断是否有文件
+	if len(mdList) == 0 {
+		err = fmt.Errorf("未找到任何 *.md 文件")
 		return err
 	}
-	projectPath := filepath.Join(gopath, "src", projectName)
-	tmpls, err := tmpls.GetServiceTmpls(projectName, serviceType, modules, restful)
-	if err != nil {
-		return err
+
+	//获取services文件路径位置
+	serverPath := o
+	if o == "" {
+		serverPath = path.GetServerPath()
 	}
-	return p.createProject(projectPath, tmpls)
+	if serverPath == "" || !strings.Contains(serverPath, "services") {
+		serverPath = "services/" + o
+	}
+	if cover {
+		add = true
+	}
+	//创建文件
+	for _, v := range mdList {
+		//获取数据表
 
-}
-
-func (p *serviceCmd) createProject(projectPath string, data map[string]string) error {
-	for k, v := range data {
-		path := filepath.Join(projectPath, k)
-		dir := filepath.Dir(path)
-		_, err := os.Stat(dir)
-		if os.IsNotExist(err) {
-			err := os.MkdirAll(dir, 0777)
-			if err != nil {
-				err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
-				return err
-			}
-		}
-		if _, err := os.Stat(path); err == nil || os.IsExist(err) {
-			cmds.Log.Warn("文件已存在:", path)
+		tables, err := md.Markdown2Table(v)
+		if err != nil {
+			cmds.Log.Error(err)
 			continue
 		}
-		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0777)
-		if err != nil {
-			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
-			return err
-		}
-		defer srcf.Close()
-		_, err = srcf.WriteString(v)
+
+		err = p.makeServices(c, r, u, d, add, cover, tables, f, serverPath)
 		if err != nil {
 			return err
 		}
-		cmds.Log.Info("生成文件:", path)
 	}
 	return nil
+}
 
+func (p *serviceCmd) makeServices(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, serverPath string) error {
+	if c {
+		tmpls, err := p.makePostHandle(add, cover, tables, filters, serverPath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateServicesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
+	}
+	if r {
+		tmpls, err := p.makeGetAndQueryHandle(add, cover, tables, filters, serverPath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateServicesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
+	}
+	if u {
+		tmpls, err := p.makePutHandle(add, cover, tables, filters, serverPath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateServicesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
+	}
+	if d {
+		tmpls, err := p.makeDeleteHandle(add, cover, tables, filters, serverPath)
+		if err != nil {
+			return err
+		}
+
+		err = data.CreateServicesFile(add, cover, tmpls)
+		if err != nil {
+			return err
+		}
+
+		cover = false
+	}
+
+	return nil
 }

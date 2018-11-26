@@ -86,6 +86,20 @@ func GetModulePath() (path string) {
 	return "./modules"
 }
 
+//GetServerPath .
+//path  有modules的目录   比如 /github.com/micro-plat/gaea/modules/
+func GetServerPath() (path string) {
+	pwd, _ := os.Getwd()
+	//在services里面
+	if strings.Contains(pwd, "services") {
+		comma := strings.Index(pwd, "services")
+		return strings.Join([]string{pwd[:comma-1], "/services"}, "")
+	}
+	//不在services里面
+
+	return "./services"
+}
+
 func getModulesPath() string {
 	p := getModulesPathRec(".")
 	if len(p) >= 1 {

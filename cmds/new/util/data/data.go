@@ -12,6 +12,7 @@ import (
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/module/tmpls"
+	tpl "github.com/micro-plat/gaea/cmds/new/service/tmpls"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
 )
 
@@ -208,6 +209,7 @@ func makeFunc() map[string]interface{} {
 	return map[string]interface{}{
 		"aname": fGetAName,
 		"cname": fGetCName,
+		"pname": fGetPName,
 		"ctype": fGetType,
 		"lname": fGetLastName,
 		"lower": fToLower,
@@ -237,6 +239,15 @@ func fGetCName(n string) string {
 	}
 	return strings.Join(nitems, "")
 }
+
+func fGetPName(n string) string {
+	items := strings.Split(n, "_")
+	if len(items) >= 2 {
+		return items[len(items)-2]
+	}
+	return items[0]
+}
+
 func fGetType(n string) string {
 	switch {
 	case strings.Contains(n, "varchar"):
@@ -346,9 +357,59 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 	return out, nil
 }
 
+//GetServerTmples 获取模板
+//@tag 模板标签
+//@tplName 模板名字
+//@tbs 表结构体
+//@filters 过滤字段
+//@makeFunc 是否生成函数
+//@return out 返回数据
+func GetServerTmples(tag, tplName string, tbs []*conf.Table, filters []string, serverPath string) (out map[string]map[string]string, err error) {
+	out = map[string]map[string]string{}
+	for _, tb := range tbs {
+		if len(filters) > 0 {
+			e := false
+			for _, f := range filters {
+				if strings.EqualFold(tb.Name, f) {
+					e = true
+					break
+				}
+			}
+			if !e {
+				continue
+			}
+		}
+		//获取模板数据
+		input := getInputData(tb)
+		//翻译模板
+		content, err := translate(tag, tplName, input)
+
+		if err != nil {
+			return nil, err
+		}
+
+		c := make(map[string]string)
+		if !strings.Contains(serverPath, "services") {
+			serverPath = "services"
+		}
+		c[fmt.Sprintf(serverPath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
+		head, err := translate("head", tpl.HeadTpl, input)
+		if err != nil {
+			return nil, err
+		}
+		c["head"] = strings.Replace(head, "'", "`", -1)
+		out[fmt.Sprintf(serverPath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = c
+
+		if err != nil {
+			return nil, err
+		}
+	}
+	return out, nil
+}
+
 //createFile
 //创建并生成文件
-func createFile(add bool, data map[string]map[string]string) error {
+func createFile(add bool, ms string, data map[string]map[string]string) error {
 	for k, v := range data {
 		_, ok := v["head"]
 		if ok { //生成函数文件头
@@ -366,8 +427,16 @@ func createFile(add bool, data map[string]map[string]string) error {
 				m := strings.Split(k, "/")
 				absPath, _ := filepath.Abs(k)
 				i := strings.Index(absPath, "src")
-				j := strings.Index(absPath, "modules")
-				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2], absPath[i+4:j]))
+				j := strings.Index(absPath, ms)
+				var packageName string
+				if ms == "modules" {
+					packageName = absPath[i+4 : j]
+				} else {
+					str := strings.Replace(absPath[i+4:], "services", "modules", -1)
+					strSlice := strings.Split(str, "/")
+					packageName = strings.Join(strSlice[:len(strSlice)-1], "/")
+				}
+				_, err = f.WriteString(fmt.Sprintf(v["head"], m[len(m)-2], packageName))
 				if err != nil {
 					return err
 				}
@@ -418,10 +487,28 @@ func CreateModulesFile(add, cover bool, tmpls map[string]map[string]string) (err
 		for k := range tmpls {
 			cmds.Log.Warnf("覆盖文件：%s", k)
 			os.Remove(k)
+			break
 		}
 	}
 	//创建文件
-	if err = createFile(add, tmpls); err != nil {
+	if err = createFile(add, "modules", tmpls); err != nil {
+		cmds.Log.Error(err)
+		return err
+	}
+	return nil
+}
+
+//CreateServicesFile .
+func CreateServicesFile(add, cover bool, tmpls map[string]map[string]string) (err error) {
+	if cover {
+		for k := range tmpls {
+			cmds.Log.Warnf("覆盖文件：%s", k)
+			os.Remove(k)
+			break
+		}
+	}
+	//创建文件
+	if err = createFile(add, "services", tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}

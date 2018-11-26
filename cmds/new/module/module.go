@@ -16,6 +16,7 @@ import (
 type moduleCmd struct {
 }
 
+//NewModuleCmd .
 func NewModuleCmd() cli.Command {
 	p := &moduleCmd{}
 	return cli.Command{
