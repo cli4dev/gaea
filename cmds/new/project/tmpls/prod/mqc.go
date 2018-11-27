@@ -1,0 +1,3 @@
+package prod
+
+const Mqc = ``

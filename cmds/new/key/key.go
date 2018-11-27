@@ -19,7 +19,7 @@ func NewKeyCmd() cli.Command {
 	p := &keyCmd{}
 	return cli.Command{
 		Name:   "key",
-		Usage:  "生成 jwt 加密 key",
+		Usage:  "生成 jwt 加密所需的 key",
 		Flags:  p.geStartFlags(),
 		Action: p.action,
 	}

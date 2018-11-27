@@ -52,7 +52,7 @@ func getMDFileList(path string) (mdListfile []string, err error) {
 
 //getMDPathRec .
 func getMDPathRec(path string) []string {
-	if strings.Contains(path, "../../") {
+	if strings.Contains(path, "../") {
 		cmds.Log.Error("没有找到 md 文件")
 		return nil
 	}

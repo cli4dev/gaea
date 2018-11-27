@@ -5,43 +5,46 @@ import (
 	"html/template"
 	"path/filepath"
 	"strings"
+
+	"github.com/micro-plat/gaea/cmds/new/project/tmpls/dev"
+	"github.com/micro-plat/gaea/cmds/new/project/tmpls/prod"
 )
 
 //GetServiceTmpls 获取服务模块
-func GetServiceTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
-	rmodules := getRModules(modules)
-	input := makeParams(projectName, serverType, rmodules, restful)
-	out = make(map[string]string)
-	for _, m := range rmodules {
-		input["moduleName"] = m
-		if out[filepath.Join("services", m+".go")], err = translate(serviceTmpl, input); err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
+// func GetServiceTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
+// 	rmodules := getRModules(modules)
+// 	input := makeParams(projectName, serverType, rmodules, restful)
+// 	out = make(map[string]string)
+// 	for _, m := range rmodules {
+// 		input["moduleName"] = m
+// 		if out[filepath.Join("services", m+".go")], err = translate(serviceTmpl, input); err != nil {
+// 			return nil, err
+// 		}
+// 	}
+// 	return out, nil
+// }
 
 //GetModuleTmpls 获取服务模块
-func GetModuleTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
-	rmodules := getRModules(modules)
-	input := makeParams(projectName, serverType, rmodules, restful)
-	out = make(map[string]string)
-	for _, m := range rmodules {
-		input["moduleName"] = m
-		if out[filepath.Join("modules", m+".go")], err = translate(moduleTmpl, input); err != nil {
-			return nil, err
-		}
-		if out[filepath.Join("modules", "const", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
-			return nil, err
-		}
-	}
-	return out, nil
-}
+// func GetModuleTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
+// 	rmodules := getRModules(modules)
+// 	input := makeParams(projectName, serverType, rmodules, restful)
+// 	out = make(map[string]string)
+// 	for _, m := range rmodules {
+// 		input["moduleName"] = m
+// 		if out[filepath.Join("modules", m+".go")], err = translate(moduleTmpl, input); err != nil {
+// 			return nil, err
+// 		}
+// 		if out[filepath.Join("modules", "const", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
+// 			return nil, err
+// 		}
+// 	}
+// 	return out, nil
+// }
 
 //GetTmpls 获取模板
-func GetTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
-	rmodules := getRModules(modules)
-	input := makeParams(projectName, serverType, rmodules, restful)
+func GetTmpls(projectName string, serverType string) (out map[string]string, err error) {
+
+	input := makeParams(projectName, serverType)
 	out = make(map[string]string)
 	if out["main.go"], err = translate(mainTmpl, input); err != nil {
 		return nil, err
@@ -61,20 +64,65 @@ func GetTmpls(projectName string, serverType string, modules []string, restful b
 	if out[".gitignore"], err = translate(gitignoreTmpl, input); err != nil {
 		return nil, err
 	}
-	for _, m := range rmodules {
-		input["moduleName"] = m
-		if out[filepath.Join("services", m+".go")], err = translate(serviceTmpl, input); err != nil {
-			return nil, err
-		}
-		if out[filepath.Join("modules", m+".go")], err = translate(moduleTmpl, input); err != nil {
-			return nil, err
-		}
-		if out[filepath.Join("modules", "const", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
-			return nil, err
+	serverTypeSlice := strings.Split(serverType, "-")
+
+	for _, v := range serverTypeSlice {
+		switch v {
+		case "api":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Api, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Api, "\"", "`", -1), "'", "\"", -1), input)
+		case "cron":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Cron, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Cron, "\"", "`", -1), "'", "\"", -1), input)
+		case "rpc":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Rpc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Rpc, "\"", "`", -1), "'", "\"", -1), input)
+		case "mqc":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Mqc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Mqc, "\"", "`", -1), "'", "\"", -1), input)
+		case "web":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Web, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Web, "\"", "`", -1), "'", "\"", -1), input)
 		}
 	}
+	out["conf.dev.plat.go"], _ = translate(strings.Replace(strings.Replace(dev.Plat, "\"", "`", -1), "'", "\"", -1), input)
+	out["conf.prod.plat.go"], _ = translate(strings.Replace(strings.Replace(prod.Plat, "\"", "`", -1), "'", "\"", -1), input)
+	out["db.md"] = ""
+	out["modules/const/sql/sql.go"] = "dir"
+	out["services/server.go"] = "dir"
+
 	return out, nil
 }
+
+//GetConfTmpls 获取配置模板
+func GetConfTmpls(serverType string) (out map[string]string, err error) {
+
+	out = make(map[string]string)
+	input := make(map[string]interface{})
+	serverTypeSlice := strings.Split(serverType, "-")
+	for _, v := range serverTypeSlice {
+		switch v {
+		case "api":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Api, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Api, "\"", "`", -1), "'", "\"", -1), input)
+		case "cron":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Cron, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Cron, "\"", "`", -1), "'", "\"", -1), input)
+		case "rpc":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Rpc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Rpc, "\"", "`", -1), "'", "\"", -1), input)
+		case "mqc":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Mqc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Mqc, "\"", "`", -1), "'", "\"", -1), input)
+		case "web":
+			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Web, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Web, "\"", "`", -1), "'", "\"", -1), input)
+		}
+	}
+
+	return out, nil
+}
+
 func getServices(serverType string) []string {
 	s := make([]string, 0, 2)
 	if strings.Contains(serverType, "api") || strings.Contains(serverType, "rpc") {
@@ -87,8 +135,8 @@ func getServices(serverType string) []string {
 		s = append(s, "Page")
 	}
 	return s
-
 }
+
 func translate(c string, input interface{}) (string, error) {
 	var tmpl = template.New("api").Funcs(makeFunc())
 	np, err := tmpl.Parse(c)
@@ -101,16 +149,17 @@ func translate(c string, input interface{}) (string, error) {
 	}
 	return buff.String(), nil
 }
-func makeParams(projectName string, serverType string, modules []string, restful bool) map[string]interface{} {
+
+//获取生成项目的数据
+func makeParams(projectName string, serverType string) map[string]interface{} {
 	return map[string]interface{}{
 		"projectName": projectName,
 		"serverType":  serverType,
-		"modules":     modules,
-		"pkgs":        gGetModulePackageName(modules),
-		"rss":         getServices(serverType),
-		"restful":     restful,
+		//	"pkgs":    gGetModulePackageName(modules),
+		"rss": getServices(serverType),
 	}
 }
+
 func getRModules(modules []string) []string {
 	nmodule := make([]string, 0, len(modules)+1)
 	for _, m := range modules {
@@ -121,6 +170,7 @@ func getRModules(modules []string) []string {
 	}
 	return nmodule
 }
+
 func makeFunc() map[string]interface{} {
 	return map[string]interface{}{
 		"humpName": fGetHumpName,           //多个单词首字符大写
@@ -130,6 +180,7 @@ func makeFunc() map[string]interface{} {
 		"fName":    fGetFirstName,          //取第一个单词
 	}
 }
+
 func fGetFirstName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	return names[0]
@@ -143,6 +194,7 @@ func fGetHumpName(n string) string {
 	}
 	return strings.Replace(buff.String(), ".", "", -1)
 }
+
 func fGetLoopHumpName(n string, s string) string {
 	names := strings.Split(strings.Trim(n, s), s)
 	buff := bytes.NewBufferString("")
@@ -160,6 +212,7 @@ func fGetServicePackageName(n string) string {
 	}
 	return strings.ToLower(strings.Join(names[0:len(names)-1], "/"))
 }
+
 func fGetPackageName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	if len(names) == 1 {
@@ -167,6 +220,7 @@ func fGetPackageName(n string) string {
 	}
 	return strings.Join(names[0:len(names)-1], "/")
 }
+
 func fGetModulePackageName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	if len(names) == 1 {
@@ -174,6 +228,7 @@ func fGetModulePackageName(n string) string {
 	}
 	return strings.ToLower(strings.Join(names[0:len(names)-1], "/"))
 }
+
 func fGetServicePackagePath(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	if len(names) == 1 {
@@ -186,6 +241,7 @@ func fGetLastName(n string) string {
 	names := strings.Split(strings.Trim(n, "/"), "/")
 	return names[len(names)-1]
 }
+
 func gGetModulePackageName(module []string) []string {
 	npkgs := make([]string, 0, len(module)/2)
 	n := make(map[string]string)
