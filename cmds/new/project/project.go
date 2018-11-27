@@ -144,8 +144,14 @@ func (p *projectCmd) writeConf(projectPath string, data map[string]string) error
 			if err != nil {
 				return fmt.Errorf("打开文件install.dev.go失败. err: " + err.Error())
 			}
-			n, _ := f.Seek(0, os.SEEK_END)
+			n, err := f.Seek(0, os.SEEK_END)
+			if err != nil {
+				return err
+			}
 			_, err = f.WriteAt([]byte(v), n-2)
+			if err != nil {
+				return err
+			}
 			f.Close()
 			cmds.Log.Info("写入dev配置成功")
 		}
@@ -154,9 +160,15 @@ func (p *projectCmd) writeConf(projectPath string, data map[string]string) error
 			if err != nil {
 				return fmt.Errorf("打开文件install.prod.go失败. err: " + err.Error())
 			}
-			n, _ := f.Seek(0, os.SEEK_END)
+			n, err := f.Seek(0, os.SEEK_END)
+			if err != nil {
+				return err
+			}
 			_, err = f.WriteAt([]byte(v), n-2)
-			f.Close()
+			if err != nil {
+				return err
+			}
+			defer f.Close()
 			cmds.Log.Info("写入prod配置成功")
 		}
 	}
