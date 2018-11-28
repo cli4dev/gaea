@@ -10,37 +10,6 @@ import (
 	"github.com/micro-plat/gaea/cmds/new/project/tmpls/prod"
 )
 
-//GetServiceTmpls 获取服务模块
-// func GetServiceTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
-// 	rmodules := getRModules(modules)
-// 	input := makeParams(projectName, serverType, rmodules, restful)
-// 	out = make(map[string]string)
-// 	for _, m := range rmodules {
-// 		input["moduleName"] = m
-// 		if out[filepath.Join("services", m+".go")], err = translate(serviceTmpl, input); err != nil {
-// 			return nil, err
-// 		}
-// 	}
-// 	return out, nil
-// }
-
-//GetModuleTmpls 获取服务模块
-// func GetModuleTmpls(projectName string, serverType string, modules []string, restful bool) (out map[string]string, err error) {
-// 	rmodules := getRModules(modules)
-// 	input := makeParams(projectName, serverType, rmodules, restful)
-// 	out = make(map[string]string)
-// 	for _, m := range rmodules {
-// 		input["moduleName"] = m
-// 		if out[filepath.Join("modules", m+".go")], err = translate(moduleTmpl, input); err != nil {
-// 			return nil, err
-// 		}
-// 		if out[filepath.Join("modules", "const", "sql", strings.Replace(fGetPackageName(m), "/", ".", -1)+".go")], err = translate(sqlTmpl, input); err != nil {
-// 			return nil, err
-// 		}
-// 	}
-// 	return out, nil
-// }
-
 //GetTmpls 获取模板
 func GetTmpls(projectName string, serverType string) (out map[string]string, err error) {
 
@@ -69,20 +38,20 @@ func GetTmpls(projectName string, serverType string) (out map[string]string, err
 	for _, v := range serverTypeSlice {
 		switch v {
 		case "api":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Api, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Api, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.api.go"], _ = translate(strings.Replace(strings.Replace(dev.Api, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.api.go"], _ = translate(strings.Replace(strings.Replace(prod.Api, "\"", "`", -1), "'", "\"", -1), input)
 		case "cron":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Cron, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Cron, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.cron.go"], _ = translate(strings.Replace(strings.Replace(dev.Cron, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.cron.go"], _ = translate(strings.Replace(strings.Replace(prod.Cron, "\"", "`", -1), "'", "\"", -1), input)
 		case "rpc":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Rpc, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Rpc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.rpc.go"], _ = translate(strings.Replace(strings.Replace(dev.Rpc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.rpc.go"], _ = translate(strings.Replace(strings.Replace(prod.Rpc, "\"", "`", -1), "'", "\"", -1), input)
 		case "mqc":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Mqc, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Mqc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.mqc.go"], _ = translate(strings.Replace(strings.Replace(dev.Mqc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.mqc.go"], _ = translate(strings.Replace(strings.Replace(prod.Mqc, "\"", "`", -1), "'", "\"", -1), input)
 		case "web":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Web, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Web, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.web.go"], _ = translate(strings.Replace(strings.Replace(dev.Web, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.web.go"], _ = translate(strings.Replace(strings.Replace(prod.Web, "\"", "`", -1), "'", "\"", -1), input)
 		}
 	}
 	out["conf.dev.plat.go"], _ = translate(strings.Replace(strings.Replace(dev.Plat, "\"", "`", -1), "'", "\"", -1), input)
@@ -103,20 +72,20 @@ func GetConfTmpls(serverType string) (out map[string]string, err error) {
 	for _, v := range serverTypeSlice {
 		switch v {
 		case "api":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Api, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Api, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.api.go"], _ = translate(strings.Replace(strings.Replace(dev.Api, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.api.go"], _ = translate(strings.Replace(strings.Replace(prod.Api, "\"", "`", -1), "'", "\"", -1), input)
 		case "cron":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Cron, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Cron, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.cron.go"], _ = translate(strings.Replace(strings.Replace(dev.Cron, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.cron.go"], _ = translate(strings.Replace(strings.Replace(prod.Cron, "\"", "`", -1), "'", "\"", -1), input)
 		case "rpc":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Rpc, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Rpc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.rpc.go"], _ = translate(strings.Replace(strings.Replace(dev.Rpc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.rpc.go"], _ = translate(strings.Replace(strings.Replace(prod.Rpc, "\"", "`", -1), "'", "\"", -1), input)
 		case "mqc":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Mqc, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Mqc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.mqc.go"], _ = translate(strings.Replace(strings.Replace(dev.Mqc, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.mqc.go"], _ = translate(strings.Replace(strings.Replace(prod.Mqc, "\"", "`", -1), "'", "\"", -1), input)
 		case "web":
-			out["conf.dev."+v+".go"], _ = translate(strings.Replace(strings.Replace(dev.Web, "\"", "`", -1), "'", "\"", -1), input)
-			out["conf.prod."+v+".go"], _ = translate(strings.Replace(strings.Replace(prod.Web, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.dev.web.go"], _ = translate(strings.Replace(strings.Replace(dev.Web, "\"", "`", -1), "'", "\"", -1), input)
+			out["conf.prod.web.go"], _ = translate(strings.Replace(strings.Replace(prod.Web, "\"", "`", -1), "'", "\"", -1), input)
 		}
 	}
 

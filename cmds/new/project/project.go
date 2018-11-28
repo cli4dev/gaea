@@ -158,7 +158,7 @@ func (p *projectCmd) writeConf(projectPath string, data map[string]string) error
 			if err != nil {
 				return err
 			}
-			f.Close()
+			defer f.Close()
 			cmds.Log.Info("写入dev配置成功")
 		}
 		if strings.HasPrefix(k, "conf.prod") {

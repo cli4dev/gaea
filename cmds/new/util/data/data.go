@@ -21,10 +21,10 @@ func getInputData(tb *conf.Table) map[string]interface{} {
 	input := map[string]interface{}{
 		"name":          tb.Name,
 		"desc":          tb.Desc,
-		"createcolumns": getCreateColumns(tb),
-		"querycolumns":  getQueryColumns(tb),
-		"updatecolumns": getUpdateColumns(tb),
-		"selectcolumns": getSelectColumns(tb),
+		"createcolumns": getCreateColumns(tb), //创建数据必需的字段
+		"querycolumns":  getQueryColumns(tb),  //查询字段
+		"updatecolumns": getUpdateColumns(tb), //可更新的字段
+		"selectcolumns": getSelectColumns(tb), //要显示的字段
 		"pk":            getPks(tb),
 		"seqs":          getSeqs(tb),
 	}
@@ -407,6 +407,44 @@ func GetServerTmples(tag, tplName string, tbs []*conf.Table, filters []string, s
 	return out, nil
 }
 
+//GetHTMLTmples 获取模板
+//@tag 模板标签
+//@tplName 模板名字
+//@tbs 表结构体
+//@filters 过滤字段
+//@return out 返回数据
+func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, htmlPath string) (out map[string]map[string]string, err error) {
+	out = map[string]map[string]string{}
+	for _, tb := range tbs {
+		if len(filters) > 0 {
+			e := false
+			for _, f := range filters {
+				if strings.EqualFold(tb.Name, f) {
+					e = true
+					break
+				}
+			}
+			if !e {
+				continue
+			}
+		}
+		//获取模板数据
+		input := getInputData(tb)
+		//翻译模板
+		content, err := translate(tag, tplName, input)
+		if err != nil {
+			return nil, err
+		}
+		c := make(map[string]string)
+		if !strings.Contains(htmlPath, "html") {
+			htmlPath = "html"
+		}
+		c[fmt.Sprintf(htmlPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
+		out[fmt.Sprintf(htmlPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
+	}
+	return out, nil
+}
+
 //createFile
 //创建并生成文件
 func createFile(add bool, ms string, data map[string]map[string]string) error {
@@ -454,11 +492,15 @@ func createFile(add bool, ms string, data map[string]map[string]string) error {
 					return err
 				}
 				defer f.Close()
-				_, err = f.WriteString("package sql")
+
+				headStr := "package sql"
+				if strings.Contains(k, "vue") {
+					headStr = ""
+				}
+				_, err = f.WriteString(headStr)
 				if err != nil {
 					return err
 				}
-				cmds.Log.Info("写入sql头部文件成功:", k)
 			}
 		}
 		if !add {
@@ -492,6 +534,20 @@ func CreateModulesFile(add, cover bool, tmpls map[string]map[string]string) (err
 	}
 	//创建文件
 	if err = createFile(add, "modules", tmpls); err != nil {
+		cmds.Log.Error(err)
+		return err
+	}
+	return nil
+}
+
+//CreateHTMLFile 创建 vue 文件
+func CreateHTMLFile(tmpls map[string]map[string]string) (err error) {
+	for k := range tmpls {
+		cmds.Log.Warnf("覆盖文件：%s", k)
+		os.Remove(k)
+	}
+	//创建文件
+	if err = createFile(true, "html", tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}

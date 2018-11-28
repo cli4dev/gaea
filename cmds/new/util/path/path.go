@@ -86,6 +86,17 @@ func GetModulePath() (path string) {
 	return "./modules"
 }
 
+//GetHTMLPath .
+func GetHTMLPath() (path string) {
+	pwd, _ := os.Getwd()
+	if strings.Contains(pwd, "html") {
+		comma := strings.Index(pwd, "html")
+		return strings.Join([]string{pwd[:comma-1], "/html"}, "")
+	}
+
+	return "./html"
+}
+
 //GetServerPath .
 //path  有modules的目录   比如 /github.com/micro-plat/gaea/modules/
 func GetServerPath() (path string) {

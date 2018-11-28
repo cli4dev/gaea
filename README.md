@@ -12,10 +12,11 @@
 
 #### 1. 生成项目
 
-`gaea new project [项目名称]`
+`gaea new project -n [项目名称]`
 
 ```sh
-gaea new project myproject/apiserver
+➜  gaea new project -n myproject/apiserver
+
 生成文件: /home/colin/work/src/myproject/apiserver/main.go
 生成文件: /home/colin/work/src/myproject/apiserver/bind.go
 
@@ -24,30 +25,50 @@ gaea new project myproject/apiserver
 
 ### 2. 生成指定服务类型的项目
 
-`gaea new project [项目名称] -s[服务器类型]`
+`gaea new project -n [项目名称] -s [服务器类型]`
 
 ```sh
-gaea new project myproject/myserver -s api-cron
+➜  gaea new project -n myproject/apiserver -s api-cron
+
 生成文件: /home/colin/work/src/myproject/myserver/main.go
 生成文件: /home/colin/work/src/myproject/myserver/bind.go
 
 项目生成完成
 ```
 
-### 3. 生成模块代码
+### 3. 给项目添加指定配置
 
-`gaea new module [项目名称] -m ["模块1 模块2"]`
+`gaea new project  -s [服务器类型] -a`
 
 ```sh
-gaea new module myproject/apiserver -m "order/request order/query"
-生成文件: /home/colin/work/src/myproject/apiserver/modules/order/request.go
-生成文件: /home/colin/work/src/myproject/apiserver/modules/sql/order.go
-生成文件: /home/colin/work/src/myproject/apiserver/modules/order/query.go
+myproject/apiserver ➜ gaea new project  -s cron -a
+
+生成文件: /home/colin/work/src/myproject/myserver/main.go
+生成文件: /home/colin/work/src/myproject/myserver/bind.go
 
 项目生成完成
 ```
 
-### 4. 生成服务代码
+### 4. 根据数据表生成模块代码，sql语句
+
+`gaea new module -c -r -u -d -add -t ./db.md -f trd_order_info -o modules`
+
+```sh
+// 1 使用默认的md文件生成到默认文件夹，多个操作加或追加 -add
+➜ gaea new module -c -r -u -d -add
+
+// 2 使用指定的 md 文件或指定生成目录 
+➜ gaea new module -c -r -u -d -add -t ./db.md -o modules
+
+// 3 使用过滤器生成指定数据表对应的模型代码
+➜ gaea new module -c -r -u -d -add -f trd_order_info
+
+// 4 覆盖原有代码并生成新模型代码
+➜ gaea new module -c -r -u -d -cover
+
+```
+
+### 5. 生成服务代码
 
 `gaea new service [项目名称] -s ["服务1 服务2"]`
 
@@ -58,7 +79,7 @@ gaea new service myproject/apiserver -s order/request
 项目生成完成
 ```
 
-### 5. 生成实体类
+### 6. 生成实体类
 
 `gaea new struct [md文件路径] [输出路径] -f ["表名"]`
 
@@ -69,7 +90,7 @@ gaea new struct ../src/coupon/coupon/coupon.md ../src/coupon/coupon -f "sys_prod
 struct生成完成,共生成1个文件
 ```
 
-### 6. 生成数据库表创建语句
+### 7. 生成数据库表创建语句
 
 `gaea new sql [md文件路径] [输出路径]`
 
