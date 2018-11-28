@@ -2,7 +2,7 @@ package dev
 
 //Api .
 const Api = `
-	{//api
+	{ //api
 		s.Conf.API.SetMainConf("{'address':':9091'}")
 		s.Conf.API.SetSubConf('header', "
 				{

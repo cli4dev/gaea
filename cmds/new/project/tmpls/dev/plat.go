@@ -1,7 +1,7 @@
 package dev
 
 const Plat = `
-	{//plat
+	{ //plat
 		s.Conf.Plat.SetVarConf('db', 'db', "{			
 			'provider':'ora',
 			'connString':'sso/123456@orcl136',

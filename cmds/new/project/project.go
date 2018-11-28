@@ -2,8 +2,10 @@ package project
 
 import (
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
@@ -99,7 +101,11 @@ func (p *projectCmd) addConf(serviceType string) error {
 	if err != nil {
 		return err
 	}
-
+	//向main.go添加服务类型
+	err = p.addConf2Main(serviceType)
+	if err != nil {
+		return err
+	}
 	//写入配置
 	return p.writeConf(".", tmpls)
 
@@ -172,6 +178,49 @@ func (p *projectCmd) writeConf(projectPath string, data map[string]string) error
 			cmds.Log.Info("写入prod配置成功")
 		}
 	}
+	return nil
+}
+
+//addConf2Main 向main.go添加服务类型
+func (p *projectCmd) addConf2Main(serviceType string) error {
+
+	srcf, err := os.OpenFile("./main.go", os.O_CREATE|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		err = fmt.Errorf("无法打开文件:%s(err:%v)", "./main.go", err)
+		return err
+	}
+	buf, err := ioutil.ReadAll(srcf)
+	if err != nil {
+		cmds.Log.Errorf("%v", err.Error())
+		return err
+	}
+
+	result := string(buf)
+	//解析正则表达式
+	re, err := regexp.Compile("hydra.WithServerTypes(.*),") //WithServerTypes("api")
+	if err != nil {
+		return err
+	}
+	//Find函数返回匹配的第一个字符串
+	srcStr := string(re.Find([]byte(result)))
+	first := strings.Index(srcStr, "\"")
+	last := strings.LastIndex(srcStr, "\"")
+	old := srcStr[first+1 : last]
+	for _, v := range strings.Split(serviceType, "-") {
+		if strings.Contains(old, v) {
+			cmds.Log.Errorf("服务已经存在：%s", serviceType)
+			return fmt.Errorf("服务已经存在")
+		}
+	}
+	new := old + "-" + serviceType
+	newStr := srcStr[:first+1] + new + srcStr[last:]
+	newContent := strings.Replace(result, srcStr, newStr, -1)
+	n, _ := srcf.Seek(0, os.SEEK_SET)
+	_, err = srcf.WriteAt([]byte(newContent), n)
+	if err != nil {
+		return err
+	}
+	defer srcf.Close()
 	return nil
 }
 

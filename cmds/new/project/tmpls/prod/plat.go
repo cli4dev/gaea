@@ -1,10 +1,10 @@
 package prod
 
 const Plat = `
-	{//plat
+	{ //plat
 		s.Conf.Plat.SetVarConf('db', 'db', "{			
 			'provider':'ora',
-			'connString':'sso/123456@orcl136',
+			'connString':'#db_string',
 			'maxOpen':20,
 			'maxIdle':10,
 			'lifeTime':600		
@@ -14,12 +14,7 @@ const Plat = `
 		{
 			'proto':'redis',
 			'addrs':[
-					'192.168.0.111:6379',
-					'192.168.0.112:6379',
-					'192.168.0.113:6379',
-					'192.168.0.114:6379',
-					'192.168.0.115:6379',
-					'192.168.0.116:6379'
+					#redis
 			],
 			'db':1,
 			'dial_timeout':10,

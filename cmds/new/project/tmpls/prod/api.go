@@ -2,8 +2,8 @@ package prod
 
 //Api .
 const Api = `
-	{//api
-		s.Conf.API.SetMainConf("{'address':':9091'}")
+	{ //api
+		s.Conf.API.SetMainConf("{'address':':#api_port'}")
 		s.Conf.API.SetSubConf('header', "
 				{
 					'Access-Control-Allow-Origin': '*', 

@@ -1,7 +1,7 @@
 package prod
 
 const Cron = `
-	{//cron
+	{ //cron
 		s.Conf.CRON.SetSubConf('app', "{
 			'appname':'app_name'
 		}")

@@ -31,7 +31,6 @@ func (s *{{.projectName|lName}}) install() {
 	s.IsDebug = false	
 
 	
-	//@install
 	//自定义安装程序
 	s.Conf.API.Installer(func(c component.IContainer) error {
 		if !s.Conf.Confirm('创建数据库表结构,添加基础数据?') {
