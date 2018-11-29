@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
+	"github.com/micro-plat/gaea/cmds/new/html/tmpls"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
 	"github.com/micro-plat/gaea/cmds/new/util/data"
 
@@ -80,7 +81,7 @@ func (p *htmlCmd) createHTML(t, o string, f []string) (err error) {
 			cmds.Log.Error(err)
 			continue
 		}
-		//生成数据表对应的sql语句
+		//生成数据表对应的 vue 文件
 		err = p.makeHTML(tables, f, htmlPath)
 		if err != nil {
 			return err
@@ -91,7 +92,7 @@ func (p *htmlCmd) createHTML(t, o string, f []string) (err error) {
 
 func (p *htmlCmd) makeHTML(tables []*conf.Table, filters []string, htmlPath string) (err error) {
 
-	tmpls, err := p.GetHTMLData(tables, filters, htmlPath)
+	tmpls, err := p.getHTMLData(tables, filters, htmlPath)
 	if err != nil {
 		return err
 	}
@@ -101,4 +102,23 @@ func (p *htmlCmd) makeHTML(tables []*conf.Table, filters []string, htmlPath stri
 		return err
 	}
 	return nil
+}
+
+//GetHTMLData .
+//获取生成 vue所需的数据
+func (p *htmlCmd) getHTMLData(tables []*conf.Table, filters []string, htmlPath string) (out map[string]map[string]string, err error) {
+	//获取模板数据
+	tmpls, err := data.GetHTMLTmples("html", tmpls.HTMLTpl, tables, filters, htmlPath)
+
+	if err != nil {
+		cmds.Log.Error(err)
+		return nil, err
+	}
+
+	if len(tmpls) == 0 {
+		cmds.Log.Error("生成html时未找到数据表信息")
+		return nil, err
+	}
+	return tmpls, nil
+
 }

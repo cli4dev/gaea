@@ -40,12 +40,17 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 			panic("数据表没有指定约束")
 		}
 		if strings.Contains(tb.Cons[i], "I") && !strings.Contains(tb.Cons[i], "SEQ") {
+			descsimple := tb.Descs[i]
+			if strings.Contains(tb.Descs[i], "(") {
+				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+			}
 			row := map[string]interface{}{
-				"name": v,
-				"desc": tb.Descs[i],
-				"type": tb.Types[i],
-				"len":  tb.Lens[i],
-				"end":  i != len(tb.CNames)-1,
+				"name":       v,
+				"descsimple": descsimple,
+				"desc":       tb.Descs[i],
+				"type":       tb.Types[i],
+				"len":        tb.Lens[i],
+				"end":        i != len(tb.CNames)-1,
 			}
 			columns = append(columns, row)
 		}
@@ -65,12 +70,17 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 			panic("数据表没有指定约束")
 		}
 		if strings.Contains(tb.Cons[i], "Q") && !strings.Contains(tb.Cons[i], "SEQ") {
+			descsimple := tb.Descs[i]
+			if strings.Contains(tb.Descs[i], "(") {
+				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+			}
 			row := map[string]interface{}{
-				"name": v,
-				"desc": tb.Descs[i],
-				"type": tb.Types[i],
-				"len":  tb.Lens[i],
-				"end":  i != len(tb.CNames)-1,
+				"name":       v,
+				"descsimple": descsimple,
+				"desc":       tb.Descs[i],
+				"type":       tb.Types[i],
+				"len":        tb.Lens[i],
+				"end":        i != len(tb.CNames)-1,
 			}
 			columns = append(columns, row)
 		}
@@ -90,12 +100,17 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 			panic("数据表没有指定约束")
 		}
 		if strings.Contains(tb.Cons[i], "U") && !strings.Contains(tb.Cons[i], "SEQ") && !strings.Contains(tb.Cons[i], "PK") {
+			descsimple := tb.Descs[i]
+			if strings.Contains(tb.Descs[i], "(") {
+				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+			}
 			row := map[string]interface{}{
-				"name": v,
-				"desc": tb.Descs[i],
-				"type": tb.Types[i],
-				"len":  tb.Lens[i],
-				"end":  i != len(tb.CNames)-1,
+				"name":       v,
+				"descsimple": descsimple,
+				"desc":       tb.Descs[i],
+				"type":       tb.Types[i],
+				"len":        tb.Lens[i],
+				"end":        i != len(tb.CNames)-1,
 			}
 			columns = append(columns, row)
 		}
@@ -115,12 +130,17 @@ func getSelectColumns(tb *conf.Table) []map[string]interface{} {
 			panic("数据表没有指定约束")
 		}
 		if strings.Contains(tb.Cons[i], "S") {
+			descsimple := tb.Descs[i]
+			if strings.Contains(tb.Descs[i], "(") {
+				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+			}
 			row := map[string]interface{}{
-				"name": v,
-				"desc": tb.Descs[i],
-				"type": tb.Types[i],
-				"len":  tb.Lens[i],
-				"end":  i != len(tb.CNames)-1,
+				"name":       v,
+				"descsimple": descsimple,
+				"desc":       tb.Descs[i],
+				"type":       tb.Types[i],
+				"len":        tb.Lens[i],
+				"end":        i != len(tb.CNames)-1,
 			}
 			columns = append(columns, row)
 		}
@@ -136,12 +156,17 @@ func getPks(tb *conf.Table) []map[string]interface{} {
 
 	for i, v := range tb.CNames {
 		if strings.Contains(tb.Cons[i], "PK") {
+			descsimple := tb.Descs[i]
+			if strings.Contains(tb.Descs[i], "(") {
+				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+			}
 			row := map[string]interface{}{
-				"name": v,
-				"desc": tb.Descs[i],
-				"type": tb.Types[i],
-				"len":  tb.Lens[i],
-				"end":  i != len(tb.CNames)-1,
+				"name":       v,
+				"descsimple": descsimple,
+				"desc":       tb.Descs[i],
+				"type":       tb.Types[i],
+				"len":        tb.Lens[i],
+				"end":        i != len(tb.CNames)-1,
 			}
 			columns = append(columns, row)
 		}
@@ -157,13 +182,18 @@ func getSeqs(tb *conf.Table) []map[string]interface{} {
 
 	for i, v := range tb.CNames {
 		if strings.Contains(tb.Cons[i], "SEQ") {
+			descsimple := tb.Descs[i]
+			if strings.Contains(tb.Descs[i], "(") {
+				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+			}
 			row := map[string]interface{}{
-				"name":    v,
-				"seqname": fmt.Sprintf("seq_%s_%s", fGetNName(tb.Name), getFilterName(tb.Name, v)),
-				"desc":    tb.Descs[i],
-				"type":    tb.Types[i],
-				"len":     tb.Lens[i],
-				"end":     i != len(tb.CNames)-1,
+				"name":       v,
+				"descsimple": descsimple,
+				"seqname":    fmt.Sprintf("seq_%s_%s", fGetNName(tb.Name), getFilterName(tb.Name, v)),
+				"desc":       tb.Descs[i],
+				"type":       tb.Types[i],
+				"len":        tb.Lens[i],
+				"end":        i != len(tb.CNames)-1,
 			}
 			columns = append(columns, row)
 		}

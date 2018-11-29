@@ -9,7 +9,7 @@ func (u *{{.name|cname}}Handler) PostHandle(ctx *context.Context) (r interface{}
 	ctx.Log.Info("1.参数校验")
 
 	var input {{.name|pname}}.Create{{.name|cname}}
-	if err := ctx.Request.Check(&input); err != nil {
+	if err := ctx.Request.Bind(&input); err != nil {
 		return context.NewError(context.ERR_NOT_ACCEPTABLE, err)
 	}
 
