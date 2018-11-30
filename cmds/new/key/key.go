@@ -30,18 +30,17 @@ func (p *keyCmd) geStartFlags() []cli.Flag {
 	flags := make([]cli.Flag, 0, 4)
 	flags = append(flags, cli.StringFlag{
 		Name:  "s",
-		Usage: "生成 jwt 加密 key 所需原字符串,不输入此参数则每次的key都一样",
+		Usage: "生成 jwt 加密 key 所需的种子,不输入此参数则每次的key都一样",
 	})
 	return flags
 }
 
 func (p *keyCmd) action(c *cli.Context) (err error) {
-	cmds.Log.Infof("jwt Key: %s", MakeSign(c.String("s")))
+	cmds.Log.Infof(" jwt Key: %s", makeSign(c.String("s")))
 	return nil
 }
 
-//MakeSign .
-func MakeSign(s string) (sign string) {
+func makeSign(s string) (sign string) {
 	if s != "" {
 		s = s + "key=" + strconv.FormatInt(time.Now().Unix(), 10)
 	}

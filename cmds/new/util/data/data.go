@@ -3,12 +3,12 @@ package data
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"os"
 	"path"
 	"path/filepath"
 	"strconv"
 	"strings"
+	"text/template"
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/module/tmpls"

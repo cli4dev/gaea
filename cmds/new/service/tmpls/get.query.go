@@ -34,12 +34,15 @@ func (u *{{.name|cname}}Handler) QueryHandle(ctx *context.Context) (r interface{
 	}
 
 	ctx.Log.Info("2.执行操作")
-	data, err := u.{{.name|cname}}Lib.Query(&input)
+	data, count, err := u.{{.name|cname}}Lib.Query(&input)
 	if err != nil {
 		return context.NewError(context.ERR_NOT_IMPLEMENTED, err)
 	}
 
 	ctx.Log.Info("3.返回结果")
-	return data
+	return map[string]interface{}{
+		"data":data,
+		"count":count,
+	}
 }
 `

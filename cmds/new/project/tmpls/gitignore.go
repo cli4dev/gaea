@@ -3,6 +3,7 @@ package tmpls
 const gitignoreTmpl = `
 *{{.projectName|lName}}
 .idea
+.vscode
 # Binaries for programs and plugins
 *.exe
 *.exe~

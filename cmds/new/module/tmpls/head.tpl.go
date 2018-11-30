@@ -9,6 +9,7 @@ import (
 	"%smodules/const/sql"
 	"github.com/micro-plat/hydra/component"
 	"github.com/micro-plat/lib4go/db"
+	"github.com/micro-plat/lib4go/types"
 )
 
 //Create{{.name|cname}} 创建{{.desc}} 
@@ -49,7 +50,7 @@ type IDb{{.name|cname}} interface {
 	Get({{range $i,$c:=.pk -}}{{$c.name|aname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}})(db.QueryRow,error)
 
 	//Query 列表查询
-	Query(input *Query{{.name|cname}}) (db.QueryRows,error)
+	Query(input *Query{{.name|cname}})  (data db.QueryRows, count int, err error)
 
 	//Update 更新
 	Update(input *Update{{.name|cname}}) (err error)
