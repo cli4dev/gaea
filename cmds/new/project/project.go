@@ -40,6 +40,20 @@ func (p *projectCmd) geStartFlags() []cli.Flag {
 	}, cli.BoolFlag{
 		Name:  "a",
 		Usage: "是否追加服务类型（项目生成后，修改服务类型使用）",
+	}, cli.StringFlag{
+		Name:  "p",
+		Value: ":8090",
+		Usage: "指定服务端口号",
+	}, cli.BoolFlag{
+		Name:  "jwt",
+		Usage: "是否启用jwt",
+	}, cli.StringFlag{
+		Name:  "db",
+		Value: "ora:test/123456@orcl136",
+		Usage: "指定数据库类型和数据库链接串",
+	}, cli.BoolFlag{
+		Name:  "domain",
+		Usage: "是否启用跨域设置，默认不启用",
 	})
 
 	return flags
@@ -47,10 +61,10 @@ func (p *projectCmd) geStartFlags() []cli.Flag {
 
 func (p *projectCmd) action(c *cli.Context) (err error) {
 	projectName := c.StringSlice("n")
-	if !pathExists("main.go") || !pathExists("modules") {
-		if len(projectName) == 0 {
-			cmds.Log.Error(`"请输入项目名称，例如: gaea new project -n "myproject/apiserver"`)
-			cmds.Log.Info("如需要添加配置，请到项目根目录值执行")
+
+	if c.Bool("a") && c.String("s") != "" {
+		if !pathExists("main.go") || !pathExists("modules") {
+			cmds.Log.Error("如需要添加配置，请到项目根目录值执行该命令")
 			return nil
 		}
 	}
@@ -58,9 +72,13 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 	//获取服务类型
 	serverType := c.String("s")
 
+	port := c.String("p")
+	if !strings.Contains(port, ":") {
+		port = ":" + port
+	}
 	//创键项目
 	for _, v := range projectName {
-		err := p.new(v, serverType)
+		err := p.new(v, serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"))
 		if err != nil {
 			cmds.Log.Error(err)
 		}
@@ -68,7 +86,7 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 
 	//追加配置
 	if c.Bool("a") {
-		err = p.addConf(serverType)
+		err = p.addConf(serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"))
 		if err != nil {
 			return err
 		}
@@ -78,13 +96,13 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 	return nil
 }
 
-func (p *projectCmd) new(projectName string, serviceType string) error {
+func (p *projectCmd) new(projectName, serviceType, port, db string, jwt, domain bool) error {
 	gopath, err := path.GetGoPath()
 	if err != nil {
 		return err
 	}
 	projectPath := filepath.Join(gopath, "src", projectName)
-	tmpls, err := tmpls.GetTmpls(projectName, serviceType)
+	tmpls, err := tmpls.GetTmpls(projectName, serviceType, port, db, jwt, domain)
 	if err != nil {
 		return err
 	}
@@ -92,12 +110,11 @@ func (p *projectCmd) new(projectName string, serviceType string) error {
 	if err != nil {
 		return err
 	}
-	//写入配置
-	return p.writeConf(projectPath, tmpls)
+	return nil
 
 }
-func (p *projectCmd) addConf(serviceType string) error {
-	tmpls, err := tmpls.GetConfTmpls(serviceType)
+func (p *projectCmd) addConf(serviceType, port, db string, jwt, domain bool) error {
+	tmpls, err := tmpls.GetConfTmpls(serviceType, port, db, jwt, domain)
 	if err != nil {
 		return err
 	}
@@ -145,38 +162,48 @@ func (p *projectCmd) createProject(projectPath string, data map[string]string) e
 
 func (p *projectCmd) writeConf(projectPath string, data map[string]string) error {
 	for k, v := range data {
-		if strings.HasPrefix(k, "conf.dev") {
-			f, err := os.OpenFile(projectPath+"/install.dev.go", os.O_WRONLY, os.ModePerm)
-			if err != nil {
-				return fmt.Errorf("打开文件install.dev.go失败. err: " + err.Error())
-			}
-			n, err := f.Seek(0, os.SEEK_END)
-			if err != nil {
-				return err
-			}
-			_, err = f.WriteAt([]byte(v), n-2)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-			cmds.Log.Info("写入dev配置成功")
+
+		err := conf(k, v, "dev", projectPath)
+		if err != nil {
+			return err
 		}
-		if strings.HasPrefix(k, "conf.prod") {
-			f, err := os.OpenFile(projectPath+"/install.prod.go", os.O_WRONLY, os.ModePerm)
-			if err != nil {
-				return fmt.Errorf("打开文件install.prod.go失败. err: " + err.Error())
-			}
-			n, err := f.Seek(0, os.SEEK_END)
-			if err != nil {
-				return err
-			}
-			_, err = f.WriteAt([]byte(v), n-2)
-			if err != nil {
-				return err
-			}
-			defer f.Close()
-			cmds.Log.Info("写入prod配置成功")
+		err = conf(k, v, "prod", projectPath)
+		if err != nil {
+			return err
 		}
+	}
+	return nil
+}
+
+func conf(k, v, model, projectPath string) error {
+
+	srcf, err := os.OpenFile(projectPath+"/install."+model+".go", os.O_CREATE|os.O_RDWR, os.ModePerm)
+	defer srcf.Close()
+	if err != nil {
+		err = fmt.Errorf("无法打开文件:%s(err:%v)", "./install.dev.go", err)
+		return err
+	}
+	buf, err := ioutil.ReadAll(srcf)
+	if err != nil {
+		cmds.Log.Errorf("%v", err.Error())
+		return err
+	}
+
+	result := string(buf)
+
+	if ok, _ := regexp.Match(k, buf); !ok {
+		cmds.Log.Error("没有找到配置定位标识，请手动添加")
+		return nil
+	}
+
+	re, _ := regexp.Compile(k)
+
+	str := re.ReplaceAllString(result, v)
+
+	n, _ := srcf.Seek(0, os.SEEK_SET)
+	_, err = srcf.WriteAt([]byte(str), n)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -208,7 +235,7 @@ func (p *projectCmd) addConf2Main(serviceType string) error {
 	old := srcStr[first+1 : last]
 	for _, v := range strings.Split(serviceType, "-") {
 		if strings.Contains(old, v) {
-			cmds.Log.Errorf("服务已经存在：%s", serviceType)
+			cmds.Log.Errorf("main.go 中服务已经存在：%s", serviceType)
 			return fmt.Errorf("服务已经存在")
 		}
 	}

@@ -1,3 +1,8 @@
 package dev
 
-const Rpc = ``
+//RPCMainPort .
+const RPCMainPort = `
+//rpc.main.port#//
+	s.Conf.API.SetMainConf("{'address':'{{.port}}'}")
+//#rpc.main.port//
+`
