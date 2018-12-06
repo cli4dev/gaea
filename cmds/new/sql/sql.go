@@ -19,7 +19,7 @@ type ITemplate interface {
 type handler func([]*conf.Table) (map[string]string, error)
 
 func (h handler) GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
-	return h.GetTmples(tbs)
+	return h(tbs)
 }
 
 var templates = make(map[string]ITemplate)
@@ -44,13 +44,13 @@ func NewSqlCmd() cli.Command {
 }
 
 func (p *sqlCmd) geStartFlags() []cli.Flag {
-	flags := make([]cli.Flag, 0, 4)
+	flags := make([]cli.Flag, 0, 1)
 	flags = append(flags, cli.StringFlag{
 		Name:  "type,t",
 		Value: "mysql",
 		Usage: "数据库类型如:oracle,mysql",
 	})
-	return nil
+	return flags
 }
 
 func (p *sqlCmd) action(c *cli.Context) (err error) {
