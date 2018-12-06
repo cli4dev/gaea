@@ -7,7 +7,9 @@ import (
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/sql/oracle"
+	"github.com/micro-plat/gaea/cmds/new/util/conf"
 	"github.com/micro-plat/gaea/cmds/new/util/md"
+	"github.com/micro-plat/gaea/cmds/new/util/path"
 	"github.com/urfave/cli"
 )
 
@@ -25,39 +27,35 @@ func NewSqlCmd() cli.Command {
 }
 
 func (p *sqlCmd) geStartFlags() []cli.Flag {
-	flags := make([]cli.Flag, 0, 4)
-	// flags = append(flags, cli.StringSliceFlag{
-	// 	Name:  "dbt,t",
-	// 	Usage: "数据库类型",
-	// })
-	// flags = append(flags, cli.BoolFlag{
-	// 	Name:  "restful,r",
-	// 	Usage: "生成restful风格的服务代码",
-	// })
-	return flags
+	return nil
 }
 
 func (p *sqlCmd) action(c *cli.Context) (err error) {
-	if c.NArg() < 2 {
-		err = fmt.Errorf("请指定md文件路径和输出路径")
-		fmt.Println(err)
-		cli.ShowCommandHelp(c, c.Command.Name)
-		return err
+	mdFilePath := path.GetMDPath()
+	outPath := path.GetModulePath()
+	if c.NArg() > 0 {
+		mdFilePath = []string{c.Args().Get(0)}
 	}
-	filePath := c.Args().First()
-	outPath := c.Args().Get(1)
-	tables, err := md.Markdown2Table(filePath)
-	if err != nil {
-		cmds.Log.Error(err)
-		return err
+	if c.NArg() > 1 {
+		outPath = c.Args().Get(1)
 	}
+	var tables = make([]*conf.Table, 0, 2)
+	for _, p := range mdFilePath {
+		t1, err := md.Markdown2Table(p)
+		if err != nil {
+			cmds.Log.Error(err)
+			return err
+		}
+		tables = append(tables, t1...)
+	}
+
 	tmpls, err := oracle.GetTmples(tables)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 	if len(tmpls) == 0 {
-		cmds.Log.Errorf("%s中未找到数据表信息", filePath)
+		cmds.Log.Errorf("未找到数据表信息%v", mdFilePath)
 		return nil
 	}
 	if err = p.createFile(outPath, tmpls); err != nil {
