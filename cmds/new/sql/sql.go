@@ -54,14 +54,14 @@ func (p *sqlCmd) geStartFlags() []cli.Flag {
 }
 
 func (p *sqlCmd) action(c *cli.Context) (err error) {
-	mdFilePath := path.GetMDPath()
-	outPath := path.GetModulePath()
 	tp := c.String("type")
 	tpl, ok := templates[tp]
 	if !ok {
 		cmds.Log.Infof("不支持的数据库类型%s", tp)
 		return
 	}
+	mdFilePath := path.GetMDPath()
+	outPath := filepath.Join(path.GetModulePath(), fmt.Sprintf("const/sql/%s", tp))
 	if c.NArg() > 0 {
 		mdFilePath = []string{c.Args().Get(0)}
 	}
