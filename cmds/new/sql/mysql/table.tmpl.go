@@ -1,26 +1,19 @@
 package mysql
 
 const tableTmpl = `
+ drop table {{.name}};
+
 	create table {{.name}}(
-		{{range $i,$c:=.columns}}{{$c.name}} {{$c.type}} {{$c.def}} {{$c.null}} {{if $c.end}},{{end}}
+		{{range $i,$c:=.columns}}{{$c.name}} {{$c.type|cType}} {{$c.def}} {{$c.null}} {{$c.pk}} {{$c.seqs}}  comment '{{$c.desc}}' {{if $c.not_end}},{{end}}
 		{{end}}		
-  );
+  ){{.seq_value}}COMMENT='{{.desc}}';
 
-	comment on table {{.name}} is '{{.desc}}';
-	{{range $i,$c:=.columns}}comment on column {{$.name}}.{{$c.name}} is '{{$c.desc}}';	
-	{{end}}
  
-	{{range $i,$c:=.pks}}alter table {{$.name}}
-	add constraint pk_{{$.name|nName}} primary key({{$c}});{{end}}
 
-	{{range $i,$c:=.unqs}}alter table {{$.name}}
-  add constraint {{$c.name|nName}} unique({{$c.flds}});{{end}}
 
-	{{range $i,$c:=.seqs}}
-	create sequence {{$c.name}}
-	minvalue {{$c.min}}
-	maxvalue {{$c.max}}
-	start with {{$c.min}}
-	cache 20;
-	{{end}}
+
+{{range $i,$c:=.unqs}}
+	drop index {{$c.name|nName}} ON {{$.name}};
+ create unique index {{$c.name|nName}} ON {{$.name}}({{$c.flds}});
+ {{end}}
 `

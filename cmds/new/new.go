@@ -8,6 +8,8 @@ import (
 	"github.com/micro-plat/gaea/cmds/new/project"
 	"github.com/micro-plat/gaea/cmds/new/service"
 	"github.com/micro-plat/gaea/cmds/new/sql"
+	_ "github.com/micro-plat/gaea/cmds/new/sql/mysql"
+	_ "github.com/micro-plat/gaea/cmds/new/sql/oracle"
 	"github.com/urfave/cli"
 )
 
