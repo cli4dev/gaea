@@ -6,6 +6,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/micro-plat/gaea/cmds/new/sql"
+
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
 )
 
@@ -172,4 +174,7 @@ func getFilterName(t string, f string) string {
 	}
 	return strings.Join(text, "_")
 
+}
+func init() {
+	sql.Register("mysql", GetTmples)
 }

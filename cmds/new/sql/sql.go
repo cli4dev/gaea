@@ -6,12 +6,29 @@ import (
 	"path/filepath"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/sql/oracle"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
 	"github.com/micro-plat/gaea/cmds/new/util/md"
 	"github.com/micro-plat/gaea/cmds/new/util/path"
 	"github.com/urfave/cli"
 )
+
+type ITemplate interface {
+	GetTmples(tbs []*conf.Table) (out map[string]string, err error)
+}
+
+type handler func([]*conf.Table) (map[string]string, error)
+
+func (h handler) GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
+	return h.GetTmples(tbs)
+}
+
+var templates = make(map[string]ITemplate)
+
+func Register(name string, f func([]*conf.Table) (map[string]string, error)) {
+	var h handler
+	h = f
+	templates[name] = h
+}
 
 type sqlCmd struct {
 }
@@ -27,12 +44,24 @@ func NewSqlCmd() cli.Command {
 }
 
 func (p *sqlCmd) geStartFlags() []cli.Flag {
+	flags := make([]cli.Flag, 0, 4)
+	flags = append(flags, cli.StringFlag{
+		Name:  "type,t",
+		Value: "mysql",
+		Usage: "数据库类型如:oracle,mysql",
+	})
 	return nil
 }
 
 func (p *sqlCmd) action(c *cli.Context) (err error) {
 	mdFilePath := path.GetMDPath()
 	outPath := path.GetModulePath()
+	tp := c.String("type")
+	tpl, ok := templates[tp]
+	if !ok {
+		cmds.Log.Infof("不支持的数据库类型%s", tp)
+		return
+	}
 	if c.NArg() > 0 {
 		mdFilePath = []string{c.Args().Get(0)}
 	}
@@ -49,7 +78,7 @@ func (p *sqlCmd) action(c *cli.Context) (err error) {
 		tables = append(tables, t1...)
 	}
 
-	tmpls, err := oracle.GetTmples(tables)
+	tmpls, err := tpl.GetTmples(tables)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
