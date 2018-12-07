@@ -3,9 +3,11 @@ package data
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"text/template"
@@ -596,6 +598,43 @@ func CreateServicesFile(add, cover bool, tmpls map[string]map[string]string) (er
 	//创建文件
 	if err = createFile(add, "services", tmpls); err != nil {
 		cmds.Log.Error(err)
+		return err
+	}
+	return nil
+}
+
+//ReplaceFileStr .
+//替换文件内容
+func ReplaceFileStr(name, filePath, value string) error {
+
+	srcf, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, os.ModePerm)
+	defer srcf.Close()
+	if err != nil {
+		err = fmt.Errorf("无法打开文件:%s(err:%v)", filePath, err)
+		return err
+	}
+	buf, err := ioutil.ReadAll(srcf)
+	if err != nil {
+		cmds.Log.Errorf("%v", err.Error())
+		return err
+	}
+
+	result := string(buf)
+
+	k := fmt.Sprintf(`//%s#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#%s//`, name, name)
+
+	if ok, _ := regexp.Match(k, buf); !ok {
+		cmds.Log.Error("没有找到配置定位标识，请手动添加")
+		return nil
+	}
+
+	re, _ := regexp.Compile(k)
+
+	str := re.ReplaceAllString(result, value)
+
+	n, _ := srcf.Seek(0, os.SEEK_SET)
+	_, err = srcf.WriteAt([]byte(str), n)
+	if err != nil {
 		return err
 	}
 	return nil

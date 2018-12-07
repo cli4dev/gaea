@@ -26,6 +26,14 @@ func GetGoPath(v ...string) (string, error) {
 	return path[0], nil
 }
 
+//Exists 判断路径是否存在
+func Exists(path string) bool {
+	if _, err := os.Stat(path); err != nil {
+		return !os.IsNotExist(err)
+	}
+	return true
+}
+
 //GetProjectPath 获取项目路径
 func GetProjectPath(path string) (string, string, error) {
 	srcPath, err := GetGoPath("src")
@@ -189,4 +197,38 @@ func getModulesList(path string) (modulesfile []string, err error) {
 		return nil, err
 	}
 	return modulesfile, nil
+}
+
+//CreatePath 创建文件，文件夹
+func CreatePath(path string, append bool) (file *os.File, err error) {
+	dir := filepath.Dir(path)
+	_, err = os.Stat(dir)
+	if os.IsNotExist(err) {
+		if err = os.MkdirAll(dir, os.ModePerm); err != nil {
+			err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
+			return nil, err
+		}
+	}
+
+	_, err = os.Stat(path)
+	var srcf *os.File
+	if os.IsNotExist(err) {
+		srcf, err = os.OpenFile(path, os.O_CREATE|os.O_RDWR|os.O_APPEND, os.ModePerm)
+		if err != nil {
+			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
+			return nil, err
+		}
+		return srcf, nil
+
+	}
+	if !append {
+		return nil, fmt.Errorf("文件:%s已经存在", path)
+	}
+	srcf, err = os.OpenFile(path, os.O_APPEND|os.O_RDWR, os.ModePerm)
+	if err != nil {
+		err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
+		return nil, err
+	}
+	return srcf, nil
+
 }

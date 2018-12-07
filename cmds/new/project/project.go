@@ -22,7 +22,7 @@ type projectCmd struct {
 //NewProjectCmd .
 func NewProjectCmd() cli.Command {
 	p := &projectCmd{}
-	a := &api.ProjectAPICmd{}
+	a := &api.ProjectAPICmd{ServerType: "api"}
 	return cli.Command{
 		Name:  "create",
 		Usage: "创建项目",

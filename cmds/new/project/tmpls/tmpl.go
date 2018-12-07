@@ -29,9 +29,9 @@ const (
 )
 
 //GetTmpls 获取模板
-func GetTmpls(projectName, serverType, port, db string, jwt, domain bool) (out map[string]string, err error) {
+func GetTmpls(projectName string, input map[string]interface{}) (out map[string]string, err error) {
 
-	input := makeParams(projectName, serverType, port, db, jwt, domain)
+	//input := makeParams(projectName, serverType, port, db, jwt, domain)
 	out = make(map[string]string)
 	if out["main.go"], err = translate(mainTmpl, input); err != nil {
 		return nil, err
