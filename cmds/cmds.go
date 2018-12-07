@@ -18,8 +18,8 @@ func init() {
 	Log = logger.GetSession("gaea", logger.CreateSession())
 }
 
-//Registry 注册子
-func Registry(c ...cli.Command) {
+//Register 注册子
+func Register(c ...cli.Command) {
 	cmds = append(cmds, c...)
 }
 

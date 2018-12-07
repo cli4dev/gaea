@@ -1,20 +1,16 @@
-package mysql
+package oracle
 
 import (
 	"bytes"
 	"fmt"
-	"regexp"
 	"strings"
 	"text/template"
 
-	"github.com/micro-plat/gaea/cmds/new/sql"
-
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
-	"github.com/micro-plat/lib4go/types"
 )
 
 func translate(c string, input interface{}) (string, error) {
-	var tmpl = template.New("mysql").Funcs(makeFunc())
+	var tmpl = template.New("oracle").Funcs(makeFunc())
 	np, err := tmpl.Parse(c)
 	if err != nil {
 		return "", err
@@ -31,18 +27,12 @@ func getNull(n bool) string {
 	}
 	return ""
 }
-func getDef(n string, c string) string {
-	if strings.Contains(c, "SEQ") {
-		return ""
-	}
+func getDef(n string) string {
 	if n == "" {
 		return ""
 	}
 	if strings.TrimSpace(n) == "-" {
 		return "default '-'"
-	}
-	if strings.TrimSpace(n) == "sysdate" {
-		return "default current_timestamp"
 	}
 	return "default " + n
 }
@@ -65,28 +55,31 @@ func getUnqs(tb *conf.Table) (out []map[string]interface{}) {
 	return out
 }
 
-func getPk(c string) string {
-	if strings.Contains(c, "PK") {
-		return "PRIMARY KEY"
-	}
-	return ""
-}
-func getSeqs(v string) string {
-	if strings.Contains(v, "SEQ") {
-		return "AUTO_INCREMENT"
-	}
-	return ""
-}
-
-func getAutoIncrement(tbs *conf.Table) string {
-	for i, v := range tbs.Cons {
-		if strings.Contains(v, "SEQ") {
-			if tbs.Defs[i] != "" {
-				return fmt.Sprintf("AUTO_INCREMENT=%s,", strings.TrimSpace(strings.TrimLeft(tbs.Defs[i], "default")))
-			}
+func getPks(tb *conf.Table) []string {
+	out := make([]string, 0, 1)
+	for i, v := range tb.Cons {
+		if strings.Contains(v, "PK") {
+			out = append(out, tb.CNames[i])
 		}
 	}
-	return ""
+	return out
+}
+func getSeqs(tb *conf.Table) (out []map[string]interface{}) {
+	out = make([]map[string]interface{}, 0, 1)
+	seqs := make(map[string]string)
+	for i, v := range tb.Cons {
+		if strings.Contains(v, "SEQ") {
+			seqs[tb.CNames[i]] = tb.CNames[i]
+		}
+	}
+	for _, v := range seqs {
+		out = append(out, map[string]interface{}{
+			"name": fmt.Sprintf("seq_%s_%s", fGetNName(tb.Name), getFilterName(tb.Name, v)),
+			"min":  100,
+			"max":  99999999999,
+		})
+	}
+	return out
 }
 
 func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
@@ -95,24 +88,23 @@ func GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
 		columns := make([]map[string]interface{}, 0, len(tb.CNames))
 		for i, v := range tb.CNames {
 			row := map[string]interface{}{
-				"name":    v,
-				"desc":    strings.Replace(tb.Descs[i], ";", " ", -1),
-				"type":    tb.Types[i],
-				"len":     tb.Lens[i],
-				"def":     getDef(tb.Defs[i], tb.Cons[i]),
-				"seqs":    getSeqs(tb.Cons[i]),
-				"null":    getNull(tb.IsNulls[i]),
-				"pk":      getPk(tb.Cons[i]),
-				"not_end": i < len(tb.CNames)-1,
+				"name": v,
+				"desc": strings.Replace(tb.Descs[i], ";", " ", -1),
+				"type": tb.Types[i],
+				"len":  tb.Lens[i],
+				"def":  getDef(tb.Defs[i]),
+				"null": getNull(tb.IsNulls[i]),
+				"end":  i != len(tb.CNames)-1,
 			}
 			columns = append(columns, row)
 		}
 		input := map[string]interface{}{
-			"name":      tb.Name,
-			"desc":      tb.Desc,
-			"columns":   columns,
-			"unqs":      getUnqs(tb),
-			"seq_value": getAutoIncrement(tb),
+			"name":    tb.Name,
+			"desc":    tb.Desc,
+			"columns": columns,
+			"seqs":    getSeqs(tb),
+			"pks":     getPks(tb),
+			"unqs":    getUnqs(tb),
 		}
 		out[fmt.Sprintf("%s.sql", tb.Name)], err = translate(tableTmpl, input)
 		if err != nil {
@@ -146,34 +138,17 @@ func fGetNName(n string) string {
 }
 
 func fGetType(n string) string {
-	reg := regexp.MustCompile(`[\w]+`)
-	tps := reg.FindAllString(n, -1)
-	switch len(tps) {
-	case 1:
-		switch tps[0] {
-		case "date":
-			return "datetime"
-		case "nclob":
-			return "text"
+	if strings.HasPrefix(n, "nvarchar") {
+		return "string"
+	} else if strings.HasPrefix(n, "number") {
+		if strings.Contains(n, ",") {
+			return "float64"
 		}
-	case 2:
-		switch tps[0] {
-		case "nvarchar2", "varchar2", "varchar":
-			return fmt.Sprintf("varchar(%s)", tps[1])
-		case "number":
-			num := types.GetInt(tps[1], -1)
-			if num <= 10 {
-				return "int"
-			}
-			return "bigint"
-		}
-	case 3:
-		switch tps[0] {
-		case "number":
-			return fmt.Sprintf("decimal(%s,%s)", tps[1], tps[2])
-		}
+		return "int64"
+	} else if strings.HasPrefix(n, "date") {
+		return "time.Time"
 	}
-	panic("未处理的类型:" + n)
+	return "string"
 }
 
 func getFilterName(t string, f string) string {
@@ -196,8 +171,4 @@ func getFilterName(t string, f string) string {
 		return "id"
 	}
 	return strings.Join(text, "_")
-}
-
-func init() {
-	sql.Register("mysql", GetTmples)
 }

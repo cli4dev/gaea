@@ -224,7 +224,7 @@ func CreatePath(path string, append bool) (file *os.File, err error) {
 	if !append {
 		return nil, fmt.Errorf("文件:%s已经存在", path)
 	}
-	srcf, err = os.OpenFile(path, os.O_APPEND|os.O_RDWR, os.ModePerm)
+	srcf, err = os.OpenFile(path, os.O_APPEND|os.O_TRUNC|os.O_RDWR, os.ModePerm)
 	if err != nil {
 		err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 		return nil, err

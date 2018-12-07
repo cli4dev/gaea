@@ -6,9 +6,8 @@ import (
 	paths "path"
 	"strings"
 
-	"github.com/micro-plat/gaea/cmds/new/module/tmpls"
-
 	"github.com/micro-plat/gaea/cmds"
+	"github.com/micro-plat/gaea/cmds/module/tmpls"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
 	"github.com/micro-plat/gaea/cmds/new/util/data"
 
@@ -291,4 +290,7 @@ func (p *moduleCmd) createBaseModule(modulePath, name string) error {
 	}
 	cmds.Log.Info("module创建成功")
 	return nil
+}
+func init() {
+	cmds.Register(NewModuleCmd())
 }

@@ -2,35 +2,51 @@ package tmpls
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"path/filepath"
 	"strings"
 
-	"github.com/micro-plat/gaea/cmds/new/project/tmpls/dev"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/dev"
 )
 
+var templateFiles map[string][]string
+var names map[string]string
+var templates map[string]string
+
+func init() {
+	templateFiles = make(map[string][]string)
+	templateFiles["install.dev"] = []string{"port"}
+
+	names = make(map[string]string)
+	names["port"] = APIMainPort
+
+	templates = make(map[string]string)
+	templates["port"] = dev.APIMainPort
+}
+
 const (
-	APIMainPort  = `//api.main.port#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#api.main.port//`
-	APISubHeader = `//api.sub.header#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#api.sub.header//`
-	APISubAuth   = `//api.sub.auth#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#api.sub.auth//`
-	APISubMetric = `//api.sub.metric#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#api.sub.metric//`
-	PlatVarDB    = `//plat.var.db#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#plat.var.db//`
-	PlatVarCache = `//plat.var.cache#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#plat.var.cache//`
-	PlatVarQueue = `//plat.var.queue#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#plat.var.queue//`
-	CronSubApp   = `//cron.sub.app#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#cron.sub.app//`
-	CronSubTask  = `//cron.sub.task#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#cron.sub.task//`
-	MQCSubServer = `//mqc\.sub\.server#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#mqc\.sub\.server//`
-	MQCSubQueue  = `//mqc\.sub\.queue#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#mqc\.sub\.queue//`
-	WebMainPort  = `//web.main.port#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#web.main.port//`
-	WebSubstatic = `//web.sub.static#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#web.sub.static//`
-	WSSubApp     = `//ws.sub.app#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#ws.sub.app//`
-	WSSubAuth    = `//ws.sub.auth#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#ws.sub.auth//`
-	RPCMainPort  = `//rpc.main.port#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#rpc.main.port//`
+	APIMainPort  = `api.main.port`
+	APISubHeader = `api.sub.header`
+	APISubAuth   = `api.sub.auth`
+	APISubMetric = `api.sub.metric`
+	PlatVarDB    = `plat.var.db`
+	PlatVarCache = `plat.var.cache`
+	PlatVarQueue = `plat.var.queue`
+	CronSubApp   = `cron.sub.app`
+	CronSubTask  = `cron.sub.task`
+	MQCSubServer = `mqc.sub.server`
+	MQCSubQueue  = `mqc.sub.queue`
+	WebMainPort  = `web.main.port`
+	WebSubstatic = `web.sub.static`
+	WSSubApp     = `ws.sub.app`
+	WSSubAuth    = `ws.sub.auth`
+	RPCMainPort  = `rpc.main.port`
 )
 
 //GetTmpls 获取模板
 func GetTmpls(projectName string, input map[string]interface{}) (out map[string]string, err error) {
-
+	fmt.Println("input:", input)
 	//input := makeParams(projectName, serverType, port, db, jwt, domain)
 	out = make(map[string]string)
 	if out["main.go"], err = translate(mainTmpl, input); err != nil {
@@ -60,52 +76,64 @@ func GetTmpls(projectName string, input map[string]interface{}) (out map[string]
 }
 
 //GetConfTmpls 获取配置模板
-func GetConfTmpls(serverType, port, db string, jwt, domain bool) (out map[string]string, err error) {
+func GetConfTmpls(blocks []string, input map[string]interface{}) (out map[string]map[string]string, err error) {
 
-	out = make(map[string]string)
-	input := map[string]interface{}{
-		"serverType": serverType,
-		"rss":        getServices(serverType),
-		"port":       port,
-		"dbname":     strings.Split(db, ":")[0],
-		"db":         db,
-		"jwt":        jwt,
-		"domain":     domain,
-	}
-	serverTypeSlice := strings.Split(serverType, "-")
-	for _, v := range serverTypeSlice {
-		switch v {
-		case "api":
+	out = make(map[string]map[string]string)
+	for fname, f := range templateFiles {
+		for _, n := range f {
+			for _, name := range blocks {
+				if name != n {
+					break
+				}
 
-			out[APIMainPort], _ = translate(strings.Replace(strings.Replace(dev.APIMainPort, "\"", "`", -1), "'", "\"", -1), input)
-			out[APISubHeader], _ = translate(strings.Replace(strings.Replace(dev.APISubHeader, "\"", "`", -1), "'", "\"", -1), input)
-			if domain {
-				out[APISubHeader], _ = translate(strings.Replace(strings.Replace(dev.APISubHeaderDomain, "\"", "`", -1), "'", "\"", -1), input)
+				if _, ok := out[fname]; !ok {
+					out[fname] = make(map[string]string)
+				}
+
+				out[fname][names[name]], err = translate(strings.Replace(strings.Replace(templates[name], "\"", "`", -1), "'", "\"", -1), input)
+				if err != nil {
+					return nil, err
+				}
 			}
-			if jwt {
-				out[APISubAuth], _ = translate(strings.Replace(strings.Replace(dev.APISubAuth, "\"", "`", -1), "'", "\"", -1), input)
-			}
-
-			out[APISubMetric], _ = translate(strings.Replace(strings.Replace(dev.APISubMetric, "\"", "`", -1), "'", "\"", -1), input)
-		case "cron":
-			out[CronSubApp], _ = translate(strings.Replace(strings.Replace(dev.CronSubApp, "\"", "`", -1), "'", "\"", -1), input)
-			out[CronSubTask], _ = translate(strings.Replace(strings.Replace(dev.CronSubTask, "\"", "`", -1), "'", "\"", -1), input)
-		case "rpc":
-			out[RPCMainPort], _ = translate(strings.Replace(strings.Replace(dev.RPCMainPort, "\"", "`", -1), "'", "\"", -1), input)
-		case "mqc":
-			out[MQCSubQueue], _ = translate(strings.Replace(strings.Replace(dev.MqcSubQueue, "\"", "`", -1), "'", "\"", -1), input)
-			out[MQCSubServer], _ = translate(strings.Replace(strings.Replace(dev.MqcSubServer, "\"", "`", -1), "'", "\"", -1), input)
-			out[PlatVarQueue], _ = translate(strings.Replace(strings.Replace(dev.PlatVarQueue, "\"", "`", -1), "'", "\"", -1), input)
-		case "web":
-			out[WebMainPort], _ = translate(strings.Replace(strings.Replace(dev.WebMainPort, "\"", "`", -1), "'", "\"", -1), input)
-			out[WebSubstatic], _ = translate(strings.Replace(strings.Replace(dev.WebSubStatic, "\"", "`", -1), "'", "\"", -1), input)
-		case "ws":
-			out[WSSubApp], _ = translate(strings.Replace(strings.Replace(dev.WSSubAPP, "\"", "`", -1), "'", "\"", -1), input)
-			out[WSSubAuth], _ = translate(strings.Replace(strings.Replace(dev.WSSubAuth, "\"", "`", -1), "'", "\"", -1), input)
 		}
+
 	}
 
-	return out, nil
+	return out, err
+
+	// for _, v := range serverTypeSlice {
+	// 	switch v {
+	// 	case "api":
+
+	// 		out[APIMainPort], _ = translate(strings.Replace(strings.Replace(dev.APIMainPort, "\"", "`", -1), "'", "\"", -1), input)
+	// 		out[APISubHeader], _ = translate(strings.Replace(strings.Replace(dev.APISubHeader, "\"", "`", -1), "'", "\"", -1), input)
+	// 		if domain {
+	// 			out[APISubHeader], _ = translate(strings.Replace(strings.Replace(dev.APISubHeaderDomain, "\"", "`", -1), "'", "\"", -1), input)
+	// 		}
+	// 		if jwt {
+	// 			out[APISubAuth], _ = translate(strings.Replace(strings.Replace(dev.APISubAuth, "\"", "`", -1), "'", "\"", -1), input)
+	// 		}
+
+	// 		out[APISubMetric], _ = translate(strings.Replace(strings.Replace(dev.APISubMetric, "\"", "`", -1), "'", "\"", -1), input)
+	// 	case "cron":
+	// 		out[CronSubApp], _ = translate(strings.Replace(strings.Replace(dev.CronSubApp, "\"", "`", -1), "'", "\"", -1), input)
+	// 		out[CronSubTask], _ = translate(strings.Replace(strings.Replace(dev.CronSubTask, "\"", "`", -1), "'", "\"", -1), input)
+	// 	case "rpc":
+	// 		out[RPCMainPort], _ = translate(strings.Replace(strings.Replace(dev.RPCMainPort, "\"", "`", -1), "'", "\"", -1), input)
+	// 	case "mqc":
+	// 		out[MQCSubQueue], _ = translate(strings.Replace(strings.Replace(dev.MqcSubQueue, "\"", "`", -1), "'", "\"", -1), input)
+	// 		out[MQCSubServer], _ = translate(strings.Replace(strings.Replace(dev.MqcSubServer, "\"", "`", -1), "'", "\"", -1), input)
+	// 		out[PlatVarQueue], _ = translate(strings.Replace(strings.Replace(dev.PlatVarQueue, "\"", "`", -1), "'", "\"", -1), input)
+	// 	case "web":
+	// 		out[WebMainPort], _ = translate(strings.Replace(strings.Replace(dev.WebMainPort, "\"", "`", -1), "'", "\"", -1), input)
+	// 		out[WebSubstatic], _ = translate(strings.Replace(strings.Replace(dev.WebSubStatic, "\"", "`", -1), "'", "\"", -1), input)
+	// 	case "ws":
+	// 		out[WSSubApp], _ = translate(strings.Replace(strings.Replace(dev.WSSubAPP, "\"", "`", -1), "'", "\"", -1), input)
+	// 		out[WSSubAuth], _ = translate(strings.Replace(strings.Replace(dev.WSSubAuth, "\"", "`", -1), "'", "\"", -1), input)
+	// 	}
+	// }
+
+	// return out, nil
 }
 
 func getServices(serverType string) []string {

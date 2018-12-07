@@ -12,43 +12,37 @@ func (s *{{.projectName|lName}}) install() {
 	{{$mqc := "mqc" -}}
 	{{$rpc := "rpc" -}}
 	{{$ws := "ws" -}}
-	
+	{{$empty := "" -}}
 	
 		{{if fServer .serverType $api -}}
-			//api.main.port#//
+		//api.main.port#//
 			s.Conf.API.SetMainConf("{'address':'{{.port}}'}")
-		//#api.main.port//
-		{{- else}}
+	//#api.main.port//
+		{{- else -}}
 			//api.main.port#//
 			//#api.main.port//
-		{{end}}
+		{{- end}}
 	
 	
 	
 		{{if fServer .serverType $api -}}
-				{{if .domain -}}
-					//api.sub.header#//
-					s.Conf.API.SetSubConf('header', "
-					{
-						'Access-Control-Allow-Origin': '*', 
-						'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS', 
-						'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
-						'Access-Control-Allow-Credentials': 'true'
-					}")
-				//#api.sub.header//	
-				{{- else -}}
-					//api.sub.header#//
-					s.Conf.API.SetSubConf('header', "
-					{
-						'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS', 
-						'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
-						'Access-Control-Allow-Credentials': 'true'
-					}")
-				//#api.sub.header//
-				{{- end}}
+			{{if .cros -}}
+			//api.sub.header#//
+				s.Conf.API.SetSubConf('header', "
+				{
+					'Access-Control-Allow-Origin': '*', 
+					'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS', 
+					'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
+					'Access-Control-Allow-Credentials': 'true'
+				}")
+		//#api.sub.header//	
+			{{else}}
+			//api.sub.header#//
+			//#api.sub.header//	
+			{{end}}
 		{{- else}}
 			//api.sub.header#//
-			//#api.sub.header//
+		//#api.sub.header//
 		{{end}}
 	
 	
@@ -65,7 +59,7 @@ func (s *{{.projectName|lName}}) install() {
 						'secret': '12345678'
 					}
 				}")	
-			//#api.sub.auth//
+		//#api.sub.auth//
 			{{- else -}}
 			//api.sub.auth#//
 		//#api.sub.auth//
@@ -77,15 +71,20 @@ func (s *{{.projectName|lName}}) install() {
 	
 	
 		{{if fServer .serverType $api -}}
-			//api.sub.metric#//
-			s.Conf.API.SetSubConf('metric', "{
-				'host':'http://192.168.106.219:8086',
-				'dataBase':'gcr',
-				'cron':'@every 10s',
-				'userName':'',
-				'password':''
-			}")	
+		{{if .metric -}}
+		//api.sub.metric#//
+		s.Conf.API.SetSubConf('metric', "{
+			'host':'http://192.168.106.219:8086',
+			'dataBase':'gcr',
+			'cron':'@every 10s',
+			'userName':'',
+			'password':''
+		}")	
+	//#api.sub.metric//
+		{{- else -}}
+		//api.sub.metric#//
 		//#api.sub.metric//
+		{{- end -}}
 		{{- else}}
 		//api.sub.metric#//
 		//#api.sub.metric//
@@ -93,7 +92,9 @@ func (s *{{.projectName|lName}}) install() {
 	
 
 	
-		{{if or (fServer .serverType $web) (fServer .serverType $ws) -}}
+		
+
+		{{if eq .db $empty }}	
 		//plat.var.db#//
 		//#plat.var.db//
 		{{- else -}}
@@ -105,14 +106,11 @@ func (s *{{.projectName|lName}}) install() {
 			'maxIdle':10,
 			'lifeTime':600		
 		}")
-		//#plat.var.db//
+	//#plat.var.db//
 		{{- end}}
 	
 
-		{{if or (fServer .serverType $web)  (fServer .serverType $ws) -}}
-		//plat.var.cache#//
-		//#plat.var.cache//	
-		{{- else -}}
+		{{if .cache}}
 		//plat.var.cache#//
 		s.Conf.Plat.SetVarConf('cache', 'cache', "
 				{
@@ -131,35 +129,40 @@ func (s *{{.projectName|lName}}) install() {
 					'write_timeout':10,
 					'pool_size':10
 				}")
+	//#plat.var.cache//
+		{{- else -}}
+		//plat.var.cache#//
 		//#plat.var.cache//	
 		{{- end}}
+	
 			
 	
 
-		{{if fServer .serverType $mqc -}}
+		{{if .queue}}
 		//plat.var.queue#//
-			s.Conf.Plat.SetVarConf("queue", "queue", "
+			s.Conf.Plat.SetVarConf('queue', 'queue', "
 			{
-				"proto":"redis",
-				"addrs":[
-						"192.168.0.111:6379",
-						"192.168.0.112:6379",
-						"192.168.0.113:6379",
-						"192.168.0.114:6379",
-						"192.168.0.115:6379",
-						"192.168.0.116:6379"
+				'proto':'redis',
+				'addrs':[
+						'192.168.0.111:6379',
+						'192.168.0.112:6379',
+						'192.168.0.113:6379',
+						'192.168.0.114:6379',
+						'192.168.0.115:6379',
+						'192.168.0.116:6379'
 				],
-				"db":1,
-				"dial_timeout":10,
-				"read_timeout":10,
-				"write_timeout":10,
-				"pool_size":10
+				'db':1,
+				'dial_timeout':10,
+				'read_timeout':10,
+				'write_timeout':10,
+				'pool_size':10
 			}")
-		//#plat.var.queue//
-		{{- else}}
+	//#plat.var.queue//
+		{{- else -}}
 		//plat.var.queue#//
 		//#plat.var.queue//
-		{{end}}
+		{{- end}}
+	
 	
 	
 		{{if fServer .serverType $cron -}}
@@ -167,7 +170,7 @@ func (s *{{.projectName|lName}}) install() {
 			s.Conf.CRON.SetSubConf('app', "{
 				'appname':'app_name'
 			}")
-		//#cron.sub.app//
+	//#cron.sub.app//
 		{{- else}}
 		//cron.sub.app#//
 		//#cron.sub.app//
@@ -181,7 +184,7 @@ func (s *{{.projectName|lName}}) install() {
 				{'cron':'@every 1m','service':'/hello'}
 				]		
 			}")
-		//#cron.sub.task//
+	//#cron.sub.task//
 		{{- else}}
 		//cron.sub.task#//
 		//#cron.sub.task//
@@ -207,7 +210,7 @@ func (s *{{.projectName|lName}}) install() {
 					"write_timeout":10,
 					"pool_size":10
 			}")
-		//#mqc.sub.server//
+	//#mqc.sub.server//
 		{{- else}}
 		//mqc.sub.server#//
 		//#mqc.sub.server//
@@ -228,7 +231,7 @@ func (s *{{.projectName|lName}}) install() {
 					}
 				]
 			}")
-		//#mqc.sub.queue//
+	//#mqc.sub.queue//
 		{{- else}}
 		//mqc.sub.queue#//
 		//#mqc.sub.queue//
