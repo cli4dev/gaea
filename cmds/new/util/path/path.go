@@ -36,7 +36,6 @@ func GetProjectPath(path string) (string, string, error) {
 	if !strings.HasPrefix(path, "./") && !strings.HasPrefix(path, "/") && !strings.HasPrefix(path, "../") {
 		npath = filepath.Join(srcPath, path)
 	}
-	fmt.Println("npath:", npath, path)
 
 	root, err := filepath.Abs(npath)
 	if err != nil {

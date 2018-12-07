@@ -35,7 +35,7 @@ func (p *projectCmd) geStartFlags() []cli.Flag {
 		Value: "api", //默认值
 		Usage: "服务器类型(api,rpc,web,mqc,cron),多个用短横线分隔",
 	}, cli.StringFlag{
-		Name:  "n",
+		Name:  "name,n",
 		Value: "./",
 		Usage: "项目名称",
 	}, cli.BoolFlag{
@@ -61,24 +61,19 @@ func (p *projectCmd) geStartFlags() []cli.Flag {
 }
 
 func (p *projectCmd) action(c *cli.Context) (err error) {
-	projectPath := c.String("n")
-
-	if c.Bool("a") && c.String("s") != "" {
-		if !pathExists("./main.go") || !pathExists("./modules") {
-			cmds.Log.Error("如需要添加配置，请到项目根目录值执行该命令")
-			return nil
-		}
-	}
+	name := c.String("n")
 
 	//获取服务类型
 	serverType := c.String("s")
 
 	port := c.String("p")
-	if !strings.Contains(port, ":") {
-		port = ":" + port
+	name, path, err := path.GetProjectPath(name)
+	if err != nil {
+		return err
 	}
+
 	//创键项目
-	err = p.new(projectPath, serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"), c.Bool("a"))
+	err = p.new(name, path, serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"), c.Bool("a"))
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
@@ -86,40 +81,39 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 
 	//追加配置
 	if c.Bool("a") {
-		err = p.addConf(serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"))
+		err = p.addConf(path, serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"))
 		if err != nil {
 			return err
 		}
 	}
-
 	//cmds.Log.Info("项目生成完成")
 	return nil
 }
 
-func (p *projectCmd) new(projectName, serviceType, port, db string, jwt, domain bool, append bool) error {
-	name, path, err := path.GetProjectPath(projectName)
-	fmt.Println("project:", name, path)
+func (p *projectCmd) new(projectName, projectPath, serviceType, port, db string, jwt, domain bool, append bool) error {
+
+	if pathExists(filepath.Join(projectPath, "main.go")) {
+		return nil
+	}
+
+	tmpls, err := tmpls.GetTmpls(projectName, serviceType, port, db, jwt, domain)
 	if err != nil {
 		return err
 	}
-	tmpls, err := tmpls.GetTmpls(name, serviceType, port, db, jwt, domain)
-	if err != nil {
-		return err
-	}
-	err = p.createProject(path, tmpls, append)
+	err = p.createProject(projectPath, tmpls, append)
 	if err != nil {
 		return err
 	}
 	return nil
 
 }
-func (p *projectCmd) addConf(serviceType, port, db string, jwt, domain bool) error {
+func (p *projectCmd) addConf(projectPath string, serviceType, port, db string, jwt, domain bool) error {
 	tmpls, err := tmpls.GetConfTmpls(serviceType, port, db, jwt, domain)
 	if err != nil {
 		return err
 	}
 	//向main.go添加服务类型
-	err = p.addConf2Main(serviceType)
+	err = p.addConf2Main(projectPath, serviceType)
 	if err != nil {
 		return err
 	}
@@ -229,9 +223,9 @@ func conf(k, v, model, projectPath string) error {
 }
 
 //addConf2Main 向main.go添加服务类型
-func (p *projectCmd) addConf2Main(serviceType string) error {
+func (p *projectCmd) addConf2Main(projectPath string, serviceType string) error {
 
-	srcf, err := os.OpenFile("./main.go", os.O_CREATE|os.O_RDWR, os.ModePerm)
+	srcf, err := os.OpenFile(filepath.Join(projectPath, "./main.go"), os.O_CREATE|os.O_RDWR, os.ModePerm)
 	if err != nil {
 		err = fmt.Errorf("无法打开文件:%s(err:%v)", "./main.go", err)
 		return err
@@ -272,12 +266,8 @@ func (p *projectCmd) addConf2Main(serviceType string) error {
 }
 
 func pathExists(path string) bool {
-	_, err := os.Stat(path)
-	if err == nil {
-		return true
+	if _, err := os.Stat(path); err != nil {
+		return !os.IsNotExist(err)
 	}
-	if os.IsNotExist(err) {
-		return false
-	}
-	return false
+	return true
 }
