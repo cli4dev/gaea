@@ -11,7 +11,7 @@ import (
 	"text/template"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/module/tmpls"
+	"github.com/micro-plat/gaea/cmds/module/tmpls"
 	tpl "github.com/micro-plat/gaea/cmds/new/service/tmpls"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
 )
