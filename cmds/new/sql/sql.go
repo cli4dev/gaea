@@ -8,66 +8,13 @@ import (
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
 	"github.com/micro-plat/gaea/cmds/new/util/md"
-	"github.com/micro-plat/gaea/cmds/new/util/path"
 	"github.com/urfave/cli"
 )
 
-type ITemplate interface {
-	GetTmples(tbs []*conf.Table) (out map[string]string, err error)
-}
-
 type handler func([]*conf.Table) (map[string]string, error)
 
-func (h handler) GetTmples(tbs []*conf.Table) (out map[string]string, err error) {
-	return h(tbs)
-}
+func create(tpl handler, mdFilePath []string, outPath string) error {
 
-var templates = make(map[string]ITemplate)
-
-func Register(name string, f func([]*conf.Table) (map[string]string, error)) {
-	var h handler
-	h = f
-	templates[name] = h
-}
-
-type sqlCmd struct {
-}
-
-func NewSqlCmd() cli.Command {
-	p := &sqlCmd{}
-	return cli.Command{
-		Name:   "sql",
-		Usage:  "创建SQL语句",
-		Flags:  p.geStartFlags(),
-		Action: p.action,
-	}
-}
-
-func (p *sqlCmd) geStartFlags() []cli.Flag {
-	flags := make([]cli.Flag, 0, 1)
-	flags = append(flags, cli.StringFlag{
-		Name:  "type,t",
-		Value: "mysql",
-		Usage: "数据库类型如:oracle,mysql",
-	})
-	return flags
-}
-
-func (p *sqlCmd) action(c *cli.Context) (err error) {
-	tp := c.String("type")
-	tpl, ok := templates[tp]
-	if !ok {
-		cmds.Log.Infof("不支持的数据库类型%s", tp)
-		return
-	}
-	mdFilePath := path.GetMDPath()
-	outPath := filepath.Join(path.GetModulePath(), fmt.Sprintf("const/sql/%s", tp))
-	if c.NArg() > 0 {
-		mdFilePath = []string{c.Args().Get(0)}
-	}
-	if c.NArg() > 1 {
-		outPath = c.Args().Get(1)
-	}
 	var tables = make([]*conf.Table, 0, 2)
 	for _, p := range mdFilePath {
 		t1, err := md.Markdown2Table(p)
@@ -78,7 +25,7 @@ func (p *sqlCmd) action(c *cli.Context) (err error) {
 		tables = append(tables, t1...)
 	}
 
-	tmpls, err := tpl.GetTmples(tables)
+	tmpls, err := tpl(tables)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
@@ -87,15 +34,15 @@ func (p *sqlCmd) action(c *cli.Context) (err error) {
 		cmds.Log.Errorf("未找到数据表信息%v", mdFilePath)
 		return nil
 	}
-	if err = p.createFile(outPath, tmpls); err != nil {
+	if err = createFile(outPath, tmpls); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 	cmds.Log.Infof("SQL生成完成,共生成%d个文件", len(tmpls))
 	return nil
-}
 
-func (p *sqlCmd) createFile(root string, data map[string]string) error {
+}
+func createFile(root string, data map[string]string) error {
 	for k, v := range data {
 		path := filepath.Join(root, k)
 		dir := filepath.Dir(path)
@@ -124,5 +71,14 @@ func (p *sqlCmd) createFile(root string, data map[string]string) error {
 		cmds.Log.Info("生成文件:", path)
 	}
 	return nil
+
+}
+
+//NewSqlCmd 生成ＳＱＬ语句
+func NewSqlCmd() []cli.Command {
+	return []cli.Command{
+		NewMySqlCmd(),
+		NewOracleCmd(),
+	}
 
 }

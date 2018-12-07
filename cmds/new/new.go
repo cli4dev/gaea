@@ -16,27 +16,12 @@ func init() {
 
 func getCmd() []cli.Command {
 	cmds := make([]cli.Command, 0, 4)
-	cmds = append(cmds, sql.NewSqlCmd())
 	cmds = append(cmds, module.NewModuleCmd())
 	cmds = append(cmds, project.NewProjectCmd()...)
+	cmds = append(cmds, cli.Command{
+		Name:        "create",
+		Usage:       "创建数据库表结构",
+		Subcommands: sql.NewSqlCmd(),
+	})
 	return cmds
-	// return []cli.Command{
-	// 	cli.Command{
-	// 		Name:  "new",
-	// 		Usage: "创建项目,文件，数据库等",
-	// 		Subcommands: []cli.Command{
-	// 			project.NewProjectCmd(),
-	// 			module.NewModuleCmd(),
-	// 			service.NewServiceCmd(),
-	// 			sql.NewSqlCmd(),
-	// 			key.NewKeyCmd(),
-	// 			html.NewHTMLCmd(),
-	// 			//sql.NewStructCmd(),
-	// 		},
-	// 		cli.Command{
-	// 		Name:  "project",
-	// 		Usage: "创建项目,文件，数据库等",
-	// 		Subcommands: project.NewProjectCmd(),
-	// 		,
-	// 	}}
 }

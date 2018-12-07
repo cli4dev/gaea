@@ -7,8 +7,6 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/micro-plat/gaea/cmds/new/sql"
-
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
 	"github.com/micro-plat/lib4go/types"
 )
@@ -196,8 +194,4 @@ func getFilterName(t string, f string) string {
 		return "id"
 	}
 	return strings.Join(text, "_")
-}
-
-func init() {
-	sql.Register("mysql", GetTmples)
 }
