@@ -14,21 +14,28 @@ import (
 )
 
 func init() {
-	cmds.Registry(getCmd())
+	cmds.Registry(getCmd()...)
 }
 
-func getCmd() cli.Command {
-	return cli.Command{
-		Name:  "new",
-		Usage: "创建项目,文件，数据库等",
-		Subcommands: []cli.Command{
-			project.NewProjectCmd(),
-			module.NewModuleCmd(),
-			service.NewServiceCmd(),
-			sql.NewSqlCmd(),
-			key.NewKeyCmd(),
-			html.NewHTMLCmd(),
-			//sql.NewStructCmd(),
-		},
-	}
+func getCmd() []cli.Command {
+	return []cli.Command{
+		cli.Command{
+			Name:  "new",
+			Usage: "创建项目,文件，数据库等",
+			Subcommands: []cli.Command{
+				project.NewProjectCmd(),
+				module.NewModuleCmd(),
+				service.NewServiceCmd(),
+				sql.NewSqlCmd(),
+				key.NewKeyCmd(),
+				html.NewHTMLCmd(),
+				//sql.NewStructCmd(),
+			},
+			cli.Command{
+			Name:  "project",
+			Usage: "创建项目,文件，数据库等",
+			Subcommands: []cli.Command{
+				project.NewProjectCmd(),
+			},
+		}}
 }

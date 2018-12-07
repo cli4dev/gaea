@@ -18,13 +18,27 @@ type projectCmd struct {
 }
 
 //NewProjectCmd .
-func NewProjectCmd() cli.Command {
+func NewProjectCmd() []cli.Command {
 	p := &projectCmd{}
-	return cli.Command{
-		Name:   "project",
-		Usage:  "创建项目",
-		Flags:  p.geStartFlags(),
-		Action: p.action,
+	return []cli.Command{
+		cli.Command{
+			Name:  "create",
+			Usage: "创建项目",
+			Subcommands: []cli.Command{
+				cli.Command{
+					Name:   "api",
+					Usage:  "创建项目",
+					Flags:  p.geStartFlags(),
+					Action: p.action,
+				},
+				cli.Command{
+					Name:   "cron",
+					Usage:  "创建项目",
+					Flags:  p.geStartFlags(),
+					Action: p.action,
+				},
+			},
+		},
 	}
 }
 

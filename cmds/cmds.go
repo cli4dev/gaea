@@ -19,8 +19,8 @@ func init() {
 }
 
 //Registry 注册子
-func Registry(c cli.Command) {
-	cmds = append(cmds, c)
+func Registry(c ...cli.Command) {
+	cmds = append(cmds, c...)
 }
 
 //VERSION 版本号
