@@ -34,8 +34,9 @@ func (p *projectCmd) geStartFlags() []cli.Flag {
 		Name:  "s",
 		Value: "api", //默认值
 		Usage: "服务器类型(api,rpc,web,mqc,cron),多个用短横线分隔",
-	}, cli.StringSliceFlag{
+	}, cli.StringFlag{
 		Name:  "n",
+		Value: "./",
 		Usage: "项目名称",
 	}, cli.BoolFlag{
 		Name:  "a",
@@ -60,10 +61,10 @@ func (p *projectCmd) geStartFlags() []cli.Flag {
 }
 
 func (p *projectCmd) action(c *cli.Context) (err error) {
-	projectName := c.StringSlice("n")
+	projectPath := c.String("n")
 
 	if c.Bool("a") && c.String("s") != "" {
-		if !pathExists("main.go") || !pathExists("modules") {
+		if !pathExists("./main.go") || !pathExists("./modules") {
 			cmds.Log.Error("如需要添加配置，请到项目根目录值执行该命令")
 			return nil
 		}
@@ -77,12 +78,10 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 		port = ":" + port
 	}
 	//创键项目
-	for _, v := range projectName {
-		err := p.new(v, serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"))
-		if err != nil {
-			cmds.Log.Error(err)
-			return err
-		}
+	err = p.new(projectPath, serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"), c.Bool("a"))
+	if err != nil {
+		cmds.Log.Error(err)
+		return err
 	}
 
 	//追加配置
@@ -97,17 +96,17 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 	return nil
 }
 
-func (p *projectCmd) new(projectName, serviceType, port, db string, jwt, domain bool) error {
-	gopath, err := path.GetGoPath()
+func (p *projectCmd) new(projectName, serviceType, port, db string, jwt, domain bool, append bool) error {
+	name, path, err := path.GetProjectPath(projectName)
+	fmt.Println("project:", name, path)
 	if err != nil {
 		return err
 	}
-	projectPath := filepath.Join(gopath, "src", projectName)
-	tmpls, err := tmpls.GetTmpls(projectName, serviceType, port, db, jwt, domain)
+	tmpls, err := tmpls.GetTmpls(name, serviceType, port, db, jwt, domain)
 	if err != nil {
 		return err
 	}
-	err = p.createProject(projectPath, tmpls)
+	err = p.createProject(path, tmpls, append)
 	if err != nil {
 		return err
 	}
@@ -129,30 +128,47 @@ func (p *projectCmd) addConf(serviceType, port, db string, jwt, domain bool) err
 
 }
 
-func (p *projectCmd) createProject(projectPath string, data map[string]string) error {
+func (p *projectCmd) createProject(projectPath string, data map[string]string, append bool) error {
 	for k, v := range data {
 		path := filepath.Join(projectPath, k)
 		dir := filepath.Dir(path)
 		_, err := os.Stat(dir)
 		if os.IsNotExist(err) {
-			err := os.MkdirAll(dir, os.ModePerm)
-			if err != nil {
+			if err = os.MkdirAll(dir, os.ModePerm); err != nil {
 				err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
 				return err
 			}
-		} else {
-			cmds.Log.Error("文件夹已经存在，不能新建项目")
-			return fmt.Errorf("文件夹已经存在，不能新建项目")
+
 		}
+
+		_, err = os.Stat(path)
+		var srcf *os.File
+		if os.IsNotExist(err) {
+			// err := os.MkdirAll(dir, os.ModePerm)
+			// if err != nil {
+			// 	err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
+			// 	return err
+			// }
+			srcf, err = os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.ModePerm)
+			if err != nil {
+				err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
+				return err
+			}
+
+		} else if !append {
+			cmds.Log.Errorf("文件%s已存在", path)
+			continue
+		} else {
+			srcf, err = os.OpenFile(path, os.O_APPEND|os.O_RDWR, os.ModePerm)
+			if err != nil {
+				err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
+				return err
+			}
+		}
+
 		if v == "dir" || strings.HasPrefix(k, "conf") {
 			continue
 		}
-		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.ModePerm)
-		if err != nil {
-			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
-			return err
-		}
-
 		_, err = srcf.WriteString(v)
 		if err != nil {
 			return err
