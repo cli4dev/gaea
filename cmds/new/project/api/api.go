@@ -16,6 +16,7 @@ import (
 
 //ProjectAPICmd .
 type ProjectAPICmd struct {
+	serverType string
 }
 
 //GeStartFlags .
@@ -47,8 +48,6 @@ func (p *ProjectAPICmd) GeStartFlags() []cli.Flag {
 //Action .
 func (p *ProjectAPICmd) Action(c *cli.Context) (err error) {
 	name := c.String("n")
-	//服务类型
-	serverType := "api"
 
 	port := c.String("p")
 	name, path, err := path.GetProjectPath(name)
@@ -56,7 +55,7 @@ func (p *ProjectAPICmd) Action(c *cli.Context) (err error) {
 		return err
 	}
 	//创键项目
-	err = p.new(name, path, serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"))
+	err = p.new(name, path, p.serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"))
 	if err != nil {
 		return err
 	}
