@@ -2,7 +2,11 @@ package module
 
 import (
 	"fmt"
+	"os"
+	paths "path"
 	"strings"
+
+	"github.com/micro-plat/gaea/cmds/new/module/tmpls"
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
@@ -60,7 +64,14 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 	}, cli.BoolFlag{
 		Name:  "cover",
 		Usage: "是否执行覆盖crud函数和sql语句操作",
-	})
+	}, cli.BoolFlag{
+		Name:  "m",
+		Usage: "是否生成一个基础的module",
+	}, cli.StringFlag{
+		Name:  "n",
+		Usage: "生成基础module的名字",
+	},
+	)
 	return flags
 }
 
@@ -77,10 +88,27 @@ func (p *moduleCmd) action(c *cli.Context) (err error) {
 		c.String("o"),
 		c.StringSlice("f"),
 		c.String("db"),
+		c.Bool("m"),
+		c.String("n"),
 	)
 }
 
-func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []string, db string) (err error) {
+func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []string, db string, m bool, n string) (err error) {
+
+	if m {
+		if n == "" {
+			cmds.Log.Error("请输入module名称，比如: -n user/info")
+			return nil
+		}
+
+		modulePath := "modules/" + n + ".go"
+
+		err = p.createBaseModule(modulePath, n)
+		if err != nil {
+			cmds.Log.Error(err)
+		}
+		return nil
+	}
 
 	//查找*.md文件
 	mdList := []string{t}
@@ -241,4 +269,26 @@ func (p *moduleCmd) makeSQL(c, r, u, d, add, cover bool, db string, tables []*co
 		cover = false
 	}
 	return err
+}
+
+func (p *moduleCmd) createBaseModule(modulePath, name string) error {
+	_, err := os.Stat(modulePath)
+	if err == nil {
+		cmds.Log.Error("module已经存在")
+		return nil
+	}
+	err = os.MkdirAll(paths.Dir(modulePath), os.ModePerm)
+	f, err := os.Create(modulePath)
+	if err != nil {
+		err = fmt.Errorf("无法创建文件:%s(err:%v)", modulePath, err)
+		return err
+	}
+	defer f.Close()
+	m := strings.Split(modulePath, "/")
+	_, err = f.WriteString(fmt.Sprintf(tmpls.BaseTpl, m[len(m)-2], m[len(m)-2], m[len(m)-2], m[len(m)-2], m[len(m)-2], m[len(m)-2]))
+	if err != nil {
+		return err
+	}
+	cmds.Log.Info("module创建成功")
+	return nil
 }
