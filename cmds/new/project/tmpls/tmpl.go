@@ -137,6 +137,9 @@ func translate(c string, input interface{}) (string, error) {
 
 //获取生成项目的数据
 func makeParams(projectName, serverType, port, db string, jwt, domain bool) map[string]interface{} {
+	if !strings.Contains(port, ":") {
+		port = ":" + port
+	}
 	return map[string]interface{}{
 		"projectName": projectName,
 		"serverType":  serverType,
