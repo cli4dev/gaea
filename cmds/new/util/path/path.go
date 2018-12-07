@@ -22,6 +22,30 @@ func GetGoPath() (string, error) {
 	return path[0], nil
 }
 
+//GetProjectPath 获取项目路径
+func GetProjectPath(p string) (string, string, error) {
+	root, err := filepath.Abs(p)
+	if err != nil {
+		return "", "", fmt.Errorf("不是有效的项目路径:%s", root)
+	}
+	goPath, err := GetGoPath()
+	if err != nil {
+		return "", "", err
+	}
+	srcPath := filepath.Join(goPath, "src")
+	if !strings.Contains(root, srcPath) {
+		return "", "", fmt.Errorf("项目路径无效:%s(必须位于%s目录)", root, srcPath)
+	}
+	if strings.Contains(root, "modules") {
+		fullPath := root[:strings.Index(root, "modules")-1]
+		return strings.Replace(fullPath, srcPath, "", -1), fullPath, nil
+	}
+	if strings.Contains(root, "services") {
+		fullPath := root[:strings.Index(root, "services")-1]
+		return strings.Replace(fullPath, srcPath, "", -1), fullPath, nil
+	}
+	return strings.Replace(root, srcPath, "", -1), root, nil
+}
 func getMDFileList(path string) (mdListfile []string, err error) {
 
 	err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {
