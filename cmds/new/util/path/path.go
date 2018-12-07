@@ -10,7 +10,7 @@ import (
 )
 
 //GetGoPath 获取$GOPATH路径
-func GetGoPath() (string, error) {
+func GetGoPath(v ...string) (string, error) {
 	gopath := os.Getenv("GOPATH")
 	if gopath == "" {
 		return "", fmt.Errorf("未配置环境变量GOPATH")
@@ -19,32 +19,45 @@ func GetGoPath() (string, error) {
 	if len(path) == 0 {
 		return "", fmt.Errorf("环境变量GOPATH配置的路径为空")
 	}
+	if len(v) > 0 {
+		npath := filepath.Join(v...)
+		return filepath.Join(path[0], npath), nil
+	}
 	return path[0], nil
 }
 
 //GetProjectPath 获取项目路径
-func GetProjectPath(p string) (string, string, error) {
-	root, err := filepath.Abs(p)
-	if err != nil {
-		return "", "", fmt.Errorf("不是有效的项目路径:%s", root)
-	}
-	goPath, err := GetGoPath()
+func GetProjectPath(path string) (string, string, error) {
+	srcPath, err := GetGoPath("src")
 	if err != nil {
 		return "", "", err
 	}
-	srcPath := filepath.Join(goPath, "src")
+	npath := path
+	if !strings.HasPrefix(path, "./") && !strings.HasPrefix(path, "/") && !strings.HasPrefix(path, "../") {
+		npath = filepath.Join(srcPath, path)
+	}
+	fmt.Println("npath:", npath, path)
+
+	root, err := filepath.Abs(npath)
+	if err != nil {
+		return "", "", fmt.Errorf("不是有效的项目路径:%s", root)
+	}
+
 	if !strings.Contains(root, srcPath) {
 		return "", "", fmt.Errorf("项目路径无效:%s(必须位于%s目录)", root, srcPath)
 	}
 	if strings.Contains(root, "modules") {
 		fullPath := root[:strings.Index(root, "modules")-1]
-		return strings.Replace(fullPath, srcPath, "", -1), fullPath, nil
+		name := strings.Replace(fullPath, srcPath, "", -1)
+		return strings.Trim(name, "/"), fullPath, nil
 	}
 	if strings.Contains(root, "services") {
 		fullPath := root[:strings.Index(root, "services")-1]
-		return strings.Replace(fullPath, srcPath, "", -1), fullPath, nil
+		name := strings.Replace(fullPath, srcPath, "", -1)
+		return strings.Trim(name, "/"), fullPath, nil
 	}
-	return strings.Replace(root, srcPath, "", -1), root, nil
+	name := strings.Replace(root, srcPath, "", -1)
+	return strings.Trim(name, "/"), root, nil
 }
 func getMDFileList(path string) (mdListfile []string, err error) {
 

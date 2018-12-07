@@ -98,6 +98,7 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 
 func (p *projectCmd) new(projectName, serviceType, port, db string, jwt, domain bool, append bool) error {
 	name, path, err := path.GetProjectPath(projectName)
+	fmt.Println("project:", name, path)
 	if err != nil {
 		return err
 	}
