@@ -81,6 +81,7 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 		err := p.new(v, serverType, port, c.String("db"), c.Bool("jwt"), c.Bool("domain"))
 		if err != nil {
 			cmds.Log.Error(err)
+			return err
 		}
 	}
 
@@ -92,7 +93,7 @@ func (p *projectCmd) action(c *cli.Context) (err error) {
 		}
 	}
 
-	cmds.Log.Info("项目生成完成")
+	//cmds.Log.Info("项目生成完成")
 	return nil
 }
 
@@ -139,6 +140,9 @@ func (p *projectCmd) createProject(projectPath string, data map[string]string) e
 				err = fmt.Errorf("创建文件夹%s失败:%v", path, err)
 				return err
 			}
+		} else {
+			cmds.Log.Error("文件夹已经存在，不能新建项目")
+			return fmt.Errorf("文件夹已经存在，不能新建项目")
 		}
 		if v == "dir" || strings.HasPrefix(k, "conf") {
 			continue
