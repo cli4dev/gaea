@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/util/conf"
@@ -13,7 +14,7 @@ import (
 
 type handler func([]*conf.Table) (map[string]string, error)
 
-func create(tpl handler, mdFilePath []string, outPath string) error {
+func create(tpl handler, mdFilePath []string, outPath string, cover bool, filters ...string) error {
 
 	var tables = make([]*conf.Table, 0, 2)
 	for _, p := range mdFilePath {
@@ -23,6 +24,18 @@ func create(tpl handler, mdFilePath []string, outPath string) error {
 			return err
 		}
 		tables = append(tables, t1...)
+	}
+	if len(filters) > 0 {
+		ntable := make([]*conf.Table, 0, len(filters))
+		for _, t := range tables {
+			for _, c := range filters {
+				if strings.Contains(t.Name, c) {
+					ntable = append(ntable, t)
+					break
+				}
+			}
+		}
+		tables = ntable
 	}
 
 	tmpls, err := tpl(tables)
@@ -34,7 +47,7 @@ func create(tpl handler, mdFilePath []string, outPath string) error {
 		cmds.Log.Errorf("未找到数据表信息%v", mdFilePath)
 		return nil
 	}
-	if err = createFile(outPath, tmpls); err != nil {
+	if err = createFile(outPath, tmpls, cover); err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
@@ -42,7 +55,7 @@ func create(tpl handler, mdFilePath []string, outPath string) error {
 	return nil
 
 }
-func createFile(root string, data map[string]string) error {
+func createFile(root string, data map[string]string, cover bool) error {
 	for k, v := range data {
 		path := filepath.Join(root, k)
 		dir := filepath.Dir(path)
@@ -54,11 +67,11 @@ func createFile(root string, data map[string]string) error {
 				return err
 			}
 		}
-		if _, err := os.Stat(path); err == nil || os.IsExist(err) {
+		if _, err := os.Stat(path); !cover && (err == nil || os.IsExist(err)) {
 			cmds.Log.Warn("文件已存在:", path)
 			continue
 		}
-		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, os.ModeAppend|os.ModePerm)
+		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 		if err != nil {
 			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)
 			return err

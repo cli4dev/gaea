@@ -22,6 +22,14 @@ func NewOracleCmd() cli.Command {
 
 func (p *oracleCmd) geStartFlags() []cli.Flag {
 	flags := make([]cli.Flag, 0, 1)
+	flags = append(flags, cli.StringSliceFlag{
+		Name:  "filter,f",
+		Usage: "过滤表名",
+	})
+	flags = append(flags, cli.BoolFlag{
+		Name:  "cover,c",
+		Usage: "覆盖已存在的文件",
+	})
 	return flags
 }
 
@@ -35,5 +43,5 @@ func (p *oracleCmd) action(c *cli.Context) (err error) {
 	if c.NArg() > 1 {
 		outPath = c.Args().Get(1)
 	}
-	return create(oracle.GetTmples, mdFilePath, outPath)
+	return create(oracle.GetTmples, mdFilePath, outPath, c.Bool("cover"), c.StringSlice("filter")...)
 }
