@@ -31,11 +31,13 @@ func getCmd() []cli.Command {
 				html.NewHTMLCmd(),
 				//sql.NewStructCmd(),
 			},
-			cli.Command{
+		}, cli.Command{
 			Name:  "project",
 			Usage: "创建项目,文件，数据库等",
 			Subcommands: []cli.Command{
 				project.NewProjectCmd(),
 			},
-		}}
+		},
+	}
+
 }

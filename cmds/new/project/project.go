@@ -8,6 +8,8 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/micro-plat/gaea/cmds/new/project/api"
+
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/project/tmpls"
 	"github.com/micro-plat/gaea/cmds/new/util/path"
@@ -18,28 +20,28 @@ type projectCmd struct {
 }
 
 //NewProjectCmd .
-func NewProjectCmd() []cli.Command {
+func NewProjectCmd() cli.Command {
 	p := &projectCmd{}
-	return []cli.Command{
-		cli.Command{
-			Name:  "create",
-			Usage: "创建项目",
-			Subcommands: []cli.Command{
-				cli.Command{
-					Name:   "api",
-					Usage:  "创建项目",
-					Flags:  p.geStartFlags(),
-					Action: p.action,
-				},
-				cli.Command{
-					Name:   "cron",
-					Usage:  "创建项目",
-					Flags:  p.geStartFlags(),
-					Action: p.action,
-				},
+	a := &api.ProjectAPICmd{}
+	return cli.Command{
+		Name:  "create",
+		Usage: "创建项目",
+		Subcommands: []cli.Command{
+			cli.Command{
+				Name:   "api",
+				Usage:  "创建项目",
+				Flags:  a.GeStartFlags(),
+				Action: a.Action,
+			},
+			cli.Command{
+				Name:   "cron",
+				Usage:  "创建项目",
+				Flags:  p.geStartFlags(),
+				Action: p.action,
 			},
 		},
 	}
+
 }
 
 func (p *projectCmd) geStartFlags() []cli.Flag {
