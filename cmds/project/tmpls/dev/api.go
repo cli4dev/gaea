@@ -1,53 +1,15 @@
 package dev
 
-//Api .
-const Api = `
-	{ //api
-		s.Conf.API.SetMainConf("{'address':':9091'}")
-		s.Conf.API.SetSubConf('header', "
-				{
-					'Access-Control-Allow-Origin': '*', 
-					'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS', 
-					'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
-					'Access-Control-Allow-Credentials': 'true'
-				}
-			")
-
-		s.Conf.API.SetSubConf('auth', "{
-			'jwt': {
-				'exclude': ['/{{.projectName|lName}}/login'],
-				'expireAt': 36000,
-				'mode': 'HS512',
-				'name': '{{.projectName|lName}}_sid',
-				'secret': '12345678'
-			}
-		}")
-	}
-}
-`
-
 //APIMainPort .
 const APIMainPort = `
-//api.main.port#//
+	//api.port#//
 	s.Conf.API.SetMainConf("{'address':'{{.port}}'}")
-//#api.main.port//
-`
-
-//APISubHeader 不设置跨域的头
-const APISubHeader = `
-//api.sub.header#//
-	s.Conf.API.SetSubConf('header', "
-	{
-		'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS', 
-		'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
-		'Access-Control-Allow-Credentials': 'true'
-	}")
-//#api.sub.header//
+	//#api.port//
 `
 
 //APISubHeaderDomain 设置跨域的头
-const APISubHeaderDomain = `
-//api.sub.header#//
+const APISubCros = `
+	//api.cros#//
 	s.Conf.API.SetSubConf('header', "
 	{
 		'Access-Control-Allow-Origin': '*', 
@@ -55,12 +17,12 @@ const APISubHeaderDomain = `
 		'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
 		'Access-Control-Allow-Credentials': 'true'
 	}")
-//#api.sub.header//	
+	//#api.cros//	
 `
 
 //APISubAuth .
 const APISubAuth = `
-//api.sub.auth#//
+	//api.jwt#//
 	s.Conf.API.SetSubConf('auth', "{
 		'jwt': {
 			'exclude': ['/{{.projectName|lName}}/login'],
@@ -70,12 +32,12 @@ const APISubAuth = `
 			'secret': '12345678'
 		}
 	}")	
-//#api.sub.auth//
+	//#api.jwt//
 `
 
 //APISubMetric .
 const APISubMetric = `
-//api.sub.metric#//
+	//api.metric#//
 	s.Conf.API.SetSubConf('metric', "{
 		'host':'http://192.168.106.219:8086',
 		'dataBase':'gcr',
@@ -83,20 +45,29 @@ const APISubMetric = `
 		'userName':'',
 		'password':''
 	}")	
-//#api.sub.metric//
+	//#api.metric//
 `
 
 //HandingJWT .
 const HandingJWT = `
-//handing.jwt#//
-		jwt, err := ctx.Request.GetJWTConfig() //获取jwt配置
-		if err != nil {
-			return err
+	//handing.jwt#//
+	jwt, err := ctx.Request.GetJWTConfig() //获取jwt配置
+	if err != nil {
+		return err
+	}
+	for _, u := range jwt.Exclude { //排除指定请求
+		if u == ctx.Service {
+			return nil
 		}
-		for _, u := range jwt.Exclude { //排除指定请求
-			if u == ctx.Service {
-				return nil
-			}
-		}
-//#handing.jwt//
+	}
+	//#handing.jwt//
+`
+
+const APIApp = `
+	//api.appconf#//
+	s.Conf.API.SetSubConf('app', "
+	{
+		'appname':'app_name'
+	}")
+	//#api.appconf//
 `

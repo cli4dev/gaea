@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"path/filepath"
 
+	datas "github.com/micro-plat/gaea/cmds/new/util/data"
+
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/util"
 	"github.com/micro-plat/gaea/cmds/new/util/path"
@@ -52,7 +54,7 @@ func (p *APICmd) geStartFlags() []cli.Flag {
 		Value: "./",
 		Usage: "项目名称",
 	}, cli.StringFlag{
-		Name:  "p",
+		Name:  "port,p",
 		Value: ":8090",
 		Usage: "指定服务端口号",
 	}, cli.BoolFlag{
@@ -84,19 +86,19 @@ func (p *APICmd) geStartFlags() []cli.Flag {
 
 //Action .
 func (p *APICmd) action(c *cli.Context) (err error) {
-	name, path, err := path.GetProjectPath(c.String("n"))
+	name, projectPath, err := path.GetProjectPath(c.String("n"))
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 	//创键项目
-	err = p.create(path)
+	err = p.create(projectPath)
 	if err != nil && !p.cover {
 		cmds.Log.Error(err)
 		return err
 	}
 	if !p.cover {
-		err = p.writeTemplate(name, path, map[string]interface{}{
+		err = p.writeTemplate(name, projectPath, map[string]interface{}{
 			"port":        util.GetPrefixString(types.GetString(c.String("p"), "8090"), ":"),
 			"serverType":  "api",
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
@@ -111,7 +113,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 		})
 
 	} else {
-		err = p.appendTemplate(path, getBlock(c, "port", "jwt", "db", "cros", "queue", "appconf", "metric"), map[string]interface{}{
+		err = p.appendTemplate(projectPath, getBlock(c, "port", "jwt", "db", "cros", "cache", "queue", "appconf", "metric"), map[string]interface{}{
 			"port":        util.GetPrefixString(types.GetString(c.String("p"), "8090"), ":"),
 			"serverType":  "api",
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
@@ -132,7 +134,6 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 	}
 
 	cmds.Log.Info("项目生成完成")
-	return nil
 	return nil
 }
 
@@ -173,17 +174,15 @@ func (p *APICmd) appendTemplate(projectPath string, block []string, input map[st
 	}
 
 	for k, v := range data {
+		for key, val := range v {
+			err = datas.ReplaceFileStr(key, filepath.Join(projectPath, k), val)
+			if err != nil {
+				cmds.Log.Error(err)
+				continue
+			}
+		}
 
-		f, err := path.CreatePath(k, p.cover)
-		if err != nil {
-			continue
-		}
-		_, err = f.WriteString()
-		if err != nil {
-			continue
-		}
-		defer f.Close()
-		cmds.Log.Info("生成文件:", fpath)
+		cmds.Log.Info("生成文件:", filepath.Join(projectPath, k))
 	}
 	return nil
 }
@@ -194,6 +193,13 @@ func getBlock(c *cli.Context, b ...string) []string {
 		if c.Bool(v) {
 			blocks = append(blocks, v)
 		}
+		if v == "port" && c.String("port") != ":8090" {
+			blocks = append(blocks, v)
+		}
+		if v == "db" && c.String("db") != "" {
+			blocks = append(blocks, v)
+		}
 	}
+	fmt.Println("blocks", blocks)
 	return blocks
 }

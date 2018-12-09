@@ -2,7 +2,7 @@ package dev
 
 //MqcSubServer .
 const MqcSubServer = `
-//mqc.sub.server#//
+//mqc.server#//
 	s.Conf.MQC.SetSubConf('server', "
 		{
 			'proto':'redis',
@@ -20,12 +20,12 @@ const MqcSubServer = `
 			'write_timeout':10,
 			'pool_size':10
 	}")
-//#mqc.sub.server//
+//#mqc.server//
 `
 
 //MqcSubQueue .
 const MqcSubQueue = `
-//mqc.sub.queue#//
+	//mqc.queue#//
 	s.Conf.MQC.SetSubConf('queue', "{
 		'queues':[
 			{
@@ -38,5 +38,5 @@ const MqcSubQueue = `
 			}
 		]
 	}")
-//#mqc.sub.queue//
+	//#mqc.queue//
 `

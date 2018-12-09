@@ -2,16 +2,16 @@ package dev
 
 //WSSubAPP .
 const WSSubAPP = `
-//ws.sub.app#//
+	//ws.app#//
 	s.Conf.WS.SetSubConf('app', "{
 		'appname': 'gaea'
 	}")
-//#ws.sub.app//
+	//#ws.app//
 `
 
 //WSSubAuth .
 const WSSubAuth = `
-//ws.sub.auth#//
+	//ws.jwt#//
 	s.Conf.WS.SetSubConf('auth', "{
 		'jwt': {
 			'exclude': [],
@@ -22,5 +22,5 @@ const WSSubAuth = `
 			'secret': '12345678'
 		}
 	}")
-//#ws.sub.auth//
+	//#ws.jwt//
 `

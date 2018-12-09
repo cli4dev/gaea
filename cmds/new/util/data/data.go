@@ -620,11 +620,9 @@ func ReplaceFileStr(name, filePath, value string) error {
 	}
 
 	result := string(buf)
-
-	k := fmt.Sprintf(`//%s#//[\f\t\n\r\v\123\x7F\x{10FFFF}\\\^\$\.\*\+\?\{\}\(\)\[\]\|a-zA-Z0-9]+//#%s//`, name, name)
-
+	k := fmt.Sprintf(`//%s#//[\d\w\W]+//#%s//`, name, name)
 	if ok, _ := regexp.Match(k, buf); !ok {
-		cmds.Log.Error("没有找到配置定位标识，请手动添加")
+		cmds.Log.Errorf("没有找到配置定位标识，请手动添加://%s#//....//#%s//", name, name)
 		return nil
 	}
 

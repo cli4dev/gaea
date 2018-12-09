@@ -13,7 +13,7 @@ func (r *{{.projectName|lName}}) handling() {
 	r.Handling(func(ctx *context.Context) (rt interface{}) {
 		
 		{{if .jwt}}
-		//handing.jwt#//
+		//handling.jwt#//
 		jwt, err := ctx.Request.GetJWTConfig() //获取jwt配置
 		if err != nil {
 			return err
@@ -23,19 +23,10 @@ func (r *{{.projectName|lName}}) handling() {
 				return nil
 			}
 		}
-		//#handing.jwt//
+		//#handling.jwt//
 		{{else}}
-		//handing.jwt#//
-		// jwt, err := ctx.Request.GetJWTConfig() //获取jwt配置
-		// if err != nil {
-		// 	return err
-		// }
-		// for _, u := range jwt.Exclude { //排除指定请求
-		// 	if u == ctx.Service {
-		// 		return nil
-		// 	}
-		// }
-		//#handing.jwt//
+		//handling.jwt#//
+		//#handling.jwt//
 		{{end}}
 
 		// //缓存用户信息

@@ -15,19 +15,34 @@ func (s *{{.projectName|lName}}) install() {
 	{{$empty := "" -}}
 	
 		{{if fServer .serverType $api -}}
-		//api.main.port#//
+		//api.port#//
 			s.Conf.API.SetMainConf("{'address':'{{.port}}'}")
-	//#api.main.port//
+	//#api.port//
 		{{- else -}}
-			//api.main.port#//
-			//#api.main.port//
+			//api.port#//
+			//#api.port//
 		{{- end}}
-	
-	
+
+		{{if fServer .serverType $api -}}
+		{{if .appconf -}}
+			//api.appconf#//
+			s.Conf.API.SetSubConf('app', "
+			{
+				'appname':'app_name'
+			}")
+		//#api.appconf//
+		{{- else -}}
+		//api.appconf#//
+		//#api.appconf//
+		{{- end}}
+		{{- else -}}
+		//api.appconf#//
+		//#api.appconf//
+		{{- end}}
 	
 		{{if fServer .serverType $api -}}
 			{{if .cros -}}
-			//api.sub.header#//
+			//api.cros#//
 				s.Conf.API.SetSubConf('header', "
 				{
 					'Access-Control-Allow-Origin': '*', 
@@ -35,21 +50,21 @@ func (s *{{.projectName|lName}}) install() {
 					'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
 					'Access-Control-Allow-Credentials': 'true'
 				}")
-		//#api.sub.header//	
+		//#api.cros//	
 			{{else}}
-			//api.sub.header#//
-			//#api.sub.header//	
+			//api.cros#//
+			//#api.cros//	
 			{{end}}
 		{{- else}}
-			//api.sub.header#//
-		//#api.sub.header//
+			//api.cros#//
+		//#api.cros//
 		{{end}}
 	
 	
 		
 		{{if fServer .serverType $api -}}
 			{{if .jwt}}
-				//api.sub.auth#//
+				//api.jwt#//
 				s.Conf.API.SetSubConf('auth', "{
 					'jwt': {
 						'exclude': ['/{{.projectName|lName}}/login'],
@@ -59,20 +74,20 @@ func (s *{{.projectName|lName}}) install() {
 						'secret': '12345678'
 					}
 				}")	
-		//#api.sub.auth//
+		//#api.jwt//
 			{{- else -}}
-			//api.sub.auth#//
-		//#api.sub.auth//
+			//api.jwt#//
+		//#api.jwt//
 			{{- end -}}
 		{{- else}}
-			//api.sub.auth#//
-		//#api.sub.auth//
+			//api.jwt#//
+		//#api.jwt//
 		{{end}}
 	
 	
 		{{if fServer .serverType $api -}}
 		{{if .metric -}}
-		//api.sub.metric#//
+		//api.metric#//
 		s.Conf.API.SetSubConf('metric', "{
 			'host':'http://192.168.106.219:8086',
 			'dataBase':'gcr',
@@ -80,14 +95,14 @@ func (s *{{.projectName|lName}}) install() {
 			'userName':'',
 			'password':''
 		}")	
-	//#api.sub.metric//
+	//#api.metric//
 		{{- else -}}
-		//api.sub.metric#//
-		//#api.sub.metric//
+		//api.metric#//
+		//#api.metric//
 		{{- end -}}
 		{{- else}}
-		//api.sub.metric#//
-		//#api.sub.metric//
+		//api.metric#//
+		//#api.metric//
 		{{end}}
 	
 
@@ -95,10 +110,10 @@ func (s *{{.projectName|lName}}) install() {
 		
 
 		{{if eq .db $empty }}	
-		//plat.var.db#//
-		//#plat.var.db//
+		//db#//
+		//#db//
 		{{- else -}}
-		//plat.var.db#//
+		//db#//
 		s.Conf.Plat.SetVarConf('db', 'db', "{			
 			'provider':'{{.dbname}}',
 			'connString':'{{.db}}',
@@ -106,12 +121,12 @@ func (s *{{.projectName|lName}}) install() {
 			'maxIdle':10,
 			'lifeTime':600		
 		}")
-	//#plat.var.db//
+	//#db//
 		{{- end}}
 	
 
 		{{if .cache}}
-		//plat.var.cache#//
+		//cache#//
 		s.Conf.Plat.SetVarConf('cache', 'cache', "
 				{
 					'proto':'redis',
@@ -129,17 +144,17 @@ func (s *{{.projectName|lName}}) install() {
 					'write_timeout':10,
 					'pool_size':10
 				}")
-	//#plat.var.cache//
+	//#cache//
 		{{- else -}}
-		//plat.var.cache#//
-		//#plat.var.cache//	
+		//cache#//
+		//#cache//	
 		{{- end}}
 	
 			
 	
 
 		{{if .queue}}
-		//plat.var.queue#//
+		//queue#//
 			s.Conf.Plat.SetVarConf('queue', 'queue', "
 			{
 				'proto':'redis',
@@ -157,42 +172,42 @@ func (s *{{.projectName|lName}}) install() {
 				'write_timeout':10,
 				'pool_size':10
 			}")
-	//#plat.var.queue//
+	//#queue//
 		{{- else -}}
-		//plat.var.queue#//
-		//#plat.var.queue//
+		//queue#//
+		//#queue//
 		{{- end}}
 	
 	
 	
 		{{if fServer .serverType $cron -}}
-			//cron.sub.app#//
+			//cron.app#//
 			s.Conf.CRON.SetSubConf('app', "{
 				'appname':'app_name'
 			}")
-	//#cron.sub.app//
+	//#cron.app//
 		{{- else}}
-		//cron.sub.app#//
-		//#cron.sub.app//
+		//cron.app#//
+		//#cron.app//
 		{{end}}
 	
 	
 		{{if fServer .serverType $cron -}}
-			//cron.sub.task#//
+			//cron.task#//
 			s.Conf.CRON.SetSubConf('task', "{
 				'tasks':[
 				{'cron':'@every 1m','service':'/hello'}
 				]		
 			}")
-	//#cron.sub.task//
+	//#cron.task//
 		{{- else}}
-		//cron.sub.task#//
-		//#cron.sub.task//
+		//cron.task#//
+		//#cron.task//
 		{{end}}
 	
 
 		{{if fServer .serverType $mqc -}}
-			//mqc.sub.server#//
+			//mqc.server#//
 			s.Conf.MQC.SetSubConf("server", "
 				{
 					"proto":"redis",
@@ -210,15 +225,15 @@ func (s *{{.projectName|lName}}) install() {
 					"write_timeout":10,
 					"pool_size":10
 			}")
-	//#mqc.sub.server//
+	//#mqc.server//
 		{{- else}}
-		//mqc.sub.server#//
-		//#mqc.sub.server//
+		//mqc.server#//
+		//#mqc.server//
 		{{end}}
 	
 
 		{{if fServer .serverType $mqc -}}
-			//mqc.sub.queue#//
+			//mqc.queue#//
 			s.Conf.MQC.SetSubConf("queue", "{
 				"queues":[
 					{
@@ -231,51 +246,51 @@ func (s *{{.projectName|lName}}) install() {
 					}
 				]
 			}")
-	//#mqc.sub.queue//
+	//#mqc.queue//
 		{{- else}}
-		//mqc.sub.queue#//
-		//#mqc.sub.queue//
+		//mqc.queue#//
+		//#mqc.queue//
 		{{end}}
 	
 	
 		{{if fServer .serverType $web -}}
-			//web.main.port#//
+			//web.port#//
 			s.Conf.WEB.SetMainConf("{'address':'{{.port}}'}")
-		//#web.main.port//
+		//#web.port//
 		{{- else}}
-		//web.main.port#//
-		//#web.main.port//
+		//web.port#//
+		//#web.port//
 		{{end}}
 	
 
 		{{if fServer .serverType $web -}}
-			//web.sub.static#//
+			//web.static#//
 			s.Conf.WEB.SetSubConf('static', "{
 				'dir':'./static',
 				'rewriters':['*'],
 				'exts':['.ttf','.woff','.woff2']			
 			}")
-		//#web.sub.static//	
+		//#web.static//	
 		{{- else}}
-		//web.sub.static#//
-		//#web.sub.static//	
+		//web.static#//
+		//#web.static//	
 		{{end}}
 	
 
 		{{if fServer .serverType $ws -}}
-			//ws.sub.app#//
+			//ws.app#//
 			s.Conf.WS.SetSubConf('app', "{
 				'appname': 'gaea'
 			}")
-		//#ws.sub.app//
+		//#ws.app//
 		{{- else}}
-		//ws.sub.app#//
-		//#ws.sub.app//
+		//ws.app#//
+		//#ws.app//
 		{{end}}
 	
 
 		{{if fServer .serverType $ws -}}
-			//ws.sub.auth#//
+			//ws.auth#//
 			s.Conf.WS.SetSubConf('auth', "{
 				'jwt': {
 					'exclude': [],
@@ -286,20 +301,20 @@ func (s *{{.projectName|lName}}) install() {
 					'secret': '12345678'
 				}
 			}")
-		//#ws.sub.auth//
+		//#ws.auth//
 		{{- else}}
-		//ws.sub.auth#//
-		//#ws.sub.auth//
+		//ws.auth#//
+		//#ws.auth//
 		{{end}}
 	
 
 		{{if fServer .serverType $rpc -}}
-		//rpc.main.port#//
+		//rpc.port#//
 			s.Conf.API.SetMainConf("{'address':':8090'}")
-		//#rpc.main.port//
+		//#rpc.port//
 		{{- else}}
-		//rpc.main.port#//
-		//#rpc.main.port//
+		//rpc.port#//
+		//#rpc.port//
 		{{end}}
 	
 }`
