@@ -29,7 +29,7 @@ const APISubAuth = `
 			'expireAt': 36000,
 			'mode': 'HS512',
 			'name': '{{.projectName|lName}}_sid',
-			'secret': '12345678'
+			'secret': '{{.devSecret}}'
 		}
 	}")	
 	//#api.jwt//
@@ -48,9 +48,9 @@ const APISubMetric = `
 	//#api.metric//
 `
 
-//HandingJWT .
-const HandingJWT = `
-	//handing.jwt#//
+//HandlingJWT .
+const HandlingJWT = `
+	//handling.jwt#//
 	jwt, err := ctx.Request.GetJWTConfig() //获取jwt配置
 	if err != nil {
 		return err
@@ -60,14 +60,13 @@ const HandingJWT = `
 			return nil
 		}
 	}
-	//#handing.jwt//
+	//#handling.jwt//
 `
 
 const APIApp = `
 	//api.appconf#//
 	s.Conf.API.SetSubConf('app', "
 	{
-		'appname':'app_name'
 	}")
 	//#api.appconf//
 `

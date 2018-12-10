@@ -45,6 +45,12 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 	}, cli.BoolFlag{
 		Name:  "d",
 		Usage: "根据表结构生成 delete 函数,delet SQL语句，输入参数实体等文件",
+	}, cli.BoolFlag{
+		Name:  "crud",
+		Usage: "根据表结构生成 insert select update delete 函数,SQL语句，输入参数实体等文件",
+	}, cli.BoolFlag{
+		Name:  "cru",
+		Usage: "根据表结构生成 insert select update 函数,SQL语句，输入参数实体等文件",
 	}, cli.StringSliceFlag{
 		Name:  "f",
 		Usage: "过滤器，指定表明或关键字",
@@ -77,10 +83,10 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 func (p *moduleCmd) action(c *cli.Context) (err error) {
 
 	return p.createModules(
-		c.Bool("c"),
-		c.Bool("r"),
-		c.Bool("u"),
-		c.Bool("d"),
+		c.Bool("c") || c.Bool("crud") || c.Bool("cru"),
+		c.Bool("r") || c.Bool("crud") || c.Bool("cru"),
+		c.Bool("u") || c.Bool("crud") || c.Bool("cru"),
+		c.Bool("d") || c.Bool("crud"),
 		c.Bool("add"),
 		c.Bool("cover"),
 		c.String("t"),

@@ -4,7 +4,6 @@ package dev
 const CronSubApp = `
 	//cron.app#//
 	s.Conf.CRON.SetSubConf('app', "{
-		'appname':'app_name'
 	}")
 	//#cron.app//
 `

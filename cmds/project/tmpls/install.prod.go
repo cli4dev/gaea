@@ -4,26 +4,8 @@ const installProdTmpl = `// +build prod
 
 package main
 
-import (
-	'fmt'
-	'os'
-	'path/filepath'
-	'strings'
-
-	'github.com/micro-plat/hydra/component'
-)
-
 //bindConf 绑定启动配置， 启动时检查注册中心配置是否存在，不存在则引导用户输入配置参数并自动创建到注册中心
 func (s *{{.projectName|lName}}) install() {
-	s.IsDebug = false	
-	{{$api := "api" -}}
-	{{$cron := "cron" -}}
-	{{$web := "web" -}}
-	{{$mqc := "mqc" -}}
-	{{$rpc := "rpc" -}}
-	{{$ws := "ws" -}}
-	
-	
 	{{$api := "api" -}}
 	{{$cron := "cron" -}}
 	{{$web := "web" -}}
@@ -34,7 +16,7 @@ func (s *{{.projectName|lName}}) install() {
 	
 		{{if fServer .serverType $api -}}
 		//api.port#//
-			s.Conf.API.SetMainConf("{'address':'{{.port}}'}")
+			s.Conf.API.SetMainConf("{'address':'#port'}")
 	//#api.port//
 		{{- else -}}
 			//api.port#//
@@ -45,8 +27,7 @@ func (s *{{.projectName|lName}}) install() {
 		{{if .appconf -}}
 			//api.appconf#//
 			s.Conf.API.SetSubConf('app', "
-			{
-				'appname':'app_name'
+			{				
 			}")
 		//#api.appconf//
 		{{- else -}}
@@ -89,7 +70,7 @@ func (s *{{.projectName|lName}}) install() {
 						'expireAt': 36000,
 						'mode': 'HS512',
 						'name': '{{.projectName|lName}}_sid',
-						'secret': '12345678'
+						'secret': '{{.prodSecret}}'
 					}
 				}")	
 		//#api.jwt//
@@ -124,14 +105,11 @@ func (s *{{.projectName|lName}}) install() {
 		{{end}}
 	
 
-	
-		
-
 		{{if eq .db $empty }}	
-		//api.db#//
-		//#api.db//
+		//db#//
+		//#db//
 		{{- else -}}
-		//api.db#//
+		//db#//
 		s.Conf.Plat.SetVarConf('db', 'db', "{			
 			'provider':'{{.dbname}}',
 			'connString':'{{.db}}',
@@ -139,12 +117,12 @@ func (s *{{.projectName|lName}}) install() {
 			'maxIdle':10,
 			'lifeTime':600		
 		}")
-	//#api.db//
+	//#db//
 		{{- end}}
 	
 
 		{{if .cache}}
-		//api.cache#//
+		//cache#//
 		s.Conf.Plat.SetVarConf('cache', 'cache', "
 				{
 					'proto':'redis',
@@ -162,17 +140,14 @@ func (s *{{.projectName|lName}}) install() {
 					'write_timeout':10,
 					'pool_size':10
 				}")
-	//#api.cache//
+	//#cache//
 		{{- else -}}
-		//api.cache#//
-		//#api.cache//	
+		//cache#//
+		//#cache//	
 		{{- end}}
 	
-			
-	
-
 		{{if .queue}}
-		//api.queue#//
+		//queue#//
 			s.Conf.Plat.SetVarConf('queue', 'queue', "
 			{
 				'proto':'redis',
@@ -190,13 +165,11 @@ func (s *{{.projectName|lName}}) install() {
 				'write_timeout':10,
 				'pool_size':10
 			}")
-	//#api.queue//
+	//#queue//
 		{{- else -}}
-		//api.queue#//
-		//#api.queue//
+		//queue#//
+		//#queue//
 		{{- end}}
-	
-	
 	
 		{{if fServer .serverType $cron -}}
 			//cron.app#//
@@ -316,7 +289,7 @@ func (s *{{.projectName|lName}}) install() {
 					'expireAt': 36000,
 					'mode': 'HS512',
 					'name': '__jwt__',
-					'secret': '12345678'
+					'secret': '{{.prodSecret}}'
 				}
 			}")
 		//#ws.auth//
@@ -327,13 +300,14 @@ func (s *{{.projectName|lName}}) install() {
 	
 
 		{{if fServer .serverType $rpc -}}
-		//rpc.port#//
-			s.Conf.API.SetMainConf("{'address':':8090'}")
+		//rpc.port#//		
+			s.Conf.RPC.SetMainConf("{'address':'{{.port}}'}")
 		//#rpc.port//
 		{{- else}}
 		//rpc.port#//
 		//#rpc.port//
 		{{end}}
+	
 	
 	//自定义安装程序
 	s.Conf.API.Installer(func(c component.IContainer) error {

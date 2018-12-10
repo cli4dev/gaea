@@ -71,7 +71,7 @@ func (s *{{.projectName|lName}}) install() {
 						'expireAt': 36000,
 						'mode': 'HS512',
 						'name': '{{.projectName|lName}}_sid',
-						'secret': '12345678'
+						'secret': '{{.devSecret}}'
 					}
 				}")	
 		//#api.jwt//
@@ -105,9 +105,6 @@ func (s *{{.projectName|lName}}) install() {
 		//#api.metric//
 		{{end}}
 	
-
-	
-		
 
 		{{if eq .db $empty }}	
 		//db#//
@@ -150,9 +147,6 @@ func (s *{{.projectName|lName}}) install() {
 		//#cache//	
 		{{- end}}
 	
-			
-	
-
 		{{if .queue}}
 		//queue#//
 			s.Conf.Plat.SetVarConf('queue', 'queue', "
@@ -177,8 +171,6 @@ func (s *{{.projectName|lName}}) install() {
 		//queue#//
 		//#queue//
 		{{- end}}
-	
-	
 	
 		{{if fServer .serverType $cron -}}
 			//cron.app#//
@@ -298,7 +290,7 @@ func (s *{{.projectName|lName}}) install() {
 					'expireAt': 36000,
 					'mode': 'HS512',
 					'name': '__jwt__',
-					'secret': '12345678'
+					'secret': '{{.devSecret}}'
 				}
 			}")
 		//#ws.auth//
@@ -309,8 +301,8 @@ func (s *{{.projectName|lName}}) install() {
 	
 
 		{{if fServer .serverType $rpc -}}
-		//rpc.port#//
-			s.Conf.API.SetMainConf("{'address':':8090'}")
+		//rpc.port#//		
+			s.Conf.RPC.SetMainConf("{'address':'{{.port}}'}")
 		//#rpc.port//
 		{{- else}}
 		//rpc.port#//

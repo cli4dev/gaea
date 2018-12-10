@@ -4,7 +4,6 @@ package dev
 const WSSubAPP = `
 	//ws.app#//
 	s.Conf.WS.SetSubConf('app', "{
-		'appname': 'gaea'
 	}")
 	//#ws.app//
 `
@@ -19,7 +18,7 @@ const WSSubAuth = `
 			'expireAt': 36000,
 			'mode': 'HS512',
 			'name': '__jwt__',
-			'secret': '12345678'
+			'secret': '{{.devSecret}}'
 		}
 	}")
 	//#ws.jwt//

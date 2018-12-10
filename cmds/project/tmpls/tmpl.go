@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/micro-plat/lib4go/utility"
+
 	"github.com/micro-plat/gaea/cmds/project/tmpls/dev"
 )
 
@@ -51,7 +53,7 @@ func init() {
 	templates["cache.init"] = CacheInit
 	templates["appconf.struct"] = APPConfStruct
 	templates["appconf.func"] = APPConfFunc
-	templates["handling.jwt"] = dev.HandingJWT
+	templates["handling.jwt"] = dev.HandlingJWT
 
 }
 
@@ -88,8 +90,7 @@ const (
 
 //GetTmpls 获取模板
 func GetTmpls(projectName string, input map[string]interface{}) (out map[string]string, err error) {
-	fmt.Println("input:", input)
-	//input := makeParams(projectName, serverType, port, db, jwt, domain)
+	input = makeParams(input)
 	out = make(map[string]string)
 	if out["main.go"], err = translate(mainTmpl, input); err != nil {
 		return nil, err
@@ -103,7 +104,7 @@ func GetTmpls(projectName string, input map[string]interface{}) (out map[string]
 	if out["install.prod.go"], err = translate(strings.Replace(strings.Replace(installProdTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
-	if out["handling.go"], err = translate(strings.Replace(strings.Replace(handingTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
+	if out["handling.go"], err = translate(strings.Replace(strings.Replace(handlingTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
 	if out[".gitignore"], err = translate(gitignoreTmpl, input); err != nil {
@@ -117,7 +118,7 @@ func GetTmpls(projectName string, input map[string]interface{}) (out map[string]
 
 //GetConfTmpls 获取配置模板
 func GetConfTmpls(blocks []string, input map[string]interface{}) (out map[string]map[string]string, err error) {
-
+	input = makeParams(input)
 	out = make(map[string]map[string]string)
 	for fname, f := range templateFiles {
 		for _, n := range f {
@@ -126,7 +127,7 @@ func GetConfTmpls(blocks []string, input map[string]interface{}) (out map[string
 				if !strings.Contains(n, name) {
 					continue
 				}
-				fmt.Printf("name:%s n: %s \n", name, n)
+				//	fmt.Printf("name:%s n: %s \n", name, n)
 				if _, ok := out[fname]; !ok {
 					out[fname] = make(map[string]string)
 				}
@@ -137,12 +138,30 @@ func GetConfTmpls(blocks []string, input map[string]interface{}) (out map[string
 				}
 			}
 		}
-
 	}
-
 	return out, err
 }
-
+func GetEmptyTmpls(blocks []string) (out map[string]map[string]string, err error) {
+	out = make(map[string]map[string]string)
+	for fname, f := range templateFiles {
+		for _, n := range f {
+			for _, name := range blocks {
+				if !strings.Contains(n, name) {
+					continue
+				}
+				if _, ok := out[fname]; !ok {
+					out[fname] = make(map[string]string)
+				}
+				out[fname][names[n]] = fmt.Sprintf(`//%s#//
+	//#%s//`, n, n)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+	}
+	return out, err
+}
 func getServices(serverType string) []string {
 	s := make([]string, 0, 2)
 	if strings.Contains(serverType, "api") || strings.Contains(serverType, "rpc") {
@@ -171,21 +190,12 @@ func translate(c string, input interface{}) (string, error) {
 }
 
 //获取生成项目的数据
-func makeParams(projectName, serverType, port, db string, jwt, domain bool) map[string]interface{} {
-	if !strings.Contains(port, ":") {
-		port = ":" + port
-	}
-	return map[string]interface{}{
-		"projectName": projectName,
-		"serverType":  serverType,
-		//	"pkgs":    gGetModulePackageName(modules),
-		"rss":    getServices(serverType),
-		"port":   port,
-		"dbname": strings.Split(db, ":")[0],
-		"db":     db,
-		"jwt":    jwt,
-		"domain": domain,
-	}
+func makeParams(input map[string]interface{}) map[string]interface{} {
+
+	input["devSecret"] = utility.GetGUID()
+	input["prodSecret"] = utility.GetGUID()
+
+	return input
 }
 
 func getRModules(modules []string) []string {

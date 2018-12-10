@@ -16,7 +16,7 @@ import (
 type Create{{.name|cname}} struct {		
 	{{range $i,$c:=.createcolumns}}
 	//{{$c.name|cname}} {{$c.desc|cname}}
-	{{$c.name|cname}} {{$c.type|ctype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
+	{{$c.name|cname}} {{$c.type|cstype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
 	{{end}}	
 }
 
@@ -24,11 +24,11 @@ type Create{{.name|cname}} struct {
 type Update{{.name|cname}} struct {	
 	{{range $i,$c:=.pk}}
 	//{{$c.name|cname}} {{$c.desc|cname}}
-	{{$c.name|cname}} {{$c.type|ctype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
+	{{$c.name|cname}} {{$c.type|cstype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
 	{{end -}}	
 	{{range $i,$c:=.updatecolumns}}
 	//{{$c.name|cname}} {{$c.desc|cname}}
-	{{$c.name|cname}} {{$c.type|ctype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
+	{{$c.name|cname}} {{$c.type|cstype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
 	{{end}}	
 }
 
@@ -36,7 +36,7 @@ type Update{{.name|cname}} struct {
 type Query{{.name|cname}} struct {		
 	{{range $i,$c:=.querycolumns}}
 	//{{$c.name|cname}} {{$c.desc|cname}}
-	{{$c.name|cname}} {{$c.type|ctype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
+	{{$c.name|cname}} {{$c.type|cstype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
 	{{end}}	
 }
 
