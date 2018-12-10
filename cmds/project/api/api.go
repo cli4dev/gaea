@@ -283,7 +283,10 @@ func getBlock(c *cli.Context, b ...string) []string {
 		if c.Bool(v) {
 			blocks = append(blocks, v)
 		} else {
-			blocks = append(blocks, v)
+			if c.IsSet(v) {
+				blocks = append(blocks, v)
+			}
+
 			// if v == "port" && c.String("port") != ":8090" {
 			// 	blocks = append(blocks, v)
 			// }
