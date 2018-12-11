@@ -61,24 +61,24 @@ func (s *{{.projectName|lName}}) install() {
 		
 	{{if fServer .serverType $api -}}
 		{{if .jwt}}
-		//api.jwt#//
+		//api.jwt.prod#//
 		s.Conf.API.SetSubConf('auth', "{
 			'jwt': {
 				'exclude': ['/{{.projectName|lName}}/login'],
 				'expireAt': 36000,
 				'mode': 'HS512',
 				'name': '{{.projectName|lName}}_sid',
-				'secret': '{{.devSecret}}'
+				'secret': '{{.prodSecret}}'
 			}
 		}")	
-	//#api.jwt//
+	//#api.jwt.prod//
 		{{- else -}}
-		//api.jwt#//
-	//#api.jwt//
+		//api.jwt.prod#//
+	//#api.jwt.prod//
 		{{- end -}}
 	{{- else -}}
-		//api.jwt#//
-	//#api.jwt//
+		//api.jwt.prod#//
+	//#api.jwt.prod//
 	{{- end}}
 	
 	{{if fServer .serverType $api -}}

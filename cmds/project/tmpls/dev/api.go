@@ -29,6 +29,19 @@ const APISubAuth = `//api.jwt#//
 	}")	
 	//#api.jwt//`
 
+//APISubAuthProd .
+const APISubAuthProd = `//api.jwt.prod#//
+	s.Conf.API.SetSubConf('auth', "{
+		'jwt': {
+			'exclude': ['/{{.projectName|lName}}/login'],
+			'expireAt': 36000,
+			'mode': 'HS512',
+			'name': '{{.projectName|lName}}_sid',
+			'secret': '{{.prodSecret}}'
+		}
+	}")	
+	//#api.jwt.prod//`
+
 //APISubMetric .
 const APISubMetric = `//api.metric#//
 	s.Conf.API.SetSubConf('metric', "{

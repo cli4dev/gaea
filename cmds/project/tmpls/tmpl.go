@@ -25,7 +25,7 @@ func init() {
 		"rpc.port", "rpc.metric",
 		"ws.appconf", "ws.jwt", "ws.metric",
 	}
-	templateFiles["install.prod.go"] = []string{"api.port", "api.jwt", "db", "cache", "api.cros", "queue",
+	templateFiles["install.prod.go"] = []string{"api.port", "api.jwt.prod", "db", "cache", "api.cros", "queue",
 		"api.appconf", "api.metric", "cron.appconf", "cron.task", "cron.metric",
 		"web.port", "web.static", "web.metric",
 		"mqc.server", "mqc.queue", "mqc.metric",
@@ -39,6 +39,7 @@ func init() {
 	names["api.port"] = apiPort
 	names["api.cros"] = apiCros
 	names["api.jwt"] = apiJWT
+	names["api.jwt.prod"] = apiJWTProd
 	names["api.metric"] = apiMetric
 	names["db"] = db
 	names["cache"] = cache
@@ -68,6 +69,7 @@ func init() {
 	templates = make(map[string]string)
 	templates["api.port"] = dev.APIMainPort
 	templates["api.jwt"] = dev.APISubAuth
+	templates["api.jwt.prod"] = dev.APISubAuthProd
 	templates["db"] = dev.PlatVarDB
 	templates["cache"] = dev.PlatVarCache
 	templates["queue"] = dev.PlatVarQueue
@@ -101,6 +103,7 @@ const (
 	apiPort       = `api.port`
 	apiCros       = `api.cros`
 	apiJWT        = `api.jwt`
+	apiJWTProd    = `api.jwt.prod`
 	apiAppConf    = `api.appconf`
 	apiMetric     = `api.metric`
 	db            = `db`
