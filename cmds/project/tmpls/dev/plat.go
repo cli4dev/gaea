@@ -3,7 +3,7 @@ package dev
 //PlatVarDB .
 const PlatVarDB = `//db#//
 	s.Conf.Plat.SetVarConf('db', 'db', "{			
-		'provider':'ora',
+		'provider':'{{.dbname}}',
 		'connString':'{{.db}}',
 		'maxOpen':20,
 		'maxIdle':10,
@@ -51,4 +51,4 @@ const PlatVarQueue = `//queue#//
 		'write_timeout':10,
 		'pool_size':10
 	}")
-	//queue#//`
+	//#queue//`

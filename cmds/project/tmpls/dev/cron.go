@@ -1,10 +1,10 @@
 package dev
 
 //CronSubApp .
-const CronSubApp = `//cron.app#//
+const CronSubApp = `//cron.appconf#//
 	s.Conf.CRON.SetSubConf('app', "{
 	}")
-	//#cron.app//`
+	//#cron.appconf//`
 
 //CronSubTask .
 const CronSubTask = `//cron.task#//
@@ -14,3 +14,14 @@ const CronSubTask = `//cron.task#//
 		]		
 	}")
 	//#cron.task//`
+
+//CronSubMetric .
+const CronSubMetric = `//cron.metric#//
+	s.Conf.CRON.SetSubConf('metric', "{
+		'host':'http://192.168.106.219:8086',
+		'dataBase':'gcr',
+		'cron':'@every 10s',
+		'userName':'',
+		'password':''
+	}")	
+	//#cron.metric//`

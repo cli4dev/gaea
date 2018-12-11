@@ -18,9 +18,21 @@ var templates map[string]string
 
 func init() {
 	templateFiles = make(map[string][]string)
-	templateFiles["install.dev.go"] = []string{"api.port", "api.jwt", "db", "cache", "api.cros", "queue", "api.appconf", "api.metric"}
-	templateFiles["install.prod.go"] = []string{"api.port", "api.jwt", "db", "cache", "api.cros", "queue", "api.appconf", "api.metric"}
-	templateFiles["init.go"] = []string{"db.init", "queue.init", "cache.init", "appconf.func", "appconf.struct"}
+	templateFiles["install.dev.go"] = []string{"api.port", "api.jwt", "db", "cache", "api.cros", "queue",
+		"api.appconf", "api.metric", "cron.appconf", "cron.task", "cron.metric",
+		"web.port", "web.static", "web.metric",
+		"mqc.server", "mqc.queue", "mqc.metric",
+		"rpc.port", "rpc.metric",
+		"ws.appconf", "ws.jwt", "ws.metric",
+	}
+	templateFiles["install.prod.go"] = []string{"api.port", "api.jwt", "db", "cache", "api.cros", "queue",
+		"api.appconf", "api.metric", "cron.appconf", "cron.task", "cron.metric",
+		"web.port", "web.static", "web.metric",
+		"mqc.server", "mqc.queue", "mqc.metric",
+		"rpc.port", "rpc.metric",
+		"ws.appconf", "ws.jwt", "ws.metric",
+	}
+	templateFiles["init.go"] = []string{"db.init", "queue.init", "cache.init", "api.appconf.func", "api.appconf.struct"}
 	templateFiles["handling.go"] = []string{"handling.jwt"}
 
 	names = make(map[string]string)
@@ -35,9 +47,23 @@ func init() {
 	names["db.init"] = dbInit
 	names["queue.init"] = queueInit
 	names["cache.init"] = cacheInit
-	names["appconf.struct"] = appconfStruct
-	names["appconf.func"] = appconfFunc
+	names["api.appconf.struct"] = appconfStruct
+	names["api.appconf.func"] = appconfFunc
 	names["handling.jwt"] = handlingJWT
+	names["cron.appconf"] = cronApp
+	names["cron.task"] = cronTask
+	names["cron.metric"] = cronMetric
+	names["web.port"] = webPort
+	names["web.static"] = webStatic
+	names["web.metric"] = webMetric
+	names["mqc.server"] = mqcServer
+	names["mqc.queue"] = mqcQueue
+	names["mqc.metric"] = mqcMetric
+	names["rpc.port"] = rpcPort
+	names["rpc.metric"] = rpcMetric
+	names["ws.metric"] = wsMetric
+	names["ws.appconf"] = wsApp
+	names["ws.jwt"] = wsAuth
 
 	templates = make(map[string]string)
 	templates["api.port"] = dev.APIMainPort
@@ -51,9 +77,23 @@ func init() {
 	templates["db.init"] = DBInit
 	templates["queue.init"] = QueueInit
 	templates["cache.init"] = CacheInit
-	templates["appconf.struct"] = APPConfStruct
-	templates["appconf.func"] = APPConfFunc
+	templates["api.appconf.struct"] = APPConfStruct
+	templates["api.appconf.func"] = APPConfFunc
 	templates["handling.jwt"] = dev.HandlingJWT
+	templates["cron.appconf"] = dev.CronSubApp
+	templates["cron.task"] = dev.CronSubTask
+	templates["cron.metric"] = dev.CronSubMetric
+	templates["web.port"] = dev.WebMainPort
+	templates["web.static"] = dev.WebSubStatic
+	templates["web.metric"] = dev.WebSubMetric
+	templates["mqc.server"] = dev.MqcSubServer
+	templates["mqc.queue"] = dev.MqcSubQueue
+	templates["mqc.metric"] = dev.MqcSubQueue
+	templates["rpc.metric"] = dev.RPCSubMetric
+	templates["rpc.port"] = dev.RPCMainPort
+	templates["ws.metric"] = dev.WSSubMetric
+	templates["ws.appconf"] = dev.WSSubAPP
+	templates["ws.jwt"] = dev.WSSubAuth
 
 }
 
@@ -66,20 +106,20 @@ const (
 	db            = `db`
 	cache         = `cache`
 	queue         = `queue`
-	cronApp       = `cron.app`
+	cronApp       = `cron.appconf`
 	cronTask      = `cron.task`
-	cronMetric    = `cron.Metric`
+	cronMetric    = `cron.metric`
 	mqcServer     = `mqc.server`
 	mqcQueue      = `mqc.queue`
 	mqcMetric     = `mqc.Metric`
 	webPort       = `web.port`
 	webStatic     = `web.static`
-	webMetric     = `web.Metric`
-	wsApp         = `ws.app`
-	wsAuth        = `ws.auth`
-	wsMetric      = `ws.Metric`
+	webMetric     = `web.metric`
+	wsApp         = `ws.appconf`
+	wsAuth        = `ws.jwt`
+	wsMetric      = `ws.metric`
 	rpcPort       = `rpc.port`
-	rpcMetric     = `rpc.Metric`
+	rpcMetric     = `rpc.metric`
 	dbInit        = `db.init`
 	queueInit     = "queue.init"
 	cacheInit     = "cache.init"
@@ -131,7 +171,6 @@ func GetConfTmpls(blocks []string, input map[string]interface{}) (out map[string
 				if _, ok := out[fname]; !ok {
 					out[fname] = make(map[string]string)
 				}
-
 				out[fname][names[n]], err = translate(strings.Replace(strings.Replace(templates[n], "\"", "`", -1), "'", "\"", -1), input)
 				if err != nil {
 					return nil, err

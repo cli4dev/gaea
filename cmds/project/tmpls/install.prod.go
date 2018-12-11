@@ -23,7 +23,7 @@ func (s *{{.projectName|lName}}) install() {
 	{{- end}}
 
 	{{if fServer .serverType $api -}}
-	{{if .appconf -}}
+	{{if .api.appconf -}}
 	//api.appconf#//
 	s.Conf.API.SetSubConf('app', "
 	{
@@ -33,7 +33,7 @@ func (s *{{.projectName|lName}}) install() {
 	{{- else -}}
 	//api.appconf#//
 	//#api.appconf//
-	{{- end}}
+	{{- end -}}
 	{{- else -}}
 	//api.appconf#//
 	//#api.appconf//
@@ -68,7 +68,7 @@ func (s *{{.projectName|lName}}) install() {
 				'expireAt': 36000,
 				'mode': 'HS512',
 				'name': '{{.projectName|lName}}_sid',
-				'secret': '{{.prodSecret}}'
+				'secret': '{{.devSecret}}'
 			}
 		}")	
 	//#api.jwt//
@@ -167,132 +167,268 @@ func (s *{{.projectName|lName}}) install() {
 	{{- end}}
 	
 	{{if fServer .serverType $cron -}}
-		//cron.app#//
+	{{if .cron.appconf -}}
+	//cron.appconf#//
 		s.Conf.CRON.SetSubConf('app', "{
 			'appname':'app_name'
 		}")
-//#cron.app//
+//#cron.appconf//
 	{{- else -}}
-	//cron.app#//
-	//#cron.app//
+	//cron.appconf#//
+	//#cron.appconf//
+	{{- end -}}
+	{{- else -}}
+	//cron.appconf#//
+	//#cron.appconf//
 	{{- end}}
 	
 	{{if fServer .serverType $cron -}}
-		//cron.task#//
-		s.Conf.CRON.SetSubConf('task', "{
-			'tasks':[
-			{'cron':'@every 1m','service':'/hello'}
-			]		
-		}")
+	{{if .cron.task -}}
+	//cron.task#//
+	s.Conf.CRON.SetSubConf('task', "{
+		'tasks':[
+		{'cron':'@every 1m','service':'/hello'}
+		]		
+	}")
 //#cron.task//
 	{{- else -}}
 	//cron.task#//
 	//#cron.task//
+	{{- end -}}
+	{{- else -}}
+	//cron.task#//
+	//#cron.task//
 	{{- end}}
+
+	{{if fServer .serverType $cron -}}
+	{{if .cron.metric -}}
+	//cron.metric#//
+	s.Conf.CRON.SetSubConf('metric', "{
+		'host':'http://192.168.106.219:8086',
+		'dataBase':'gcr',
+		'cron':'@every 10s',
+		'userName':'',
+		'password':''
+	}")	
+//#cron.metric//
+	{{- else -}}
+	//cron.metric#//
+	//#cron.metric//
+	{{- end -}}
+	{{- else -}}
+	//cron.metric#//
+	//#cron.metric//
+	{{- end}}
+
 	
 	{{if fServer .serverType $mqc -}}
-		//mqc.server#//
-		s.Conf.MQC.SetSubConf("server", "
-			{
-				"proto":"redis",
-				"addrs":[
-						"192.168.0.111:6379",
-						"192.168.0.112:6379",
-						"192.168.0.113:6379",
-						"192.168.0.114:6379",
-						"192.168.0.115:6379",
-						"192.168.0.116:6379"
-				],
-				"db":1,
-				"dial_timeout":10,
-				"read_timeout":10,
-				"write_timeout":10,
-				"pool_size":10
-		}")
+	{{if .mqc.server -}}
+	//mqc.server#//
+	s.Conf.MQC.SetSubConf("server", "
+		{
+			"proto":"redis",
+			"addrs":[
+					"192.168.0.111:6379",
+					"192.168.0.112:6379",
+					"192.168.0.113:6379",
+					"192.168.0.114:6379",
+					"192.168.0.115:6379",
+					"192.168.0.116:6379"
+			],
+			"db":1,
+			"dial_timeout":10,
+			"read_timeout":10,
+			"write_timeout":10,
+			"pool_size":10
+	}")
 //#mqc.server//
+	{{- else -}}
+	//mqc.server#//
+	//#mqc.server//
+	{{- end -}}
 	{{- else -}}
 	//mqc.server#//
 	//#mqc.server//
 	{{- end}}
 
 	{{if fServer .serverType $mqc -}}
-		//mqc.queue#//
-		s.Conf.MQC.SetSubConf("queue", "{
-			"queues":[
-				{
-					"queue":"cnp_make_coupon",
-					"service":"/coupon/produce"
-				},
-				{
-					"queue":"payment_mq",
-					"service":"/order/pay"
-				}
-			]
-		}")
+	{{if .mqc.queue -}}
+	//mqc.queue#//
+	s.Conf.MQC.SetSubConf("queue", "{
+		"queues":[
+			{
+				"queue":"cnp_make_coupon",
+				"service":"/coupon/produce"
+			},
+			{
+				"queue":"payment_mq",
+				"service":"/order/pay"
+			}
+		]
+	}")
 //#mqc.queue//
 	{{- else -}}
 	//mqc.queue#//
 	//#mqc.queue//
+	{{- end -}}
+	{{- else -}}
+	//mqc.queue#//
+	//#mqc.queue//
+	{{- end}}
+
+	{{if fServer .serverType $mqc -}}
+	{{if .mqc.metric -}}
+	//mqc.metric#//
+	s.Conf.MQC.SetSubConf('metric', "{
+		'host':'http://192.168.106.219:8086',
+		'dataBase':'gcr',
+		'cron':'@every 10s',
+		'userName':'',
+		'password':''
+	}")
+//#mqc.metric//
+	{{- else -}}
+	//mqc.metric#//
+	//#mqc.metric//
+	{{- end -}}
+	{{- else -}}
+	//mqc.metric#//
+	//#mqc.metric//
 	{{- end}}
 	
 	{{if fServer .serverType $web -}}
-		//web.port#//
-		s.Conf.WEB.SetMainConf("{'address':'{{.port}}'}")
-	//#web.port//
+	//web.port#//
+	s.Conf.WEB.SetMainConf("{'address':'{{.web.port}}'}")
+//#web.port//
 	{{- else -}}
 	//web.port#//
 	//#web.port//
 	{{- end}}
 
 	{{if fServer .serverType $web -}}
-		//web.static#//
-		s.Conf.WEB.SetSubConf('static', "{
-			'dir':'./static',
-			'rewriters':['*'],
-			'exts':['.ttf','.woff','.woff2']			
-		}")
+	{{if .web.static -}}
+	//web.static#//
+	s.Conf.WEB.SetSubConf('static', "{
+		'dir':'./static',
+		'rewriters':['*'],
+		'exts':['.ttf','.woff','.woff2']			
+	}")
+//#web.static//	
+	{{- else -}}
+	//web.static#//
 	//#web.static//	
+	{{- end -}}
 	{{- else -}}
 	//web.static#//
 	//#web.static//	
 	{{- end}}
 
-	{{if fServer .serverType $ws -}}
-		//ws.app#//
-		s.Conf.WS.SetSubConf('app', "{
-			'appname': 'gaea'
-		}")
-	//#ws.app//
+	{{if fServer .serverType $web -}}
+	{{if .web.metric -}}
+	//web.metric#//
+	s.Conf.WEB.SetSubConf('metric', "{
+		'host':'http://192.168.106.219:8086',
+		'dataBase':'gcr',
+		'cron':'@every 10s',
+		'userName':'',
+		'password':''
+	}")
+//#web.metric//	
 	{{- else -}}
-	//ws.app#//
-	//#ws.app//
+	//web.metric#//
+	//#web.metric//	
+	{{- end -}}
+	{{- else -}}
+	//web.metric#//
+	//#web.metric//	
 	{{- end}}
 
 	{{if fServer .serverType $ws -}}
-		//ws.auth#//
-		s.Conf.WS.SetSubConf('auth', "{
-			'jwt': {
-				'exclude': [],
-				'source':'header',
-				'expireAt': 36000,
-				'mode': 'HS512',
-				'name': '__jwt__',
-				'secret': '{{.prodSecret}}'
-			}
-		}")
-	//#ws.auth//
+	{{if .ws.appconf -}}
+	//ws.appconf#//
+	s.Conf.WS.SetSubConf('app', "{
+		'appname': 'gaea'
+	}")
+//#ws.appconf//
 	{{- else -}}
-	//ws.auth#//
-	//#ws.auth//
+	//ws.appconf#//
+	//#ws.appconf//
+	{{- end -}}
+	{{- else -}}
+	//ws.appconf#//
+	//#ws.appconf//
+	{{- end}}
+
+	{{if fServer .serverType $ws -}}
+	{{if .ws.jwt -}}
+	//ws.jwt#//
+	s.Conf.WS.SetSubConf('auth', "{
+		'jwt': {
+			'exclude': [],
+			'source':'header',
+			'expireAt': 36000,
+			'mode': 'HS512',
+			'name': '__jwt__',
+			'secret': '{{.devSecret}}'
+		}
+	}")
+//#ws.jwt//
+	{{- else -}}
+	//ws.jwt#//
+	//#ws.jwt//
+	{{- end -}}
+	{{- else -}}
+	//ws.jwt#//
+	//#ws.jwt//
+	{{- end}}
+
+	{{if fServer .serverType $ws -}}
+	{{if .ws.metric -}}
+	//ws.metric#//
+	s.Conf.WS.SetSubConf('metric', "{
+		'host':'http://192.168.106.219:8086',
+		'dataBase':'gcr',
+		'cron':'@every 10s',
+		'userName':'',
+		'password':''
+	}")
+//#ws.metric//
+	{{- else -}}
+	//ws.metric#//
+	//#ws.metric//
+	{{- end -}}
+	{{- else -}}
+	//ws.metric#//
+	//#ws.metric//
 	{{- end}}
 
 	{{if fServer .serverType $rpc -}}
 	//rpc.port#//		
-		s.Conf.RPC.SetMainConf("{'address':'{{.port}}'}")
+		s.Conf.RPC.SetMainConf("{'address':'{{.rpc.port}}'}")
 	//#rpc.port//
 	{{- else -}}
 	//rpc.port#//
 	//#rpc.port//
+	{{- end}}
+	
+	{{if fServer .serverType $rpc -}}
+	{{if .rpc.metric -}}
+	//rpc.metric#//		
+	s.Conf.RPC.SetSubConf('metric', "{
+		'host':'http://192.168.106.219:8086',
+		'dataBase':'gcr',
+		'cron':'@every 10s',
+		'userName':'',
+		'password':''
+	}")
+//#rpc.metric//
+	{{- else -}}
+	//rpc.metric#//
+	//#rpc.metric//
+	{{- end -}}
+	{{- else -}}
+	//rpc.metric#//
+	//#rpc.metric//
 	{{- end}}
 	
 	//自定义安装程序

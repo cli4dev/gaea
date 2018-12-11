@@ -36,3 +36,14 @@ const MqcSubQueue = `//mqc.queue#//
 		]
 	}")
 	//#mqc.queue//`
+
+//MqcSubMetric .
+const MqcSubMetric = `//mqc.metric#//
+	s.Conf.MQC.SetSubConf('metric', "{
+		'host':'http://192.168.106.219:8086',
+		'dataBase':'gcr',
+		'cron':'@every 10s',
+		'userName':'',
+		'password':''
+	}")	
+	//#mqc.metric//`

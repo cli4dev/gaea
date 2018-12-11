@@ -629,16 +629,15 @@ func ReplaceFileStr(name, filePath, value string) error {
 	}
 	result := string(buf)
 
-	srcf.Truncate(0)
-
 	k := fmt.Sprintf(`//%s#//[\s\S]+//#%s//`, name, name)
 	if ok, _ := regexp.Match(k, buf); !ok {
 		cmds.Log.Errorf("没有找到配置定位标识符:%s//%s#//....//#%s//", filePath, name, name)
 		return nil
 	}
-
 	re, _ := regexp.Compile(k)
 	str := re.ReplaceAllString(result, value)
+	//清空文件数据
+	srcf.Truncate(0)
 	n, _ := srcf.Seek(0, os.SEEK_SET)
 	_, err = srcf.WriteAt([]byte(str), n)
 	if err != nil {

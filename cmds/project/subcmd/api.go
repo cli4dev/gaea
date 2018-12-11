@@ -1,15 +1,9 @@
-package api
+package subcmd
 
 import (
-	"fmt"
-	"path/filepath"
-
-	datas "github.com/micro-plat/gaea/cmds/new/util/data"
-
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/new/util"
 	"github.com/micro-plat/gaea/cmds/new/util/path"
-	"github.com/micro-plat/gaea/cmds/project/tmpls"
 	"github.com/micro-plat/lib4go/types"
 	"github.com/urfave/cli"
 )
@@ -20,6 +14,7 @@ type APICmd struct {
 	cover bool
 }
 
+//NewAPICmd .
 func NewAPICmd() cli.Command {
 
 	apiCreator := &APICmd{cover: false}
@@ -48,7 +43,6 @@ func NewAPICmd() cli.Command {
 			},
 		},
 	}
-
 }
 
 //getStartFlags .
@@ -59,11 +53,11 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 		Value: "./",
 		Usage: "项目名称",
 	}, cli.StringFlag{
-		Name:  "port,p",
+		Name:  "port,p,api.port",
 		Value: ":8090",
 		Usage: "指定服务端口号",
 	}, cli.BoolFlag{
-		Name:  "jwt",
+		Name:  "jwt,api.jwt,handling.jwt",
 		Usage: "是否启用jwt",
 	}, cli.StringFlag{
 		Name:  "db",
@@ -72,7 +66,7 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 		Name:  "cros",
 		Usage: "是否启用跨域设置，默认不启用",
 	}, cli.BoolFlag{
-		Name:  "metric",
+		Name:  "metric,api.metric",
 		Usage: "启用metric配置",
 	}, cli.BoolFlag{
 		Name:  "cache",
@@ -81,7 +75,7 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 		Name:  "queue",
 		Usage: "启用queue配置",
 	}, cli.BoolFlag{
-		Name:  "appconf",
+		Name:  "appconf,api.appconf",
 		Usage: "启用appconf配置",
 	},
 	)
@@ -94,19 +88,19 @@ func (p *APICmd) getRemoveStartFlags() []cli.Flag {
 		Value: "./",
 		Usage: "项目名称",
 	}, cli.BoolFlag{
-		Name:  "port,p",
+		Name:  "port,p,api.port",
 		Usage: "指定服务端口号",
 	}, cli.BoolFlag{
-		Name:  "jwt",
+		Name:  "jwt,api.jwt,handling.jwt",
 		Usage: "是否启用jwt",
 	}, cli.BoolFlag{
 		Name:  "db",
 		Usage: "指定数据库类型和数据库链接串(ora:test/123456@orcl136)",
 	}, cli.BoolFlag{
-		Name:  "cros",
+		Name:  "cros,api.cros",
 		Usage: "是否启用跨域设置，默认不启用",
 	}, cli.BoolFlag{
-		Name:  "metric",
+		Name:  "metric,api.metric",
 		Usage: "启用metric配置",
 	}, cli.BoolFlag{
 		Name:  "cache",
@@ -115,7 +109,7 @@ func (p *APICmd) getRemoveStartFlags() []cli.Flag {
 		Name:  "queue",
 		Usage: "启用queue配置",
 	}, cli.BoolFlag{
-		Name:  "appconf",
+		Name:  "appconf,api.appconf",
 		Usage: "启用appconf配置",
 	},
 	)
@@ -127,7 +121,7 @@ func (p *APICmd) removeAction(c *cli.Context) (err error) {
 		cmds.Log.Error(err)
 		return err
 	}
-	return p.removeTemplate(projectPath, getBlock(c, "port", "jwt", "db", "cros", "metric", "cache", "queue", "appconf"))
+	return removeTemplate(projectPath, getBlock(c, "api.port", "api.jwt", "handling.jwt", "db", "api.cros", "api.metric", "cache", "queue", "api.appconf"))
 }
 
 //Action .
@@ -138,14 +132,14 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 		return err
 	}
 	//创键项目
-	err = p.create(projectPath)
+	err = create(projectPath)
 	if err != nil && !p.cover {
 		cmds.Log.Error(err)
 		return err
 	}
 	//创建项目
 	if !p.cover {
-		err = p.writeTemplate(name, projectPath, map[string]interface{}{
+		err = writeTemplate(p.cover, name, projectPath, map[string]interface{}{
 			"port":        util.GetPrefixString(types.GetString(c.String("p"), "8090"), ":"),
 			"serverType":  "api",
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
@@ -167,7 +161,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 	}
 
 	//追加项目代码
-	err = p.appendTemplate(projectPath, getBlock(c, "port", "jwt", "db", "cros", "cache", "queue", "appconf", "metric"), map[string]interface{}{
+	err = appendTemplate(projectPath, getBlock(c, "api.port", "api.jwt", "handling.jwt", "db", "api.cros", "api.metric", "cache", "queue", "api.appconf"), map[string]interface{}{
 		"port":        util.GetPrefixString(types.GetString(c.String("p"), "8090"), ":"),
 		"serverType":  "api",
 		"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
@@ -184,116 +178,10 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 		cmds.Log.Error(err)
 		return err
 	}
-
+	err = addConf2Main(projectPath, "api")
+	if err != nil {
+		cmds.Log.Error(err)
+	}
 	cmds.Log.Info("项目生成完成")
 	return nil
-}
-
-func (p *APICmd) create(projectPath string) (err error) {
-	if path.Exists(filepath.Join(projectPath, "main.go")) {
-		err = fmt.Errorf("项目%s已经存在", projectPath)
-		return err
-	}
-	return nil
-}
-
-func (p *APICmd) writeTemplate(projectName string, projectPath string, input map[string]interface{}) error {
-
-	if path.Exists(filepath.Join(projectPath, "main.go")) {
-		return fmt.Errorf("项目文件夹(%s)不为空", projectPath)
-	}
-
-	data, err := tmpls.GetTmpls(projectName, input)
-	if err != nil {
-		return err
-	}
-	for k, v := range data {
-		fpath := filepath.Join(projectPath, k)
-
-		f, err := path.CreatePath(fpath, p.cover)
-		if err != nil {
-			continue
-		}
-		_, err = f.WriteString(v)
-		if err != nil {
-			continue
-		}
-		defer f.Close()
-		cmds.Log.Info("生成文件:", fpath)
-	}
-	return nil
-}
-
-func (p *APICmd) appendTemplate(projectPath string, block []string, input map[string]interface{}) error {
-
-	if !path.Exists(filepath.Join(projectPath, "main.go")) ||
-		!path.Exists(filepath.Join(projectPath, "init.go")) ||
-		!path.Exists(filepath.Join(projectPath, "handling.go")) ||
-		!path.Exists(filepath.Join(projectPath, "install.dev.go")) {
-		return fmt.Errorf("项目文件(%s)不存在，请先创建", projectPath)
-	}
-
-	data, err := tmpls.GetConfTmpls(block, input)
-	if err != nil {
-		return err
-	}
-	for k, v := range data {
-		for key, val := range v {
-			err = datas.ReplaceFileStr(key, filepath.Join(projectPath, k), val)
-			if err != nil {
-				cmds.Log.Error(err)
-				continue
-			}
-		}
-
-		cmds.Log.Info("生成文件:", filepath.Join(projectPath, k))
-	}
-	return nil
-}
-
-func (p *APICmd) removeTemplate(projectPath string, block []string) error {
-
-	if !path.Exists(filepath.Join(projectPath, "main.go")) ||
-		!path.Exists(filepath.Join(projectPath, "init.go")) ||
-		!path.Exists(filepath.Join(projectPath, "handling.go")) ||
-		!path.Exists(filepath.Join(projectPath, "install.dev.go")) {
-		return fmt.Errorf("项目文件(%s)不存在，请先创建", projectPath)
-	}
-
-	data, err := tmpls.GetEmptyTmpls(block)
-	if err != nil {
-		return err
-	}
-	for k, v := range data {
-		for key, val := range v {
-			err = datas.ReplaceFileStr(key, filepath.Join(projectPath, k), val)
-			if err != nil {
-				cmds.Log.Error(err)
-				continue
-			}
-		}
-		cmds.Log.Info("生成文件:", filepath.Join(projectPath, k))
-	}
-	return nil
-}
-func getBlock(c *cli.Context, b ...string) []string {
-	blocks := make([]string, 0, 2)
-	for _, v := range b {
-		if c.Bool(v) {
-			blocks = append(blocks, v)
-		} else {
-			if c.IsSet(v) {
-				blocks = append(blocks, v)
-			}
-
-			// if v == "port" && c.String("port") != ":8090" {
-			// 	blocks = append(blocks, v)
-			// }
-			// if v == "db" && c.String("db") != "" {
-			// 	blocks = append(blocks, v)
-			// }
-		}
-
-	}
-	return blocks
 }
