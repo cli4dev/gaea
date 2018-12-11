@@ -114,7 +114,7 @@ const (
 	cronMetric    = `cron.metric`
 	mqcServer     = `mqc.server`
 	mqcQueue      = `mqc.queue`
-	mqcMetric     = `mqc.Metric`
+	mqcMetric     = `mqc.metric`
 	webPort       = `web.port`
 	webStatic     = `web.static`
 	webMetric     = `web.metric`
