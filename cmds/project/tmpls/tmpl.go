@@ -126,8 +126,8 @@ const (
 	dbInit        = `db.init`
 	queueInit     = "queue.init"
 	cacheInit     = "cache.init"
-	appconfStruct = "appconf.struct"
-	appconfFunc   = "appconf.func"
+	appconfStruct = "api.appconf.struct"
+	appconfFunc   = "api.appconf.func"
 	handlingJWT   = "handling.jwt"
 )
 

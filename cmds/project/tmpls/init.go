@@ -20,7 +20,7 @@ type AppConf struct {
 }
 //#appconf.struct//
 {{- else -}}
-//appconf.struct#//
+	//appconf.struct#//
 //#appconf.struct//
 {{- end}}
 
