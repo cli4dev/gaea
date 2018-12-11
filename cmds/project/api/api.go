@@ -272,7 +272,6 @@ func (p *APICmd) removeTemplate(projectPath string, block []string) error {
 				continue
 			}
 		}
-
 		cmds.Log.Info("生成文件:", filepath.Join(projectPath, k))
 	}
 	return nil

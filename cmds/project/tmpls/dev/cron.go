@@ -1,20 +1,16 @@
 package dev
 
 //CronSubApp .
-const CronSubApp = `
-	//cron.app#//
+const CronSubApp = `//cron.app#//
 	s.Conf.CRON.SetSubConf('app', "{
 	}")
-	//#cron.app//
-`
+	//#cron.app//`
 
 //CronSubTask .
-const CronSubTask = `
-	//cron.task#//
+const CronSubTask = `//cron.task#//
 	s.Conf.CRON.SetSubConf('task', "{
 		'tasks':[
 		{'cron':'@every 1m','service':'/hello'}
 		]		
 	}")
-	//#cron.task//
-`
+	//#cron.task//`

@@ -1,15 +1,12 @@
 package dev
 
 //APIMainPort .
-const APIMainPort = `
-	//api.port#//
+const APIMainPort = `//api.port#//
 	s.Conf.API.SetMainConf("{'address':'{{.port}}'}")
-	//#api.port//
-`
+	//#api.port//`
 
-//APISubHeaderDomain 设置跨域的头
-const APISubCros = `
-	//api.cros#//
+//APISubCros 设置跨域的头
+const APISubCros = `//api.cros#//
 	s.Conf.API.SetSubConf('header', "
 	{
 		'Access-Control-Allow-Origin': '*', 
@@ -17,12 +14,10 @@ const APISubCros = `
 		'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type',
 		'Access-Control-Allow-Credentials': 'true'
 	}")
-	//#api.cros//	
-`
+	//#api.cros//`
 
 //APISubAuth .
-const APISubAuth = `
-	//api.jwt#//
+const APISubAuth = `//api.jwt#//
 	s.Conf.API.SetSubConf('auth', "{
 		'jwt': {
 			'exclude': ['/{{.projectName|lName}}/login'],
@@ -32,12 +27,10 @@ const APISubAuth = `
 			'secret': '{{.devSecret}}'
 		}
 	}")	
-	//#api.jwt//
-`
+	//#api.jwt//`
 
 //APISubMetric .
-const APISubMetric = `
-	//api.metric#//
+const APISubMetric = `//api.metric#//
 	s.Conf.API.SetSubConf('metric', "{
 		'host':'http://192.168.106.219:8086',
 		'dataBase':'gcr',
@@ -45,28 +38,24 @@ const APISubMetric = `
 		'userName':'',
 		'password':''
 	}")	
-	//#api.metric//
-`
+	//#api.metric//`
 
 //HandlingJWT .
-const HandlingJWT = `
-	//handling.jwt#//
-	jwt, err := ctx.Request.GetJWTConfig() //获取jwt配置
+const HandlingJWT = `//handling.jwt#//
+	jwt, err := ctx.Request.GetJWTConfig()
 	if err != nil {
 		return err
 	}
-	for _, u := range jwt.Exclude { //排除指定请求
+	for _, u := range jwt.Exclude {
 		if u == ctx.Service {
 			return nil
 		}
 	}
-	//#handling.jwt//
-`
+	//#handling.jwt//`
 
-const APIApp = `
-	//api.appconf#//
+//APIApp .
+const APIApp = `//api.appconf#//
 	s.Conf.API.SetSubConf('app', "
 	{
 	}")
-	//#api.appconf//
-`
+	//#api.appconf//`

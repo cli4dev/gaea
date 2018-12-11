@@ -1,16 +1,13 @@
 package dev
 
 //WSSubAPP .
-const WSSubAPP = `
-	//ws.app#//
+const WSSubAPP = `//ws.app#//
 	s.Conf.WS.SetSubConf('app', "{
 	}")
-	//#ws.app//
-`
+	//#ws.app//`
 
 //WSSubAuth .
-const WSSubAuth = `
-	//ws.jwt#//
+const WSSubAuth = `//ws.jwt#//
 	s.Conf.WS.SetSubConf('auth', "{
 		'jwt': {
 			'exclude': [],
@@ -21,5 +18,4 @@ const WSSubAuth = `
 			'secret': '{{.devSecret}}'
 		}
 	}")
-	//#ws.jwt//
-`
+	//#ws.jwt//`

@@ -28,55 +28,55 @@ import (
 func (r *{{.projectName|lName}}) init() {
 	r.Initializing(func(c component.IContainer) error {
 		{{if .appconf -}}
-			//appconf.func#//
-			//获取配置
-			var conf AppConf
-			if err := c.GetAppConf(&conf); err != nil {
-				return err
-			}
-			if b, err := govalidator.ValidateStruct(&conf); !b {
-				return fmt.Errorf("app 配置文件有误:%v", err)
-			}
-			//appconf.func#//
+		//appconf.func#//
+		//获取配置
+		var conf AppConf
+		if err := c.GetAppConf(&conf); err != nil {
+			return err
+		}
+		if b, err := govalidator.ValidateStruct(&conf); !b {
+			return fmt.Errorf("app 配置文件有误:%v", err)
+		}
+		//appconf.func#//
 		{{- else -}}
-			//appconf.func#//
-			//#appconf.func//
+		//appconf.func#//
+		//#appconf.func//
 		{{- end}}
 
 		{{if eq .db $empty -}}
-			//db.init#//
-			//#db.init//
+		//db.init#//
+		//#db.init//
 		{{- else -}}
-			//db.init#//
-			//检查db配置是否正确
-			if _, err := c.GetDB(); err != nil {
-				return err
-			}
-			//#db.init//
+		//db.init#//
+		//检查db配置是否正确
+		if _, err := c.GetDB(); err != nil {
+			return err
+		}
+		//#db.init//
 		{{- end}}
 
-		{{if .cahce}}
-			//cache.init#//
-			//检查cache配置是否正确
-			if _, err := c.GetCache(); err != nil {
-				return err
-			}
-			//#cache.init//
+		{{if .cahce -}}
+		//cache.init#//
+		//检查cache配置是否正确
+		if _, err := c.GetCache(); err != nil {
+			return err
+		}
+		//#cache.init//
 		{{- else -}}
-			//cache.init#//
-			//#cache.init//
+		//cache.init#//
+		//#cache.init//
 		{{- end}}
 
-		{{if .queue}}
-			//queue.init#//
-			//检查queue配置是否正确
-			if _, err := c.GetQueue(); err != nil {
-				return err
-			}
-			//#queue.init//
+		{{if .queue -}}
+		//queue.init#//
+		//检查queue配置是否正确
+		if _, err := c.GetQueue(); err != nil {
+			return err
+		}
+		//#queue.init//
 		{{- else -}}
-			//queue.init#//
-			//#queue.init//
+		//queue.init#//
+		//#queue.init//
 		{{- end}}
 
 		{{range $i,$m:=.modules}}{{range $x,$s:=$.rss}}r.{{$s}}("{{$m}}", {{$m|spkgName|lName}}.New{{$m|lName|humpName}}Handler)

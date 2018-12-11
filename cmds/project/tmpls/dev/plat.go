@@ -1,8 +1,7 @@
 package dev
 
 //PlatVarDB .
-const PlatVarDB = `
-	//db#//
+const PlatVarDB = `//db#//
 	s.Conf.Plat.SetVarConf('db', 'db', "{			
 		'provider':'ora',
 		'connString':'{{.db}}',
@@ -10,12 +9,10 @@ const PlatVarDB = `
 		'maxIdle':10,
 		'lifeTime':600		
 	}")
-	//#db//
-`
+	//#db//`
 
 //PlatVarCache .
-const PlatVarCache = `
-	//cache#//
+const PlatVarCache = `//cache#//
 	s.Conf.Plat.SetVarConf('cache', 'cache', "
 			{
 				'proto':'redis',
@@ -33,12 +30,10 @@ const PlatVarCache = `
 				'write_timeout':10,
 				'pool_size':10
 			}")
-	//#cache//			
-`
+	//#cache//`
 
 //PlatVarQueue .
-const PlatVarQueue = `
-	//queue#//
+const PlatVarQueue = `//queue#//
 	s.Conf.Plat.SetVarConf('queue', 'queue', "
 	{
 		'proto':'redis',
@@ -56,5 +51,4 @@ const PlatVarQueue = `
 		'write_timeout':10,
 		'pool_size':10
 	}")
-	//queue#//
-`
+	//queue#//`

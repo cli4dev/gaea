@@ -141,6 +141,8 @@ func GetConfTmpls(blocks []string, input map[string]interface{}) (out map[string
 	}
 	return out, err
 }
+
+//GetEmptyTmpls .
 func GetEmptyTmpls(blocks []string) (out map[string]map[string]string, err error) {
 	out = make(map[string]map[string]string)
 	for fname, f := range templateFiles {

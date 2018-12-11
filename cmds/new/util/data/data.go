@@ -628,8 +628,10 @@ func ReplaceFileStr(name, filePath, value string) error {
 		return err
 	}
 	result := string(buf)
-	// k := fmt.Sprintf(`//%s#//[\d\w\W\n\t]+//#%s//`, name, name)
-	k := fmt.Sprintf(`//%s#//[\s\S]*//#%s//`, name, name)
+
+	srcf.Truncate(0)
+
+	k := fmt.Sprintf(`//%s#//[\s\S]+//#%s//`, name, name)
 	if ok, _ := regexp.Match(k, buf); !ok {
 		cmds.Log.Errorf("没有找到配置定位标识符:%s//%s#//....//#%s//", filePath, name, name)
 		return nil
@@ -637,7 +639,6 @@ func ReplaceFileStr(name, filePath, value string) error {
 
 	re, _ := regexp.Compile(k)
 	str := re.ReplaceAllString(result, value)
-
 	n, _ := srcf.Seek(0, os.SEEK_SET)
 	_, err = srcf.WriteAt([]byte(str), n)
 	if err != nil {
