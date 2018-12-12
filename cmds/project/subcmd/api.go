@@ -63,7 +63,7 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 		Name:  "db",
 		Usage: "指定数据库类型和数据库链接串(ora:test/123456@orcl136)",
 	}, cli.BoolFlag{
-		Name:  "cros",
+		Name:  "cros,api.cros",
 		Usage: "是否启用跨域设置，默认不启用",
 	}, cli.BoolFlag{
 		Name:  "metric,api.metric",
