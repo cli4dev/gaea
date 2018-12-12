@@ -66,6 +66,7 @@ func GetProjectPath(path string) (string, string, error) {
 	name := strings.Replace(root, srcPath, "", -1)
 	return strings.Trim(name, "/"), root, nil
 }
+
 func getMDFileList(path string) (mdListfile []string, err error) {
 
 	err = filepath.Walk(path, func(path string, f os.FileInfo, err error) error {

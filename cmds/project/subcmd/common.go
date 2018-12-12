@@ -157,3 +157,30 @@ func addConf2Main(projectPath string, serviceType string) error {
 	defer srcf.Close()
 	return nil
 }
+
+func writeVueTemplate(projectPath string) error {
+
+	if path.Exists(filepath.Join(projectPath, "main.go")) {
+		return fmt.Errorf("项目文件夹(%s)不为空", projectPath)
+	}
+
+	data, err := tmpls.GetVueTmpls()
+	if err != nil {
+		return err
+	}
+	for k, v := range data {
+		fpath := filepath.Join(projectPath, k)
+
+		f, err := path.CreatePath(fpath, true)
+		if err != nil {
+			continue
+		}
+		_, err = f.WriteString(v)
+		if err != nil {
+			continue
+		}
+		defer f.Close()
+		cmds.Log.Info("生成文件:", fpath)
+	}
+	return nil
+}

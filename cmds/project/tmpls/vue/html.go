@@ -1,4 +1,4 @@
-package tmpls
+package vue
 
 //HTMLTpl vue 页面模板
 const HTMLTpl = `

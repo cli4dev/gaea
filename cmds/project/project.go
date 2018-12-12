@@ -19,8 +19,10 @@ func NewProjectCmd() []cli.Command {
 		subcmd.NewMQCCmd(),
 		subcmd.NewRPCCmd(),
 		subcmd.NewWSCmd(),
+		subcmd.NewVueCmd(),
 	}
 }
+
 func init() {
 	cmds.Register(NewProjectCmd()...)
 }

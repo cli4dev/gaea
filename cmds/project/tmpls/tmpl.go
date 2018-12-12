@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
+
 	"github.com/micro-plat/lib4go/utility"
 
 	"github.com/micro-plat/gaea/cmds/project/tmpls/dev"
@@ -15,6 +17,7 @@ import (
 var templateFiles map[string][]string
 var names map[string]string
 var templates map[string]string
+var vueTemplates map[string]string
 
 func init() {
 	templateFiles = make(map[string][]string)
@@ -97,6 +100,20 @@ func init() {
 	templates["ws.appconf"] = dev.WSSubAPP
 	templates["ws.jwt"] = dev.WSSubAuth
 
+	vueTemplates = make(map[string]string)
+	vueTemplates["public/index.html"] = vue.IndexHTML
+	vueTemplates["package.json"] = vue.PackAgeJSON
+	vueTemplates["package-lock.json"] = vue.PackAgeLock
+	vueTemplates["postcss.config.js"] = vue.PostCss
+	vueTemplates["babel.config.js"] = vue.Babel
+	vueTemplates["src/main.js"] = vue.Main
+	vueTemplates["src/router.js"] = vue.Router
+	vueTemplates["src/App.vue"] = vue.AppVue
+	vueTemplates["src/store.js"] = vue.Store
+	vueTemplates["src/pages/HelloWorld.vue"] = vue.HelloVue
+	vueTemplates[".gitignore"] = gitignoreTmpl
+	vueTemplates[".env.prod"] = vue.EnvProd
+	vueTemplates[".env.dev"] = vue.EnvDev
 }
 
 const (
@@ -156,6 +173,19 @@ func GetTmpls(projectName string, input map[string]interface{}) (out map[string]
 	out["modules/const/sql/sql.go"] = "package sql"
 	out["services/server.go"] = "package server"
 
+	return out, nil
+}
+
+//GetVueTmpls 获取vue项目模板
+func GetVueTmpls() (out map[string]string, err error) {
+
+	out = make(map[string]string)
+	for k, v := range vueTemplates {
+		out[k] = v
+		if err != nil {
+			return nil, err
+		}
+	}
 	return out, nil
 }
 

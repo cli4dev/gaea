@@ -10,7 +10,7 @@ const gitignoreTmpl = `
 *.dll
 *.so
 *.dylib
-
+node_modules/
 # Test binary, build with go test -c
 *.test
 

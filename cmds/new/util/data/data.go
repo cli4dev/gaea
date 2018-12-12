@@ -454,7 +454,7 @@ func GetServerTmples(tag, tplName string, tbs []*conf.Table, filters []string, s
 //@tbs 表结构体
 //@filters 过滤字段
 //@return out 返回数据
-func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, htmlPath string) (out map[string]map[string]string, err error) {
+func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, projectPath string) (out map[string]map[string]string, err error) {
 	out = map[string]map[string]string{}
 	for _, tb := range tbs {
 		if len(filters) > 0 {
@@ -477,11 +477,11 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, htm
 			return nil, err
 		}
 		c := make(map[string]string)
-		if !strings.Contains(htmlPath, "html") {
-			htmlPath = "html"
+		if !strings.Contains(projectPath, "src/pages") {
+			projectPath = filepath.Join(projectPath, "/src/pages")
 		}
-		c[fmt.Sprintf(htmlPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
-		out[fmt.Sprintf(htmlPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
+		c[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
+		out[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
 	}
 	return out, nil
 }
@@ -490,6 +490,7 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, htm
 //创建并生成文件
 func createFile(add bool, ms string, data map[string]map[string]string) error {
 	for k, v := range data {
+		fmt.Println(k)
 		_, ok := v["head"]
 		if ok { //生成函数文件头
 			_, err := os.Stat(k)
@@ -549,12 +550,13 @@ func createFile(add bool, ms string, data map[string]map[string]string) error {
 		}
 		srcf, err := os.OpenFile(k, os.O_CREATE|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 		if err != nil {
-			err = fmt.Errorf("无法打开文件:%s(err:%v)", k, err)
+			cmds.Log.Errorf("无法打开文件:%s", k)
 			return err
 		}
 		defer srcf.Close()
 		_, err = srcf.WriteString(v[k])
 		if err != nil {
+			cmds.Log.Error(err)
 			return err
 		}
 		cmds.Log.Info("写入文件成功:", k)
@@ -583,10 +585,10 @@ func CreateModulesFile(add, cover bool, tmpls map[string]map[string]string) (err
 
 //CreateHTMLFile 创建 vue 文件
 func CreateHTMLFile(tmpls map[string]map[string]string) (err error) {
-	for k := range tmpls {
-		cmds.Log.Warnf("覆盖文件：%s", k)
-		os.Remove(k)
-	}
+	// for k := range tmpls {
+	// 	cmds.Log.Warnf("覆盖文件：%s", k)
+	// 	os.Remove(k)
+	// }
 	//创建文件
 	if err = createFile(true, "html", tmpls); err != nil {
 		cmds.Log.Error(err)
