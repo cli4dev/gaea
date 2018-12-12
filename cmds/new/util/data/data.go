@@ -327,8 +327,8 @@ func fToLower(s string) string {
 	return strings.ToLower(s)
 }
 
-//translate  .
-func translate(tag string, tplName string, input interface{}) (string, error) {
+//Translate  .
+func Translate(tag string, tplName string, input interface{}) (string, error) {
 	var tmpl = template.New(tag).Funcs(makeFunc())
 	np, err := tmpl.Parse(tplName)
 	if err != nil {
@@ -366,7 +366,7 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 		//获取模板数据
 		input := getInputData(tb)
 		//翻译模板
-		content, err := translate(tag, tplName, input)
+		content, err := Translate(tag, tplName, input)
 
 		if err != nil {
 			return nil, err
@@ -377,7 +377,7 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 				modulePath = "modules"
 			}
 			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
-			head, err := translate("head", tmpls.DbHeadTpl, input)
+			head, err := Translate("head", tmpls.DbHeadTpl, input)
 			if err != nil {
 				return nil, err
 			}
@@ -423,7 +423,7 @@ func GetServerTmples(tag, tplName string, tbs []*conf.Table, filters []string, s
 		//获取模板数据
 		input := getInputData(tb)
 		//翻译模板
-		content, err := translate(tag, tplName, input)
+		content, err := Translate(tag, tplName, input)
 
 		if err != nil {
 			return nil, err
@@ -434,7 +434,7 @@ func GetServerTmples(tag, tplName string, tbs []*conf.Table, filters []string, s
 			serverPath = "services"
 		}
 		c[fmt.Sprintf(serverPath+"/%s.go", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
-		head, err := translate("head", tpl.HeadTpl, input)
+		head, err := Translate("head", tpl.HeadTpl, input)
 		if err != nil {
 			return nil, err
 		}
@@ -472,7 +472,7 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, pro
 		//获取模板数据
 		input := getInputData(tb)
 		//翻译模板
-		content, err := translate(tag, tplName, input)
+		content, err := Translate(tag, tplName, input)
 		if err != nil {
 			return nil, err
 		}
@@ -490,7 +490,6 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, pro
 //创建并生成文件
 func createFile(add bool, ms string, data map[string]map[string]string) error {
 	for k, v := range data {
-		fmt.Println(k)
 		_, ok := v["head"]
 		if ok { //生成函数文件头
 			_, err := os.Stat(k)

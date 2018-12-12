@@ -26,11 +26,11 @@ func NewVueCmd() cli.Command {
 	p := &VueCmd{}
 	return cli.Command{
 		Name:  "vue",
-		Usage: "创建api项目",
+		Usage: "创建vue项目",
 		Subcommands: []cli.Command{
 			cli.Command{
 				Name:   "create",
-				Usage:  "创建api项目",
+				Usage:  "创建vue项目",
 				Flags:  p.geStartFlags(),
 				Action: p.action,
 			},
@@ -113,7 +113,7 @@ func (p *VueCmd) makeHTML(tables []*conf.Table, filters []string, projectPath st
 		cmds.Log.Error(err)
 		return err
 	}
-	err = writeRouter(tmpls)
+	err = writeRouter(projectPath, tmpls)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
@@ -162,13 +162,22 @@ func getMdList(t string) (mdList []string, err error) {
 	return mdList, nil
 }
 
-func writeRouter(data map[string]map[string]string) error {
+func writeRouter(projectPath string, d map[string]map[string]string) error {
 	router := make(map[string]string)
-	for k := range data {
+	for k := range d {
 		i := strings.Index(k, "pages")
-		dot := strings.Index(k, ".")
+		dot := strings.LastIndex(k, ".")
 		router[k[i+5:dot]] = k[i+6:]
 	}
-	fmt.Println(router)
+	str, err := data.Translate("router", vue.RouterString, map[string]interface{}{
+		"router": router,
+	})
+	if err != nil {
+		return err
+	}
+	err = data.ReplaceFileStr("page.router", filepath.Join(projectPath, "/src/router.js"), str)
+	if err != nil {
+		return err
+	}
 	return nil
 }

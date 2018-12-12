@@ -113,7 +113,14 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 `
-
+const RouterString = `
+{{range $i,$c:=.router -}}
+    {
+      path:"{{$i}}",
+      component:"{{$c}}"
+    },
+{{- end}}
+`
 const Router = `
 import Vue from 'vue'
 import Router from 'vue-router'
