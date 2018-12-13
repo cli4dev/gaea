@@ -50,6 +50,8 @@ func(d *Db{{.name|cname}}) Query(input *Query{{.name|cname}}) (data db.QueryRows
 		{{range $i,$c:=.querycolumns -}}
 		"{{$c.name}}":input.{{$c.name|cname}},
 		{{end -}}
+		"pi": input.Pi,
+		"ps": input.Ps,
 	})
 	if err != nil {
 		return nil,0, fmt.Errorf("获取{{.desc}}数据表发生错误(err:%v),sql:%s,输入参数:%v,", err, q, a)

@@ -106,14 +106,19 @@ func init() {
 	vueTemplates["package-lock.json"] = vue.PackAgeLock
 	vueTemplates["postcss.config.js"] = vue.PostCss
 	vueTemplates["babel.config.js"] = vue.Babel
-	vueTemplates["src/main.js"] = vue.Main
+	vueTemplates["src/main.js"] = vue.MainJS
 	vueTemplates["src/router.js"] = vue.Router
 	vueTemplates["src/App.vue"] = vue.AppVue
 	vueTemplates["src/store.js"] = vue.Store
 	vueTemplates["src/pages/HelloWorld.vue"] = vue.HelloVue
+	vueTemplates["src/pages/menu/menu.vue"] = vue.MenuTpl
+	vueTemplates["src/pages/login/login.vue"] = vue.LoginTpl
+	vueTemplates["src/util/http.js"] = vue.HTTPTpl
 	vueTemplates[".gitignore"] = gitignoreTmpl
 	vueTemplates[".env.prod"] = vue.EnvProd
 	vueTemplates[".env.dev"] = vue.EnvDev
+	vueTemplates["vue.config.js"] = vue.VueConfig
+	vueTemplates["main.go"] = strings.Replace(strings.Replace(vue.MainGo, "\"", "`", -1), "'", "\"", -1)
 }
 
 const (

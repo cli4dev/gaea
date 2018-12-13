@@ -2,6 +2,9 @@ package service
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"regexp"
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
@@ -113,6 +116,11 @@ func (p *serviceCmd) createServices(c, r, u, d, add, cover bool, t, o string, f 
 		if err != nil {
 			return err
 		}
+
+		err = p.writeRouter(tables, f)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -171,5 +179,65 @@ func (p *serviceCmd) makeServices(c, r, u, d, add, cover bool, tables []*conf.Ta
 		cover = false
 	}
 
+	return nil
+}
+
+func (p *serviceCmd) writeRouter(tables []*conf.Table, filters []string) error {
+	out := map[string]string{}
+	for _, tb := range tables {
+		if len(filters) > 0 {
+			e := false
+			for _, f := range filters {
+				if strings.EqualFold(tb.Name, f) {
+					e = true
+					break
+				}
+			}
+			if !e {
+				continue
+			}
+		}
+		out[data.GetPath(tb.Name)] = data.GetHandleName(tb.Name)
+	}
+
+	srcf, err := os.OpenFile("./init.go", os.O_RDWR, os.ModePerm)
+	defer srcf.Close()
+	if err != nil {
+		err = fmt.Errorf("无法打开文件:%s(err:%v)", ".init.go", err)
+		return err
+	}
+	buf, err := ioutil.ReadAll(srcf)
+	if err != nil {
+		cmds.Log.Errorf("%v", err.Error())
+		return err
+	}
+	result := string(buf)
+
+	k := fmt.Sprintf(`//%s#//[\s\S]+//#%s//`, "service.router", "service.router")
+	if ok, _ := regexp.Match(k, buf); !ok {
+		cmds.Log.Errorf("没有找到配置定位标识符:%s//%s#//....//#%s//", "./init.go", "service.router", "service.router")
+		return nil
+	}
+	re, _ := regexp.Compile(k)
+	str := re.Find(buf)
+	re.FindStringSubmatch(result)
+	s := strings.Replace(string(str), "//service.router#//", "", -1)
+	s = strings.Replace(s, "//#service.router//", "", -1)
+
+	for k, v := range out {
+		if !strings.Contains(s, k) {
+			s += fmt.Sprintf(`r.Micro("%s",%s,"*")`, k, v) + "\n\t\t"
+		}
+	}
+	s = "//service.router#//" + s + "//#service.router//"
+
+	fstr := re.ReplaceAllString(result, s)
+	//清空文件数据
+	srcf.Truncate(0)
+	n, _ := srcf.Seek(0, os.SEEK_SET)
+	_, err = srcf.WriteAt([]byte(fstr), n)
+	if err != nil {
+		return err
+	}
 	return nil
 }

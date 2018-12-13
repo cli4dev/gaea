@@ -29,9 +29,27 @@ func getInputData(tb *conf.Table) map[string]interface{} {
 		"selectcolumns": getSelectColumns(tb), //要显示的字段
 		"pk":            getPks(tb),
 		"seqs":          getSeqs(tb),
+		"path":          GetPath(tb.Name),
 	}
 
 	return input
+}
+
+//GetPath .
+func GetPath(name string) string {
+	return "/" + strings.Replace(name, "_", "/", -1)
+}
+
+//GetHandleName .
+func GetHandleName(name string) string {
+	strArray := strings.Split(name, "_")
+	var strPre string
+	if len(strArray) > 1 {
+		strPre = strArray[len(strArray)-2]
+	} else {
+		strPre = strArray[0]
+	}
+	return strPre + ".New" + fGetCName(name) + "Handler"
 }
 
 func getCreateColumns(tb *conf.Table) []map[string]interface{} {
@@ -246,7 +264,23 @@ func makeFunc() map[string]interface{} {
 		"cstype": fsGetType,
 		"lname":  fGetLastName,
 		"lower":  fToLower,
+		"vname":  vName,
 	}
+}
+
+func vName(v string) string {
+	items := strings.Split(v, "/")
+	nitems := make([]string, 0, len(items))
+	for k, i := range items {
+		if k == 0 {
+			nitems = append(nitems, i)
+		}
+		if k > 0 {
+			nitems = append(nitems, strings.ToUpper(i[0:1])+i[1:])
+		}
+
+	}
+	return strings.Join(nitems, "")
 }
 
 func fGetAName(n string) string {
@@ -602,7 +636,6 @@ func CreateServicesFile(add, cover bool, tmpls map[string]map[string]string) (er
 		for k := range tmpls {
 			cmds.Log.Warnf("覆盖文件：%s", k)
 			os.Remove(k)
-			break
 		}
 	}
 	//创建文件

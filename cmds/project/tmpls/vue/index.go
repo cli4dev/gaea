@@ -21,8 +21,10 @@ const IndexHTML = `
 </html>`
 
 const EnvProd = `NODE_ENV=production
+VUE_APP_API_URL=http://127.0.0.1:8090
 `
 const EnvDev = `NODE_ENV=development
+VUE_APP_API_URL=http://127.0.0.1:8090
 `
 
 //PackAgeJSON .
@@ -43,7 +45,11 @@ const PackAgeJSON = `
     "popper.js": "^1.14.6",
     "vue": "^2.5.17",
     "vue-router": "^3.0.2",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "nav-menu":"^1.2.9",
+    "login-with-up":"^1.1.1",
+    "axios":"^0.18.0",
+    "qs":"^6.6.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",
@@ -95,7 +101,40 @@ module.exports = {
 	}
 }`
 
-const Main = `
+const MainGo = `
+package main
+
+import (
+	"github.com/micro-plat/hydra/hydra"
+)
+
+type mgrweb struct {
+	*hydra.MicroApp
+}
+
+func main() {
+	app := &mgrweb{
+		hydra.NewApp(
+			hydra.WithPlatName("coupon"),
+			hydra.WithSystemName("mgrweb"),
+			hydra.WithServerTypes("web"),
+		),
+	}
+
+	app.install()
+	app.Start()
+}
+
+func (s *mgrweb) install() {
+	s.Conf.WEB.SetMainConf("{'address':':8089'}")
+	s.Conf.WEB.SetSubConf('static', "{
+			'dir':'./static',
+			'rewriters':['*'],
+			'exts':['.ttf','.woff','.woff2']			
+	}")
+}`
+
+const MainJS = `
 import "jquery"
 import "bootstrap"
 import Vue from 'vue'
@@ -106,6 +145,15 @@ import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 Vue.use(ElementUI);
 Vue.config.productionTip = false
+console.log("当前环境：", process.env.NODE_ENV)
+import {get, post, patch, put, del } from './util/http'
+
+Vue.prototype.$get = get;
+Vue.prototype.$post = post;
+Vue.prototype.$patch = patch;
+Vue.prototype.$put = put;
+Vue.prototype.$del = del;
+
 
 new Vue({
   router,
@@ -113,14 +161,14 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 `
-const RouterString = `
-{{range $i,$c:=.router -}}
+const RouterString = `{{range $i,$c:=.router -}}
     {
-      path:"{{$i}}",
-      component:"{{$c}}"
+      path: '{{$i}}',
+      name:'{{$i|vname}}',
+      component: () => import('./pages/{{$c}}')
     },
-{{- end}}
-`
+{{- end -}}`
+
 const Router = `
 import Vue from 'vue'
 import Router from 'vue-router'
@@ -134,11 +182,17 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home
-    },
-    //page.router#//
-    //#page.router//
+      name: 'menu',
+      component: () => import('./pages/menu/menu.vue'),
+      children:[
+        //page.router#//
+        //#page.router//
+      ]
+    },{
+      path:'/login',
+      name:'login',
+      component: () => import('./pages/login/login.vue'),
+    }
   ]
 })
 `
@@ -163,10 +217,7 @@ export default new Vuex.Store({
 `
 const AppVue = `
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-    </div>
+  <div>
     <router-view/>
   </div>
 </template>

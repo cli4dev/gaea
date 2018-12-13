@@ -79,6 +79,9 @@ func (r *{{.projectName|lName}}) init() {
 	//#queue.init//
 	{{- end}}
 
+	//service.router#//
+	//#service.router//
+
 	{{range $i,$m:=.modules}}{{range $x,$s:=$.rss}}r.{{$s}}("{{$m}}", {{$m|spkgName|lName}}.New{{$m|lName|humpName}}Handler)
 	{{end}}
 	{{end}}

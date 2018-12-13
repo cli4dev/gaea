@@ -8,11 +8,11 @@ const HTMLTpl = `
       <el-form ref="form"  :inline="true" class="form-inline pull-left add-qx-bottom">
 		    {{range $i,$c:=.querycolumns}}
         <div class="form-group">
-          <el-input clearable  placeholder="请输入{{$c.descsimple}}"></el-input>
+          <el-input clearable v-model="queryData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}"></el-input>
         </div>
         {{end}}
         <div class="form-group">
-          <el-button type="primary" size="small">查询</el-button>
+          <el-button type="primary" @click="query" size="small">查询</el-button>
         </div>
         <div class="form-group">
           <el-button type="success" size="small" @click="addShow">添加</el-button>
@@ -91,6 +91,7 @@ export default {
     totalcount: 0,              //数据总条数
     editData:{},                //编辑数据对象
     addData:{},                 //添加数据对象 
+    queryData:{},
     rules: {                    //数据验证规则
       {{range $i,$c:=.createcolumns -}}
       {{$c.name}}: [
@@ -101,14 +102,6 @@ export default {
 		tableData: [{                //表数据
       {{range $i,$c:=.selectcolumns -}}
       {{$c.name}}: "{{$c.name}}1",
-      {{end -}}
-		},{
-      {{range $i,$c:=.selectcolumns -}}
-      {{$c.name}}: "{{$c.name}}2",
-      {{end -}}
-		},{
-      {{range $i,$c:=.selectcolumns -}}
-      {{$c.name}}: "{{$c.name}}3",
       {{end -}}
 		}]
 		}
@@ -121,25 +114,37 @@ export default {
     *初始化操作
     */
     init(){
-      
+      this.query()
     },
     /*
     *查询数据并赋值
     */
     query(){
+      this.queryData.pi = this.params.pi
+      this.queryData.ps = this.params.ps
+      this.$get("{{.path}}/query", this.queryData)
+          .then(res => {
+            this.tableData = res.data
+            this.totalcount = res.count
+          })
+          .catch(err => {
+              console.log(err)
+          })
 
     },
     /*
     *改变页容量
     */
 		handleSizeChange(val) {
-		  this.params.ps = val
+      this.params.ps = val
+      this.query()
     },
     /*
     *改变当前页码
     */
     handleCurrentChange(val) {
       this.params.pi = val
+      this.query()
     },
     /*
     *重置添加表单
@@ -191,7 +196,14 @@ export default {
     */
     edit(){
       console.log(this.editData);
-      this.dialogFormVisible = false;
+      this.$put("{{.path}}", this.editData)
+      .then(res => {
+        this.dialogFormVisible = false;
+      })
+      .catch(err => {
+          console.log(err)
+      })
+      
     },
     /**
     *删除数据
@@ -205,6 +217,13 @@ export default {
         type: "warning"
       }).then(() => {
         console.log(val);
+        this.$del("{{.path}}", {data:val})
+        .then(res => {
+          this.dialogFormVisible = false;
+        })
+        .catch(err => {
+            console.log(err)
+        })
         this.$message({
           type: "success",
           message: "删除成功!"

@@ -167,7 +167,7 @@ func writeRouter(projectPath string, d map[string]map[string]string) error {
 	for k := range d {
 		i := strings.Index(k, "pages")
 		dot := strings.LastIndex(k, ".")
-		router[k[i+5:dot]] = k[i+6:]
+		router[k[i+6:dot]] = k[i+6:]
 	}
 	str, err := data.Translate("router", vue.RouterString, map[string]interface{}{
 		"router": router,
