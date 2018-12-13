@@ -2,8 +2,9 @@ package subcmd
 
 import (
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/util"
-	"github.com/micro-plat/gaea/cmds/new/util/path"
+	"github.com/micro-plat/gaea/cmds/util"
+	"github.com/micro-plat/gaea/cmds/util/path"
+
 	"github.com/micro-plat/lib4go/types"
 	"github.com/urfave/cli"
 )
@@ -144,7 +145,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 			"serverType":  "api",
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
 			"jwt":         c.Bool("jwt"),
-			"db":          types.GetString(c.String("db")),
+			"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
 			"cros":        c.Bool("cros"),
 			"projectName": name,
 			"cache":       c.Bool("cache"),
@@ -166,7 +167,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 		"serverType":  "api",
 		"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
 		"jwt":         c.Bool("jwt"),
-		"db":          types.GetString(c.String("db")),
+		"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
 		"cros":        c.Bool("cros"),
 		"projectName": name,
 		"cache":       c.Bool("cache"),

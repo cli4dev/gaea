@@ -8,12 +8,11 @@ import (
 
 	"github.com/micro-plat/gaea/cmds"
 
-	"github.com/micro-plat/gaea/cmds/new/util/conf"
-	"github.com/micro-plat/gaea/cmds/new/util/data"
-	"github.com/micro-plat/gaea/cmds/new/util/path"
 	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
-
-	"github.com/micro-plat/gaea/cmds/new/util/md"
+	"github.com/micro-plat/gaea/cmds/util/conf"
+	"github.com/micro-plat/gaea/cmds/util/data"
+	"github.com/micro-plat/gaea/cmds/util/md"
+	"github.com/micro-plat/gaea/cmds/util/path"
 
 	"github.com/urfave/cli"
 )

@@ -9,8 +9,9 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
-	datas "github.com/micro-plat/gaea/cmds/new/util/data"
-	"github.com/micro-plat/gaea/cmds/new/util/path"
+	datas "github.com/micro-plat/gaea/cmds/util/data"
+	"github.com/micro-plat/gaea/cmds/util/path"
+
 	"github.com/micro-plat/gaea/cmds/project/tmpls"
 	"github.com/urfave/cli"
 )

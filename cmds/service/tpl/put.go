@@ -1,4 +1,4 @@
-package tmpls
+package tpl
 
 //PutTpl .
 const PutTpl = `

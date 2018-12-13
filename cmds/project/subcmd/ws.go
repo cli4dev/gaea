@@ -1,11 +1,11 @@
 package subcmd
 
 import (
-	"github.com/micro-plat/gaea/cmds/new/util"
+	"github.com/micro-plat/gaea/cmds/util"
 	"github.com/micro-plat/lib4go/types"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/util/path"
+	"github.com/micro-plat/gaea/cmds/util/path"
 	"github.com/urfave/cli"
 )
 
@@ -133,7 +133,7 @@ func (p *WSCmd) action(c *cli.Context) (err error) {
 			"ws.jwt":      c.Bool("jwt"),
 			"ws.metric":   c.Bool("metric"),
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
-			"db":          types.GetString(c.String("db")),
+			"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
 			"cache":       c.Bool("cache"),
 			"queue":       c.Bool("queue"),
 		})
@@ -150,7 +150,7 @@ func (p *WSCmd) action(c *cli.Context) (err error) {
 		"serverType":  "ws",
 		"projectName": name,
 		"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
-		"db":          types.GetString(c.String("db")),
+		"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
 		"ws.port":     c.Bool("appconf"),
 		"ws.jwt":      c.Bool("jwt"),
 		"ws.metric":   c.Bool("metric"),

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/micro-plat/gaea/cmds/new/util/conf"
+	"github.com/micro-plat/gaea/cmds/util/conf"
 )
 
 func translate(c string, input interface{}) (string, error) {

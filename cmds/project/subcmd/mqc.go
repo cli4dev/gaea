@@ -1,11 +1,11 @@
 package subcmd
 
 import (
-	"github.com/micro-plat/gaea/cmds/new/util"
+	"github.com/micro-plat/gaea/cmds/util"
 	"github.com/micro-plat/lib4go/types"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/util/path"
+	"github.com/micro-plat/gaea/cmds/util/path"
 	"github.com/urfave/cli"
 )
 
@@ -127,7 +127,7 @@ func (p *MQCCmd) action(c *cli.Context) (err error) {
 			"mqc.queue":   c.Bool("mqc.queue"),
 			"mqc.metric":  c.Bool("mqc.metric"),
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
-			"db":          types.GetString(c.String("db")),
+			"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
 			"cache":       c.Bool("cache"),
 			"queue":       c.Bool("queue"),
 		})
@@ -144,7 +144,7 @@ func (p *MQCCmd) action(c *cli.Context) (err error) {
 		"serverType":  "mqc",
 		"projectName": name,
 		"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
-		"db":          types.GetString(c.String("db")),
+		"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
 		"mqc.server":  c.Bool("mqc.server"),
 		"mqc.queue":   c.Bool("mqc.queue"),
 		"mqc.metric":  c.Bool("mqc.metric"),

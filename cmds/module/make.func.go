@@ -3,8 +3,8 @@ package module
 import (
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/module/tmpls"
-	"github.com/micro-plat/gaea/cmds/new/util/conf"
-	"github.com/micro-plat/gaea/cmds/new/util/data"
+	"github.com/micro-plat/gaea/cmds/util/conf"
+	"github.com/micro-plat/gaea/cmds/util/data"
 )
 
 //makeInsertFunc .

@@ -8,12 +8,23 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/util/conf"
-	"github.com/micro-plat/gaea/cmds/new/util/data"
-	"github.com/micro-plat/gaea/cmds/new/util/md"
-	"github.com/micro-plat/gaea/cmds/new/util/path"
+	"github.com/micro-plat/gaea/cmds/util/conf"
+	"github.com/micro-plat/gaea/cmds/util/data"
+	"github.com/micro-plat/gaea/cmds/util/md"
+	"github.com/micro-plat/gaea/cmds/util/path"
 	"github.com/urfave/cli"
 )
+
+//NewProjectCmd .
+func NewProjectCmd() []cli.Command {
+	return []cli.Command{
+		NewServiceCmd(),
+	}
+}
+
+func init() {
+	cmds.Register(NewProjectCmd()...)
+}
 
 type serviceCmd struct {
 }
@@ -43,6 +54,9 @@ func (p *serviceCmd) geStartFlags() []cli.Flag {
 	}, cli.BoolFlag{
 		Name:  "d",
 		Usage: "根据表结构生成 delete handle函数",
+	}, cli.BoolFlag{
+		Name:  "crud",
+		Usage: "根据表结构生成 crud handle函数",
 	}, cli.StringSliceFlag{
 		Name:  "f",
 		Usage: "过滤器，指定表明或关键字",
@@ -62,22 +76,20 @@ func (p *serviceCmd) geStartFlags() []cli.Flag {
 	return flags
 }
 
-func (p *serviceCmd) action(c *cli.Context) (err error) {
-
-	return p.createServices(
-		c.Bool("c"),
-		c.Bool("r"),
-		c.Bool("u"),
-		c.Bool("d"),
-		c.Bool("add"),
-		c.Bool("cover"),
-		c.String("t"),
-		c.String("o"),
-		c.StringSlice("f"),
-	)
-}
-
-func (p *serviceCmd) createServices(c, r, u, d, add, cover bool, t, o string, f []string) (err error) {
+func (p *serviceCmd) action(cli *cli.Context) (err error) {
+	c := cli.Bool("c")
+	r := cli.Bool("r")
+	u := cli.Bool("u")
+	d := cli.Bool("d")
+	add := cli.Bool("add")
+	cover := cli.Bool("cover")
+	t := cli.String("t")
+	o := cli.String("o")
+	f := cli.StringSlice("f")
+	if cli.Bool("crud") {
+		c, r, u, d = true, true, true, true
+		add = true
+	}
 
 	//查找*.md文件
 	mdList := []string{t}
@@ -99,6 +111,7 @@ func (p *serviceCmd) createServices(c, r, u, d, add, cover bool, t, o string, f 
 	if serverPath == "" || !strings.Contains(serverPath, "services") {
 		serverPath = "services/" + o
 	}
+
 	if cover {
 		add = true
 	}

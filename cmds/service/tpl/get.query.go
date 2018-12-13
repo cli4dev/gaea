@@ -1,4 +1,4 @@
-package tmpls
+package tpl
 
 //GetAndQueryTpl GetHandle
 const GetAndQueryTpl = `

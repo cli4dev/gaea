@@ -14,8 +14,8 @@ import (
 
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/module/tmpls"
-	tpl "github.com/micro-plat/gaea/cmds/new/service/tmpls"
-	"github.com/micro-plat/gaea/cmds/new/util/conf"
+	"github.com/micro-plat/gaea/cmds/service/tpl"
+	"github.com/micro-plat/gaea/cmds/util/conf"
 )
 
 //GetInputData 获取模板数据

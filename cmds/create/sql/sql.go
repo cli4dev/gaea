@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/util/conf"
-	"github.com/micro-plat/gaea/cmds/new/util/md"
+	"github.com/micro-plat/gaea/cmds/util/conf"
+	"github.com/micro-plat/gaea/cmds/util/md"
 )
 
 type handler func([]*conf.Table) (map[string]string, error)

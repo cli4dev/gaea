@@ -3,11 +3,11 @@ package tmpls
 import (
 	"bytes"
 	"fmt"
-	"html/template"
 	"path/filepath"
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
+	"github.com/micro-plat/gaea/cmds/util/data"
 
 	"github.com/micro-plat/lib4go/utility"
 
@@ -157,22 +157,22 @@ const (
 func GetTmpls(projectName string, input map[string]interface{}) (out map[string]string, err error) {
 	input = makeParams(input)
 	out = make(map[string]string)
-	if out["main.go"], err = translate(mainTmpl, input); err != nil {
+	if out["main.go"], err = data.Translate("tpl", mainTmpl, input); err != nil {
 		return nil, err
 	}
-	if out["init.go"], err = translate(initTmpl, input); err != nil {
+	if out["init.go"], err = data.Translate("tpl", initTmpl, input); err != nil {
 		return nil, err
 	}
-	if out["install.dev.go"], err = translate(strings.Replace(strings.Replace(installDevTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
+	if out["install.dev.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(installDevTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
-	if out["install.prod.go"], err = translate(strings.Replace(strings.Replace(installProdTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
+	if out["install.prod.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(installProdTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
-	if out["handling.go"], err = translate(strings.Replace(strings.Replace(handlingTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
+	if out["handling.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(handlingTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
-	if out[".gitignore"], err = translate(gitignoreTmpl, input); err != nil {
+	if out[".gitignore"], err = data.Translate("tpl", gitignoreTmpl, input); err != nil {
 		return nil, err
 	}
 	out["modules/const/sql/sql.go"] = "package sql"
@@ -209,7 +209,7 @@ func GetConfTmpls(blocks []string, input map[string]interface{}) (out map[string
 				if _, ok := out[fname]; !ok {
 					out[fname] = make(map[string]string)
 				}
-				out[fname][names[n]], err = translate(strings.Replace(strings.Replace(templates[n], "\"", "`", -1), "'", "\"", -1), input)
+				out[fname][names[n]], err = data.Translate("conf", strings.Replace(strings.Replace(templates[n], "\"", "`", -1), "'", "\"", -1), input)
 				if err != nil {
 					return nil, err
 				}
@@ -253,19 +253,6 @@ func getServices(serverType string) []string {
 		s = append(s, "Page")
 	}
 	return s
-}
-
-func translate(c string, input interface{}) (string, error) {
-	var tmpl = template.New("api").Funcs(makeFunc())
-	np, err := tmpl.Parse(c)
-	if err != nil {
-		return "", err
-	}
-	buff := bytes.NewBufferString("")
-	if err := np.Execute(buff, input); err != nil {
-		return "", err
-	}
-	return buff.String(), nil
 }
 
 //获取生成项目的数据

@@ -1,11 +1,11 @@
 package subcmd
 
 import (
-	"github.com/micro-plat/gaea/cmds/new/util"
+	"github.com/micro-plat/gaea/cmds/util"
 	"github.com/micro-plat/lib4go/types"
 
 	"github.com/micro-plat/gaea/cmds"
-	"github.com/micro-plat/gaea/cmds/new/util/path"
+	"github.com/micro-plat/gaea/cmds/util/path"
 	"github.com/urfave/cli"
 )
 
@@ -133,7 +133,7 @@ func (p *CronCmd) action(c *cli.Context) (err error) {
 			"cron.task":    c.Bool("cron.task"),
 			"cron.metric":  c.Bool("cron.metric"),
 			"dbname":       util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
-			"db":           types.GetString(c.String("db")),
+			"db":           util.GetRightString(types.GetString(c.String("db")), ":", ""),
 			"cache":        c.Bool("cache"),
 			"queue":        c.Bool("queue"),
 		})
@@ -150,7 +150,7 @@ func (p *CronCmd) action(c *cli.Context) (err error) {
 		"serverType":   "cron",
 		"projectName":  name,
 		"dbname":       util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
-		"db":           types.GetString(c.String("db")),
+		"db":           util.GetRightString(types.GetString(c.String("db")), ":", ""),
 		"cron.appconf": c.Bool("appconf"),
 		"cron.task":    c.Bool("cron.task"),
 		"cron.metric":  c.Bool("cron.metric"),
