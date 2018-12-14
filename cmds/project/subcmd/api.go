@@ -144,23 +144,20 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 		cmds.Log.Error(err)
 		return err
 	}
-	appconf := c.Bool("appconf")
-	if c.String("login") != "" {
-		appconf = true
-	}
+
 	//创建项目
 	if !p.cover {
 		err = writeTemplate(p.cover, name, projectPath, map[string]interface{}{
 			"port":        util.GetPrefixString(types.GetString(c.String("p"), "9090"), ":"),
 			"serverType":  "api",
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
-			"jwt":         c.Bool("jwt"),
+			"jwt":         c.Bool("jwt") || c.IsSet("login"),
 			"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
-			"cros":        c.Bool("cros"),
+			"cros":        c.Bool("cros") || c.IsSet("login"),
 			"projectName": name,
 			"cache":       c.Bool("cache"),
 			"queue":       c.Bool("queue"),
-			"appconf":     appconf,
+			"appconf":     c.Bool("appconf") || c.IsSet("login"),
 			"metric":      c.Bool("metric"),
 			"login":       c.String("login"),
 		})

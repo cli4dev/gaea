@@ -95,8 +95,8 @@ func (r *{{.projectName|lName}}) init() {
 	{{- else -}}
 	//login.router#//
 	r.Micro("/member/login", member.NewLoginHandler, "*")     //登录系统
-	r.Micro("/member/update", member.NewUpdateHandler, "*")   //修改密码
-	r.Micro("/member/menu/get", member.NewMenuHandler, "*")   //获取菜单
+	r.Micro("/member/changepwd", member.NewChangePwdHandler, "*")   //修改密码
+	r.Micro("/member/menuget", member.NewMenuHandler, "*")   //获取菜单
 	r.Micro("/member/user", member.NewUserHandler, "*")  //获取用户
 	r.Micro("/member/getsysinfo", member.NewInfoHandler, "*") //获取系统信息
 	//#login.router//

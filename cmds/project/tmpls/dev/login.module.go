@@ -66,7 +66,7 @@ import (
 )
 
 type IUser interface {
-	Login(m db.QueryRow) (*LoginState, error)
+	Login(m db.QueryRow) (*LoginState, int, error)
 	ChangePwd(m db.QueryRow) error
 	GetMenu(m db.QueryRow) ([]*Menu, error)
 	GetUser(m db.QueryRow) (map[string]interface{}, error)
@@ -86,12 +86,12 @@ func NewUser(c component.IContainer) *User {
 }
 
 //Login 远程登录
-func (u *User) Login(m db.QueryRow) (*LoginState, error) {
-	state, _, _, err := u.remoteLogin(m)
-	return state, err
+func (u *User) Login(m db.QueryRow) (*LoginState, int, error) {
+	state, code, err := u.remoteLogin(m)
+	return state, code, err
 }
 
-func (u *User) remoteLogin(m db.QueryRow) (*LoginState, http.Header, []*http.Cookie, error) {
+func (u *User) remoteLogin(m db.QueryRow) (*LoginState, int, error) {
 
 	url := fmt.Sprintf("%s?username=%s&password=%s&ident=%s&sign=%s&timestamp=%s",
 		app.GetConf(u.c).GetLoginURL(), m.GetString("username"),
@@ -99,23 +99,23 @@ func (u *User) remoteLogin(m db.QueryRow) (*LoginState, http.Header, []*http.Coo
 	fmt.Println("请求url:", url)
 	resp, err := u.http.Get(url)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("请求:%v失败(%v)", url, err)
+		return nil, 400, fmt.Errorf("请求:%v失败(%v)", url, err)
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, nil, nil, fmt.Errorf("登录失败,HttpStatus:%d", resp.StatusCode)
-	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("读取远程数据失败 %s %v", url, err)
+		return nil, 400, fmt.Errorf("%s", string(body))
+	}
+	if resp.StatusCode != 200 {
+		return nil, resp.StatusCode, fmt.Errorf("%s", string(body))
 	}
 	var state LoginState
 	err = json.Unmarshal(body, &state)
 	if err != nil {
-		return nil, nil, nil, fmt.Errorf("解析返回结果失败 %s：%v(%s)", url, err, string(body))
+		return nil, 400, fmt.Errorf("解析返回结果失败 %s：%v(%s)", url, err, string(body))
 	}
 
-	return &state, resp.Header, resp.Cookies(), nil
+	return &state, resp.StatusCode, nil
 }
 
 //GetMenu is

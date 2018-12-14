@@ -80,6 +80,7 @@ const MenuTpl = `
         menus: [{}],  //菜单数据
         systemName: "gaea 系统",  //系统名称
         userinfo: {},
+        indexUrl: "/",
         dialogAddVisible:false,     //添加表单显示隐藏
         updateInfo:{
           password_old: "",
@@ -106,24 +107,27 @@ const MenuTpl = `
       navMenu
     },
     created(){
-      this.getAllDictionaryData();
+      //this.getAllDictionaryData();
       this.getMenu();
     },
     mounted(){
       this.$get("/member/getsysinfo",{})
         .then(res=>{
+          console.log("系统信息",res)
           this.systemName =res.name;
           this.logo = res.logo;
           this.themes = res.theme;
+          if (res.path) {
+            this.indexUrl  = res.path
+          }
       }).catch(err=>{
           console.log(err)
       });
 
       this.userinfo = JSON.parse(sessionStorage.getItem("userinfo"));
       document.title = "{{.projectName}} 系统";
-      this.$refs.NewTap.add("运营状况分析","/report/index",{});   //设置默认页面
+      this.$refs.NewTap.add("首页",this.indexUrl,{});   //设置默认页面
     },
-
     methods:{
       pwd(val){
 
@@ -137,7 +141,7 @@ const MenuTpl = `
         // console.log(this.addData)
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.$get("/member/update",{
+            this.$get("/member/changepwd",{
               password_old : this.updateInfo.password_old,
               password : this.updateInfo.password,
             }).then(res=>{
@@ -164,7 +168,7 @@ const MenuTpl = `
       },
 
       getMenu(){
-        this.$get("/member/menu/get")
+        this.$get("/member/menuget")
           .then(res => {
             this.menus = res;
           })

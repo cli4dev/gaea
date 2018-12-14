@@ -36,7 +36,6 @@ const LoginTpl = `
     },
     methods: {
       call: function (code) {
-        code.ident = "{{.projectName}}";
         this.$get("/member/login", code)
           .then(response => {
             sessionStorage.setItem("userinfo",JSON.stringify(response))

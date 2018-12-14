@@ -30,7 +30,7 @@ func NewLoginHandler(container component.IContainer) (u *LoginHandler) {
 func (u *LoginHandler) Handle(ctx *context.Context) (r interface{}) {
 
 	//检查输入参数
-	if err := ctx.Request.Check("username", "password", "ident"); err != nil {
+	if err := ctx.Request.Check("username", "password"); err != nil {
 		return context.NewError(context.ERR_NOT_ACCEPTABLE, err)
 	}
 	//签名
@@ -40,15 +40,14 @@ func (u *LoginHandler) Handle(ctx *context.Context) (r interface{}) {
 	m := make(db.QueryRow)
 	m["username"] = ctx.Request.GetString("username")
 	m["password"] = ctx.Request.GetString("password")
-	m["ident"] = ctx.Request.GetString("ident")
+	m["ident"] = "{{getAppconf .login 3}}"
 	m["timestamp"] = time.Now().Unix()
 	raw, m["sign"] = util.MakeSign(m, secret)
 	ctx.Log.Infof("请求登录数据：%v[%s]", m, raw)
 	//处理用户登录
-	member, err := u.m.Login(m)
+	member,code, err := u.m.Login(m)
 	if err != nil {
-		ctx.Response.SetStatus(context.ERR_FORBIDDEN)
-		return err
+		return context.NewError(code, err)
 	}
 	//设置jwt数据
 	ctx.Response.SetJWT(member)
@@ -177,22 +176,22 @@ import (
 	"github.com/micro-plat/hydra/context"
 )
 
-//UpdateHandler 用户登录对象
-type UpdateHandler struct {
+//ChangePwdHandler 用户登录对象
+type ChangePwdHandler struct {
 	c component.IContainer
 	m member.IUser
 }
 
-//NewUpdateHandler 创建登录对象
-func NewUpdateHandler(container component.IContainer) (u *UpdateHandler) {
-	return &UpdateHandler{
+//NewChangePwdHandler 创建登录对象
+func NewChangePwdHandler(container component.IContainer) (u *ChangePwdHandler) {
+	return &ChangePwdHandler{
 		c: container,
 		m: member.NewUser(container),
 	}
 }
 
 //Handle 处理用户修改密码
-func (u *UpdateHandler) Handle(ctx *context.Context) (r interface{}) {
+func (u *ChangePwdHandler) Handle(ctx *context.Context) (r interface{}) {
 
 	//检查输入参数
 	if err := ctx.Request.Check("password", "password_old"); err != nil {
