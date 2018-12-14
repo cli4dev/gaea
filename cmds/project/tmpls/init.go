@@ -11,6 +11,13 @@ import (
 	"github.com/micro-plat/hydra/component"
 	{{range $i,$m:=.pkgs}}"{{$.projectName}}/{{$m}}"
 	{{end}}
+
+	{{if ne .login $empty -}}
+	"fmt"
+	"github.com/asaskevich/govalidator"
+	"{{.projectName}}/modules/app"
+	"{{.projectName}}/services/member"
+	{{- end -}}
 )
 
 {{if .appconf -}}
@@ -24,9 +31,6 @@ type AppConf struct {
 //#appconf.struct//
 {{- end}}
 
-{{if .login $empty -}}
-
-{{- end -}}
 
 //init 检查应用程序配置文件，并根据配置初始化服务
 func (r *{{.projectName|lName}}) init() {
@@ -43,8 +47,21 @@ func (r *{{.projectName|lName}}) init() {
 	app.SaveConf(c, &conf)
 	//appconf.func#//
 	{{- else -}}
+	{{if eq .login $empty -}}
 	//appconf.func#//
 	//#appconf.func//
+	{{- else -}}
+	//appconf.func#//
+	var conf app.Conf
+	if err := c.GetAppConf(&conf); err != nil {
+		return err
+	}
+	if b, err := govalidator.ValidateStruct(&conf); !b {
+		return fmt.Errorf("app 配置文件有误:%v", err)
+	}
+	app.SaveConf(c, &conf)
+	//#appconf.func//
+	{{- end -}}
 	{{- end}}
 
 	{{if eq .db $empty -}}
@@ -95,14 +112,11 @@ func (r *{{.projectName|lName}}) init() {
 	r.Micro("/member/user", member.NewUserHandler, "*")  //获取用户
 	r.Micro("/member/getsysinfo", member.NewInfoHandler, "*") //获取系统信息
 	//#login.router//
-	{{- end -}}
+	{{- end}}
 
 	//service.router#//
 	//#service.router//
 
-	{{range $i,$m:=.modules}}{{range $x,$s:=$.rss}}r.{{$s}}("{{$m}}", {{$m|spkgName|lName}}.New{{$m|lName|humpName}}Handler)
-	{{end}}
-	{{end}}
 	return nil
 	})
 }`

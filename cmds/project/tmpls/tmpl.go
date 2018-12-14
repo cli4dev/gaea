@@ -157,10 +157,10 @@ const (
 func GetTmpls(projectName string, input map[string]interface{}) (out map[string]string, err error) {
 	input = makeParams(input)
 	out = make(map[string]string)
-	if out["main.go"], err = data.Translate("tpl", mainTmpl, input); err != nil {
+	if out["main.go"], err = data.Translate("main.go.tpl", mainTmpl, input); err != nil {
 		return nil, err
 	}
-	if out["init.go"], err = data.Translate("tpl", initTmpl, input); err != nil {
+	if out["init.go"], err = data.Translate("init.go.tpl", initTmpl, input); err != nil {
 		return nil, err
 	}
 	if out["install.dev.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(installDevTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
@@ -177,6 +177,19 @@ func GetTmpls(projectName string, input map[string]interface{}) (out map[string]
 	}
 	out["modules/const/sql/sql.go"] = "package sql"
 	out["services/server.go"] = "package server"
+	if input["login"] != "" {
+		out["services/member/info.go"], _ = data.Translate("tpl", dev.Info, input)
+		out["services/member/login.go"], _ = data.Translate("tpl", dev.Login, input)
+		out["services/member/menu.go"], _ = data.Translate("tpl", dev.Menu, input)
+		out["services/member/changepwd.go"], _ = data.Translate("tpl", dev.ChangePwd, input)
+		out["services/member/user.go"], _ = data.Translate("tpl", dev.User, input)
+
+		out["modules/app/conf.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(dev.AppModuleConf, "\"", "`", -1), "'", "\"", -1), input)
+		out["modules/member/user.go"], _ = data.Translate("tpl", dev.AppModuleMemberUser, input)
+		out["modules/member/menu.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(dev.AppModuleMemberMenu, "\"", "`", -1), "'", "\"", -1), input)
+		out["modules/member/state.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(dev.AppModuleMemberState, "\"", "`", -1), "'", "\"", -1), input)
+		out["modules/util/util.go"], _ = data.Translate("tpl", dev.Util, input)
+	}
 
 	return out, nil
 }

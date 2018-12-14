@@ -1,6 +1,8 @@
 package subcmd
 
 import (
+	"fmt"
+
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/util"
 	"github.com/micro-plat/gaea/cmds/util/path"
@@ -80,13 +82,15 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 		Usage: "启用appconf配置",
 	}, cli.StringFlag{
 		Name:  "login",
-		Usage: "启用 login 模块,需要输入 sso 地址",
+		Value: "",
+		Usage: "启用 login 模块,参数为 sso 登录地址",
 	}, cli.BoolFlag{
 		Name:  "menu",
 		Usage: "启用 menu 模块",
 	})
 	return flags
 }
+
 func (p *APICmd) getRemoveStartFlags() []cli.Flag {
 	flags := make([]cli.Flag, 0, 4)
 	flags = append(flags, cli.StringFlag{
@@ -117,12 +121,6 @@ func (p *APICmd) getRemoveStartFlags() []cli.Flag {
 	}, cli.BoolFlag{
 		Name:  "appconf,api.appconf",
 		Usage: "启用appconf配置",
-	}, cli.BoolFlag{
-		Name:  "login",
-		Usage: "移除登录模块",
-	}, cli.BoolFlag{
-		Name:  "menu",
-		Usage: "移除菜单模块",
 	})
 	return flags
 }
@@ -149,6 +147,9 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 		cmds.Log.Error(err)
 		return err
 	}
+
+	fmt.Println(name, projectPath)
+
 	//创建项目
 	if !p.cover {
 		err = writeTemplate(p.cover, name, projectPath, map[string]interface{}{
