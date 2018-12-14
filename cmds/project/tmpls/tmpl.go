@@ -1,12 +1,12 @@
 package tmpls
 
 import (
-	"bytes"
 	"fmt"
 	"path/filepath"
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
+	"github.com/micro-plat/gaea/cmds/util"
 	"github.com/micro-plat/gaea/cmds/util/data"
 
 	"github.com/micro-plat/lib4go/utility"
@@ -110,7 +110,6 @@ func init() {
 	vueTemplates["src/router.js"] = vue.Router
 	vueTemplates["src/App.vue"] = vue.AppVue
 	vueTemplates["src/store.js"] = vue.Store
-	vueTemplates["src/pages/HelloWorld.vue"] = vue.HelloVue
 	vueTemplates["src/pages/menu/menu.vue"] = vue.MenuTpl
 	vueTemplates["src/pages/login/login.vue"] = vue.LoginTpl
 	vueTemplates["src/util/http.js"] = vue.HTTPTpl
@@ -119,6 +118,7 @@ func init() {
 	vueTemplates[".env.dev"] = vue.EnvDev
 	vueTemplates["vue.config.js"] = vue.VueConfig
 	vueTemplates["main.go"] = strings.Replace(strings.Replace(vue.MainGo, "\"", "`", -1), "'", "\"", -1)
+	vueTemplates["build.sh"] = vue.Build
 }
 
 const (
@@ -182,11 +182,14 @@ func GetTmpls(projectName string, input map[string]interface{}) (out map[string]
 }
 
 //GetVueTmpls 获取vue项目模板
-func GetVueTmpls() (out map[string]string, err error) {
+func GetVueTmpls(projectName string) (out map[string]string, err error) {
 
 	out = make(map[string]string)
 	for k, v := range vueTemplates {
-		out[k] = v
+		out[k], err = data.Translate(k, v, map[string]interface{}{
+			"projectName": projectName,
+			"ip":          util.GetLocalhostIP(),
+		})
 		if err != nil {
 			return nil, err
 		}
@@ -205,7 +208,6 @@ func GetConfTmpls(blocks []string, input map[string]interface{}) (out map[string
 				if !strings.Contains(n, name) {
 					continue
 				}
-				//	fmt.Printf("name:%s n: %s \n", name, n)
 				if _, ok := out[fname]; !ok {
 					out[fname] = make(map[string]string)
 				}
@@ -273,93 +275,4 @@ func getRModules(modules []string) []string {
 		}
 	}
 	return nmodule
-}
-
-func makeFunc() map[string]interface{} {
-	return map[string]interface{}{
-		"humpName": fGetHumpName,           //多个单词首字符大写
-		"spkgName": fGetServicePackageName, //包路径
-		"mpkgName": fGetModulePackageName,  //包路径
-		"lName":    fGetLastName,           //取最后一个单词
-		"fName":    fGetFirstName,          //取第一个单词
-		"fServer":  fServer,                //判断是否有这个服务
-	}
-}
-
-func fServer(s, substr string) bool {
-	return strings.Contains(s, substr)
-}
-
-func fGetFirstName(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
-	return names[0]
-}
-
-func fGetHumpName(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
-	buff := bytes.NewBufferString("")
-	for _, v := range names {
-		buff.WriteString(fGetLoopHumpName(v, "."))
-	}
-	return strings.Replace(buff.String(), ".", "", -1)
-}
-
-func fGetLoopHumpName(n string, s string) string {
-	names := strings.Split(strings.Trim(n, s), s)
-	buff := bytes.NewBufferString("")
-	for _, v := range names {
-		buff.WriteString(strings.ToUpper(v[0:1]))
-		buff.WriteString(v[1:])
-	}
-	return strings.Replace(buff.String(), ".", "", -1)
-}
-
-func fGetServicePackageName(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
-	if len(names) == 1 {
-		return "services"
-	}
-	return strings.ToLower(strings.Join(names[0:len(names)-1], "/"))
-}
-
-func fGetPackageName(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
-	if len(names) == 1 {
-		return names[0]
-	}
-	return strings.Join(names[0:len(names)-1], "/")
-}
-
-func fGetModulePackageName(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
-	if len(names) == 1 {
-		return "modules"
-	}
-	return strings.ToLower(strings.Join(names[0:len(names)-1], "/"))
-}
-
-func fGetServicePackagePath(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
-	if len(names) == 1 {
-		return "services"
-	}
-	return strings.ToLower(filepath.Join("services", strings.Join(names[0:len(names)-1], "/")))
-}
-
-func fGetLastName(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
-	return names[len(names)-1]
-}
-
-func gGetModulePackageName(module []string) []string {
-	npkgs := make([]string, 0, len(module)/2)
-	n := make(map[string]string)
-	for _, m := range module {
-		nm := fGetServicePackagePath(m)
-		if _, ok := n[nm]; !ok {
-			npkgs = append(npkgs, nm)
-			n[nm] = nm
-		}
-	}
-	return npkgs
 }

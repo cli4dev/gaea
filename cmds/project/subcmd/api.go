@@ -55,7 +55,7 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 		Usage: "项目名称",
 	}, cli.StringFlag{
 		Name:  "port,p,api.port",
-		Value: ":8090",
+		Value: ":9090",
 		Usage: "指定服务端口号",
 	}, cli.BoolFlag{
 		Name:  "jwt,api.jwt,handling.jwt",
@@ -78,8 +78,13 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 	}, cli.BoolFlag{
 		Name:  "appconf,api.appconf",
 		Usage: "启用appconf配置",
-	},
-	)
+	}, cli.StringFlag{
+		Name:  "login",
+		Usage: "启用 login 模块,需要输入 sso 地址",
+	}, cli.BoolFlag{
+		Name:  "menu",
+		Usage: "启用 menu 模块",
+	})
 	return flags
 }
 func (p *APICmd) getRemoveStartFlags() []cli.Flag {
@@ -112,10 +117,16 @@ func (p *APICmd) getRemoveStartFlags() []cli.Flag {
 	}, cli.BoolFlag{
 		Name:  "appconf,api.appconf",
 		Usage: "启用appconf配置",
-	},
-	)
+	}, cli.BoolFlag{
+		Name:  "login",
+		Usage: "移除登录模块",
+	}, cli.BoolFlag{
+		Name:  "menu",
+		Usage: "移除菜单模块",
+	})
 	return flags
 }
+
 func (p *APICmd) removeAction(c *cli.Context) (err error) {
 	_, projectPath, err := path.GetProjectPath(c.String("n"))
 	if err != nil {
@@ -141,7 +152,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 	//创建项目
 	if !p.cover {
 		err = writeTemplate(p.cover, name, projectPath, map[string]interface{}{
-			"port":        util.GetPrefixString(types.GetString(c.String("p"), "8090"), ":"),
+			"port":        util.GetPrefixString(types.GetString(c.String("p"), "9090"), ":"),
 			"serverType":  "api",
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
 			"jwt":         c.Bool("jwt"),
@@ -152,6 +163,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 			"queue":       c.Bool("queue"),
 			"appconf":     c.Bool("appconf"),
 			"metric":      c.Bool("metric"),
+			"login":       c.String("login"),
 		})
 		if err != nil {
 			cmds.Log.Error(err)
@@ -163,7 +175,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 
 	//追加项目代码
 	err = appendTemplate(projectPath, getBlock(c, "api.port", "api.jwt", "handling.jwt", "db", "api.cros", "api.metric", "cache", "queue", "api.appconf"), map[string]interface{}{
-		"port":        util.GetPrefixString(types.GetString(c.String("p"), "8090"), ":"),
+		"port":        util.GetPrefixString(types.GetString(c.String("p"), "9090"), ":"),
 		"serverType":  "api",
 		"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
 		"jwt":         c.Bool("jwt"),

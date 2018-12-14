@@ -159,13 +159,13 @@ func addConf2Main(projectPath string, serviceType string) error {
 	return nil
 }
 
-func writeVueTemplate(projectPath string) error {
+func writeVueTemplate(projectPath, projectName string) error {
 
 	if path.Exists(filepath.Join(projectPath, "main.go")) {
 		return fmt.Errorf("项目文件夹(%s)不为空", projectPath)
 	}
 
-	data, err := tmpls.GetVueTmpls()
+	data, err := tmpls.GetVueTmpls(projectName)
 	if err != nil {
 		return err
 	}

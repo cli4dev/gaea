@@ -18,6 +18,10 @@ import (
 )
 
 type VueCmd struct {
+	projectName string
+	projectPath string
+	filters     []string
+	t           string
 }
 
 //NewVueCmd .
@@ -55,14 +59,17 @@ func (p *VueCmd) geStartFlags() []cli.Flag {
 
 func (p *VueCmd) action(c *cli.Context) (err error) {
 
-	f := c.StringSlice("f")
-	projectPath, err := getVueProjectPath(c.String("n"))
+	p.filters = c.StringSlice("f")
+	p.projectName = c.String("n")
+	p.t = c.String("t")
+
+	err = p.setVueProjectPathAndName()
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 
-	err = p.createVue(projectPath, c.String("t"), f)
+	err = p.createVue()
 	if err != nil {
 		return err
 	}
@@ -70,15 +77,15 @@ func (p *VueCmd) action(c *cli.Context) (err error) {
 	return nil
 }
 
-func (p *VueCmd) createVue(projectPath, t string, f []string) error {
+func (p *VueCmd) createVue() error {
 	//生成项目模板
-	err := writeVueTemplate(projectPath)
+	err := writeVueTemplate(p.projectPath, p.projectName)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
 	//查找*.md文件
-	mdList, err := getMdList(t)
+	mdList, err := getMdList(p.t)
 	if err != nil {
 		return err
 	}
@@ -91,7 +98,7 @@ func (p *VueCmd) createVue(projectPath, t string, f []string) error {
 			continue
 		}
 		//生成数据表对应的 vue 文件
-		err = p.makeHTML(tables, f, projectPath)
+		err = p.makeHTML(tables)
 		if err != nil {
 			return err
 		}
@@ -99,20 +106,21 @@ func (p *VueCmd) createVue(projectPath, t string, f []string) error {
 	return nil
 }
 
-func (p *VueCmd) makeHTML(tables []*conf.Table, filters []string, projectPath string) (err error) {
-
-	tmpls, err := p.getHTMLData(tables, filters, projectPath)
+func (p *VueCmd) makeHTML(tables []*conf.Table) (err error) {
+	//获取模板数据
+	tmpls, err := p.getHTMLData(tables)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-
+	//创建vue文件
 	err = data.CreateHTMLFile(tmpls)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
 	}
-	err = writeRouter(projectPath, tmpls)
+	//写路由
+	err = p.writeRouter(tmpls)
 	if err != nil {
 		cmds.Log.Error(err)
 		return err
@@ -122,9 +130,9 @@ func (p *VueCmd) makeHTML(tables []*conf.Table, filters []string, projectPath st
 
 //GetHTMLData .
 //获取生成 vue所需的数据
-func (p *VueCmd) getHTMLData(tables []*conf.Table, filters []string, projectPath string) (out map[string]map[string]string, err error) {
+func (p *VueCmd) getHTMLData(tables []*conf.Table) (out map[string]map[string]string, err error) {
 	//获取模板数据
-	tmpls, err := data.GetHTMLTmples("html", vue.HTMLTpl, tables, filters, projectPath)
+	tmpls, err := data.GetHTMLTmples("html", vue.HTMLTpl, tables, p.filters, p.projectPath)
 
 	if err != nil {
 		cmds.Log.Error(err)
@@ -135,17 +143,23 @@ func (p *VueCmd) getHTMLData(tables []*conf.Table, filters []string, projectPath
 		cmds.Log.Error("生成html时未找到数据表信息")
 		return nil, err
 	}
-	return tmpls, nil
 
+	return tmpls, nil
 }
 
-func getVueProjectPath(n string) (projectPath string, err error) {
-	if path.Exists(filepath.Join(n, "package.json")) {
-		err = fmt.Errorf("项目%s已经存在", n)
-		return "", err
+func (p *VueCmd) setVueProjectPathAndName() (err error) {
+	if path.Exists(filepath.Join(p.projectName, "package.json")) {
+		err = fmt.Errorf("项目%s已经存在", p.projectName)
+		return err
+	}
+
+	if p.projectName == "./" {
+		p.projectName = "vue"
 	}
 	path, _ := os.Getwd()
-	return filepath.Join(path, n), nil
+	p.projectPath = filepath.Join(path, p.projectName)
+
+	return nil
 }
 
 func getMdList(t string) (mdList []string, err error) {
@@ -161,7 +175,7 @@ func getMdList(t string) (mdList []string, err error) {
 	return mdList, nil
 }
 
-func writeRouter(projectPath string, d map[string]map[string]string) error {
+func (p *VueCmd) writeRouter(d map[string]map[string]string) error {
 	router := make(map[string]string)
 	for k := range d {
 		i := strings.Index(k, "pages")
@@ -174,7 +188,7 @@ func writeRouter(projectPath string, d map[string]map[string]string) error {
 	if err != nil {
 		return err
 	}
-	err = data.ReplaceFileStr("page.router", filepath.Join(projectPath, "/src/router.js"), str)
+	err = data.ReplaceFileStr("page.router", filepath.Join(p.projectPath, "/src/router.js"), str)
 	if err != nil {
 		return err
 	}

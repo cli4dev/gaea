@@ -22,8 +22,8 @@ const LoginTpl = `
     name: 'app',
     data() {
       return {
-        systemName: "gaea 系统",
-        copyright: "gaea Copyright&copy; 2018 版权所有 蜀ICP备 17001788号-2",
+        systemName: "{{.projectName}} 系统",
+        copyright: "{{.projectName}} Copyright&copy; 2018 版权所有 蜀ICP备 17001788号-2",
         conf: {loginNameType: "请输入邮箱或用户名", pwd: "输入密码"},   //输入框提示信息配置
       }
     },
@@ -36,7 +36,7 @@ const LoginTpl = `
     },
     methods: {
       call: function (code) {
-        code.ident = "coupon";
+        code.ident = "{{.projectName}}";
         this.$get("/member/login", code)
           .then(response => {
             sessionStorage.setItem("userinfo",JSON.stringify(response))

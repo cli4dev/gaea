@@ -123,7 +123,7 @@ func (p *RPCCmd) action(c *cli.Context) (err error) {
 		err = writeTemplate(p.cover, name, projectPath, map[string]interface{}{
 			"serverType":  "rpc",
 			"projectName": name,
-			"port":        util.GetPrefixString(types.GetString(c.String("p"), "8090"), ":"),
+			"port":        util.GetPrefixString(types.GetString(c.String("p"), "9090"), ":"),
 			"rpc.metric":  c.Bool("rpc.metric"),
 			"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
 			"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
@@ -144,7 +144,7 @@ func (p *RPCCmd) action(c *cli.Context) (err error) {
 		"projectName": name,
 		"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),
 		"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
-		"port":        util.GetPrefixString(types.GetString(c.String("p"), "8090"), ":"),
+		"port":        util.GetPrefixString(types.GetString(c.String("p"), "9090"), ":"),
 		"rpc.metric":  c.Bool("rpc.metric"),
 		"queue":       c.Bool("queue"),
 		"cache":       c.Bool("cache"),

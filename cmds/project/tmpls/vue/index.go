@@ -1,8 +1,7 @@
 package vue
 
 //IndexHTML .
-const IndexHTML = `
-<!DOCTYPE html>
+const IndexHTML = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -21,16 +20,16 @@ const IndexHTML = `
 </html>`
 
 const EnvProd = `NODE_ENV=production
-VUE_APP_API_URL=http://127.0.0.1:8090
+VUE_APP_API_URL=http://{{.ip}}:9090
 `
 const EnvDev = `NODE_ENV=development
-VUE_APP_API_URL=http://127.0.0.1:8090
+VUE_APP_API_URL=http://{{.ip}}:9090
 `
 
 //PackAgeJSON .
 const PackAgeJSON = `
 {
-  "name": "vue3",
+  "name": "{{.projectName}}",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -87,22 +86,19 @@ const PackAgeJSON = `
 }
 `
 
-const Babel = `
-module.exports = {
+const Babel = `module.exports = {
 	presets: [
 	  '@vue/app'
 	]
 }`
 
-const PostCss = `
-module.exports = {
+const PostCss = `module.exports = {
 	plugins: {
 	  autoprefixer: {}
 	}
 }`
 
-const MainGo = `
-package main
+const MainGo = `package main
 
 import (
 	"github.com/micro-plat/hydra/hydra"
@@ -115,9 +111,9 @@ type mgrweb struct {
 func main() {
 	app := &mgrweb{
 		hydra.NewApp(
-			hydra.WithPlatName("coupon"),
-			hydra.WithSystemName("mgrweb"),
-			hydra.WithServerTypes("web"),
+			hydra.WithPlatName('{{.projectName}}'),
+			hydra.WithSystemName('{{.projectName}}'),
+			hydra.WithServerTypes('web'),
 		),
 	}
 
@@ -134,8 +130,7 @@ func (s *mgrweb) install() {
 	}")
 }`
 
-const MainJS = `
-import "jquery"
+const MainJS = `import "jquery"
 import "bootstrap"
 import Vue from 'vue'
 import App from './App.vue'
@@ -159,8 +154,8 @@ new Vue({
   router,
   store,
   render: h => h(App)
-}).$mount('#app')
-`
+}).$mount('#app')`
+
 const RouterString = `{{range $i,$c:=.router -}}
     {
       path: '{{$i}}',
@@ -169,10 +164,8 @@ const RouterString = `{{range $i,$c:=.router -}}
     },
 {{- end -}}`
 
-const Router = `
-import Vue from 'vue'
+const Router = `import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './pages/HelloWorld'
 
 Vue.use(Router)
 
@@ -184,21 +177,17 @@ export default new Router({
       path: '/',
       name: 'menu',
       component: () => import('./pages/menu/menu.vue'),
-      children:[
-        //page.router#//
-        //#page.router//
-      ]
+      children:[//page.router#//
+        //#page.router//]
     },{
       path:'/login',
       name:'login',
       component: () => import('./pages/login/login.vue'),
     }
   ]
-})
-`
+})`
 
-const Store = `
-import Vue from 'vue'
+const Store = `import Vue from 'vue'
 import Vuex from 'vuex'
 
 Vue.use(Vuex)
@@ -213,10 +202,9 @@ export default new Vuex.Store({
   actions: {
 
   }
-})
-`
-const AppVue = `
-<template>
+})`
+
+const AppVue = `<template>
   <div>
     <router-view/>
   </div>
@@ -224,30 +212,10 @@ const AppVue = `
 
 <style>
 
-</style>
-`
-
-const HelloVue = `
-<template>
-  <div>
-    <h1>{{ msg }}</h1>
-    </ul>
-  </div>
-</template>
-
-<script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
-</script>
-</style>
-`
+</style>`
 
 const PackAgeLock = `{
-  "name": "vue3",
+  "name": "{{.projectName}}",
   "version": "0.1.0",
   "lockfileVersion": 1,
   "requires": true,

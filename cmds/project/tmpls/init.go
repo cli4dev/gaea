@@ -24,19 +24,23 @@ type AppConf struct {
 //#appconf.struct//
 {{- end}}
 
+{{if .login $empty -}}
+
+{{- end -}}
+
 //init 检查应用程序配置文件，并根据配置初始化服务
 func (r *{{.projectName|lName}}) init() {
 	r.Initializing(func(c component.IContainer) error {
 	{{if .appconf -}}
 	//appconf.func#//
-	//获取配置
-	var conf AppConf
+	var conf app.Conf
 	if err := c.GetAppConf(&conf); err != nil {
 		return err
 	}
 	if b, err := govalidator.ValidateStruct(&conf); !b {
 		return fmt.Errorf("app 配置文件有误:%v", err)
 	}
+	app.SaveConf(c, &conf)
 	//appconf.func#//
 	{{- else -}}
 	//appconf.func#//
@@ -78,6 +82,20 @@ func (r *{{.projectName|lName}}) init() {
 	//queue.init#//
 	//#queue.init//
 	{{- end}}
+
+	
+	{{if eq .login $empty -}}
+	//login.router#//
+	//#login.router//
+	{{- else -}}
+	//login.router#//
+	r.Micro("/member/login", member.NewLoginHandler, "*")     //登录系统
+	r.Micro("/member/update", member.NewUpdateHandler, "*")   //修改密码
+	r.Micro("/member/menu/get", member.NewMenuHandler, "*")   //获取菜单
+	r.Micro("/member/user", member.NewUserHandler, "*")  //获取用户
+	r.Micro("/member/getsysinfo", member.NewInfoHandler, "*") //获取系统信息
+	//#login.router//
+	{{- end -}}
 
 	//service.router#//
 	//#service.router//

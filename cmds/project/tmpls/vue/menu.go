@@ -120,7 +120,7 @@ const MenuTpl = `
       });
 
       this.userinfo = JSON.parse(sessionStorage.getItem("userinfo"));
-      document.title = "gaea 系统";
+      document.title = "{{.projectName}} 系统";
       this.$refs.NewTap.add("运营状况分析","/report/index",{});   //设置默认页面
     },
 

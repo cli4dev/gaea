@@ -29,15 +29,15 @@ func getInputData(tb *conf.Table) map[string]interface{} {
 		"selectcolumns": getSelectColumns(tb), //要显示的字段
 		"pk":            getPks(tb),
 		"seqs":          getSeqs(tb),
-		"path":          GetPath(tb.Name),
+		"path":          GetRouterPath(tb.Name),
 	}
 
 	return input
 }
 
-//GetPath .
-func GetPath(name string) string {
-	return "/" + strings.Replace(name, "_", "/", -1)
+//GetRouterPath .
+func GetRouterPath(tabName string) string {
+	return "/" + strings.Replace(tabName, "_", "/", -1)
 }
 
 //GetHandleName .
@@ -257,14 +257,20 @@ func getFilterName(t string, f string) string {
 
 func makeFunc() map[string]interface{} {
 	return map[string]interface{}{
-		"aname":  fGetAName,
-		"cname":  fGetCName,
-		"pname":  fGetPName,
-		"ctype":  fGetType,
-		"cstype": fsGetType,
-		"lname":  fGetLastName,
-		"lower":  fToLower,
-		"vname":  vName,
+		"aname":    fGetAName,
+		"cname":    fGetCName,
+		"pname":    fGetPName,
+		"ctype":    fGetType,
+		"cstype":   fsGetType,
+		"lname":    fGetLastName,
+		"lower":    fToLower,
+		"vname":    vName,
+		"humpName": fGetHumpName,           //多个单词首字符大写
+		"spkgName": fGetServicePackageName, //包路径
+		"mpkgName": fGetModulePackageName,  //包路径
+		"lName":    fGetLastName,           //取最后一个单词
+		"fName":    fGetFirstName,          //取第一个单词
+		"fServer":  fServer,                //判断是否有这个服务
 	}
 }
 
@@ -678,4 +684,77 @@ func ReplaceFileStr(name, filePath, value string) error {
 		return err
 	}
 	return nil
+}
+
+func fServer(s, substr string) bool {
+	return strings.Contains(s, substr)
+}
+
+func fGetFirstName(n string) string {
+	names := strings.Split(strings.Trim(n, "/"), "/")
+	return names[0]
+}
+
+func fGetHumpName(n string) string {
+	names := strings.Split(strings.Trim(n, "/"), "/")
+	buff := bytes.NewBufferString("")
+	for _, v := range names {
+		buff.WriteString(fGetLoopHumpName(v, "."))
+	}
+	return strings.Replace(buff.String(), ".", "", -1)
+}
+
+func fGetLoopHumpName(n string, s string) string {
+	names := strings.Split(strings.Trim(n, s), s)
+	buff := bytes.NewBufferString("")
+	for _, v := range names {
+		buff.WriteString(strings.ToUpper(v[0:1]))
+		buff.WriteString(v[1:])
+	}
+	return strings.Replace(buff.String(), ".", "", -1)
+}
+
+func fGetServicePackageName(n string) string {
+	names := strings.Split(strings.Trim(n, "/"), "/")
+	if len(names) == 1 {
+		return "services"
+	}
+	return strings.ToLower(strings.Join(names[0:len(names)-1], "/"))
+}
+
+func fGetPackageName(n string) string {
+	names := strings.Split(strings.Trim(n, "/"), "/")
+	if len(names) == 1 {
+		return names[0]
+	}
+	return strings.Join(names[0:len(names)-1], "/")
+}
+
+func fGetModulePackageName(n string) string {
+	names := strings.Split(strings.Trim(n, "/"), "/")
+	if len(names) == 1 {
+		return "modules"
+	}
+	return strings.ToLower(strings.Join(names[0:len(names)-1], "/"))
+}
+
+func fGetServicePackagePath(n string) string {
+	names := strings.Split(strings.Trim(n, "/"), "/")
+	if len(names) == 1 {
+		return "services"
+	}
+	return strings.ToLower(filepath.Join("services", strings.Join(names[0:len(names)-1], "/")))
+}
+
+func gGetModulePackageName(module []string) []string {
+	npkgs := make([]string, 0, len(module)/2)
+	n := make(map[string]string)
+	for _, m := range module {
+		nm := fGetServicePackagePath(m)
+		if _, ok := n[nm]; !ok {
+			npkgs = append(npkgs, nm)
+			n[nm] = nm
+		}
+	}
+	return npkgs
 }

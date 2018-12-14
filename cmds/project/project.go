@@ -42,7 +42,7 @@ func init() {
 // 		Usage: "是否追加服务类型（项目生成后，修改服务类型使用）",
 // 	}, cli.StringFlag{
 // 		Name:  "p",
-// 		Value: ":8090",
+// 		Value: ":9090",
 // 		Usage: "指定服务端口号",
 // 	}, cli.BoolFlag{
 // 		Name:  "jwt",
