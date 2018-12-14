@@ -23,11 +23,15 @@ func (s *{{.projectName|lName}}) install() {
 	{{- end}}
 
 	{{if fServer .serverType $api -}}
-	{{if .api.appconf -}}
+	{{if or .api.appconf .appconf -}}
 	//api.appconf#//
 	s.Conf.API.SetSubConf('app', "
 	{
-		'appname':'app_name'
+		{{if ne .login $empty -}}
+		'sso-host': '{{ getAppconf .login 1}}',
+		'secret' : '{{getAppconf .login 2}}',
+		'ident' : '{{getAppconf .login 3}}'
+		{{- end}}
 	}")
 	//#api.appconf//
 	{{- else -}}

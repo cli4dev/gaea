@@ -5,7 +5,6 @@ const initTmpl = `
 package main
 import (
 	{{if .appconf -}}
-	"github.com/asaskevich/govalidator"
 	{{- else -}}
 	{{- end}}
 	"github.com/micro-plat/hydra/component"
@@ -19,17 +18,6 @@ import (
 	"{{.projectName}}/services/member"
 	{{- end -}}
 )
-
-{{if .appconf -}}
-//appconf.struct#//
-//AppConf 应用程序配置
-type AppConf struct {
-}
-//#appconf.struct//
-{{- else -}}
-	//appconf.struct#//
-//#appconf.struct//
-{{- end}}
 
 
 //init 检查应用程序配置文件，并根据配置初始化服务
@@ -130,14 +118,14 @@ const APPConfStruct = `//appconf.struct#//
 
 //APPConfFunc .
 const APPConfFunc = `//appconf.func#//
-	//获取配置
-	var conf AppConf
+	var conf app.Conf
 	if err := c.GetAppConf(&conf); err != nil {
 		return err
 	}
 	if b, err := govalidator.ValidateStruct(&conf); !b {
 		return fmt.Errorf("app 配置文件有误:%v", err)
 	}
+	app.SaveConf(c, &conf)
 	//#appconf.func//`
 
 //DBInit .

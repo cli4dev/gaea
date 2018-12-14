@@ -23,7 +23,7 @@ func (s *{{.projectName|lName}}) install() {
 	{{- end}}
 
 	{{if fServer .serverType $api -}}
-	{{if .api.appconf -}}
+	{{if or .api.appconf .appconf -}}
 	//api.appconf#//
 	s.Conf.API.SetSubConf('app', "
 	{

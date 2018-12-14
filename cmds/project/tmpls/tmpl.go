@@ -35,7 +35,7 @@ func init() {
 		"rpc.port", "rpc.metric",
 		"ws.appconf", "ws.jwt", "ws.metric",
 	}
-	templateFiles["init.go"] = []string{"db.init", "queue.init", "cache.init", "api.appconf.func", "api.appconf.struct"}
+	templateFiles["init.go"] = []string{"db.init", "queue.init", "cache.init", "appconf.func"}
 	templateFiles["handling.go"] = []string{"handling.jwt"}
 
 	names = make(map[string]string)
@@ -51,8 +51,7 @@ func init() {
 	names["db.init"] = dbInit
 	names["queue.init"] = queueInit
 	names["cache.init"] = cacheInit
-	names["api.appconf.struct"] = appconfStruct
-	names["api.appconf.func"] = appconfFunc
+	names["appconf.func"] = appconfFunc
 	names["handling.jwt"] = handlingJWT
 	names["cron.appconf"] = cronApp
 	names["cron.task"] = cronTask
@@ -82,8 +81,7 @@ func init() {
 	templates["db.init"] = DBInit
 	templates["queue.init"] = QueueInit
 	templates["cache.init"] = CacheInit
-	templates["api.appconf.struct"] = APPConfStruct
-	templates["api.appconf.func"] = APPConfFunc
+	templates["appconf.func"] = APPConfFunc
 	templates["handling.jwt"] = dev.HandlingJWT
 	templates["cron.appconf"] = dev.CronSubApp
 	templates["cron.task"] = dev.CronSubTask
@@ -122,35 +120,34 @@ func init() {
 }
 
 const (
-	apiPort       = `api.port`
-	apiCros       = `api.cros`
-	apiJWT        = `api.jwt`
-	apiJWTProd    = `api.jwt.prod`
-	apiAppConf    = `api.appconf`
-	apiMetric     = `api.metric`
-	db            = `db`
-	cache         = `cache`
-	queue         = `queue`
-	cronApp       = `cron.appconf`
-	cronTask      = `cron.task`
-	cronMetric    = `cron.metric`
-	mqcServer     = `mqc.server`
-	mqcQueue      = `mqc.queue`
-	mqcMetric     = `mqc.metric`
-	webPort       = `web.port`
-	webStatic     = `web.static`
-	webMetric     = `web.metric`
-	wsApp         = `ws.appconf`
-	wsAuth        = `ws.jwt`
-	wsMetric      = `ws.metric`
-	rpcPort       = `rpc.port`
-	rpcMetric     = `rpc.metric`
-	dbInit        = `db.init`
-	queueInit     = "queue.init"
-	cacheInit     = "cache.init"
-	appconfStruct = "api.appconf.struct"
-	appconfFunc   = "api.appconf.func"
-	handlingJWT   = "handling.jwt"
+	apiPort     = `api.port`
+	apiCros     = `api.cros`
+	apiJWT      = `api.jwt`
+	apiJWTProd  = `api.jwt.prod`
+	apiAppConf  = `api.appconf`
+	apiMetric   = `api.metric`
+	db          = `db`
+	cache       = `cache`
+	queue       = `queue`
+	cronApp     = `cron.appconf`
+	cronTask    = `cron.task`
+	cronMetric  = `cron.metric`
+	mqcServer   = `mqc.server`
+	mqcQueue    = `mqc.queue`
+	mqcMetric   = `mqc.metric`
+	webPort     = `web.port`
+	webStatic   = `web.static`
+	webMetric   = `web.metric`
+	wsApp       = `ws.appconf`
+	wsAuth      = `ws.jwt`
+	wsMetric    = `ws.metric`
+	rpcPort     = `rpc.port`
+	rpcMetric   = `rpc.metric`
+	dbInit      = `db.init`
+	queueInit   = "queue.init"
+	cacheInit   = "cache.init"
+	appconfFunc = "appconf.func"
+	handlingJWT = "handling.jwt"
 )
 
 //GetTmpls 获取模板

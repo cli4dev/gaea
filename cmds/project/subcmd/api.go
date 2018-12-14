@@ -1,8 +1,6 @@
 package subcmd
 
 import (
-	"fmt"
-
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/util"
 	"github.com/micro-plat/gaea/cmds/util/path"
@@ -82,8 +80,7 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 		Usage: "启用appconf配置",
 	}, cli.StringFlag{
 		Name:  "login",
-		Value: "",
-		Usage: "启用 login 模块,参数为 sso 登录地址",
+		Usage: `启用 login 模块,参数例如: "http://sso.100bm.cn:8089|en01kslkl233l|coupon"`,
 	}, cli.BoolFlag{
 		Name:  "menu",
 		Usage: "启用 menu 模块",
@@ -147,9 +144,10 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 		cmds.Log.Error(err)
 		return err
 	}
-
-	fmt.Println(name, projectPath)
-
+	appconf := c.Bool("appconf")
+	if c.String("login") != "" {
+		appconf = true
+	}
 	//创建项目
 	if !p.cover {
 		err = writeTemplate(p.cover, name, projectPath, map[string]interface{}{
@@ -162,7 +160,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 			"projectName": name,
 			"cache":       c.Bool("cache"),
 			"queue":       c.Bool("queue"),
-			"appconf":     c.Bool("appconf"),
+			"appconf":     appconf,
 			"metric":      c.Bool("metric"),
 			"login":       c.String("login"),
 		})
@@ -175,7 +173,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 	}
 
 	//追加项目代码
-	err = appendTemplate(projectPath, getBlock(c, "api.port", "api.jwt", "handling.jwt", "db", "api.cros", "api.metric", "cache", "queue", "api.appconf"), map[string]interface{}{
+	err = appendTemplate(projectPath, getBlock(c, "api.port", "api.jwt", "handling.jwt", "db", "api.cros", "api.metric", "cache", "queue", "appconf"), map[string]interface{}{
 		"port":        util.GetPrefixString(types.GetString(c.String("p"), "9090"), ":"),
 		"serverType":  "api",
 		"dbname":      util.GetLeftString(types.GetString(c.String("db")), ":", "mysql"),

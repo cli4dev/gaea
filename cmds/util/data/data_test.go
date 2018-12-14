@@ -32,7 +32,7 @@ func Test_getPath(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := GetPath(tt.args.name); got != tt.want {
+			if got := GetRouterPath(tt.args.name); got != tt.want {
 				t.Errorf("getPath() = %v, want %v", got, tt.want)
 			}
 		})
@@ -57,6 +57,30 @@ func TestGetHandleName(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := GetHandleName(tt.args.name); got != tt.want {
 				t.Errorf("GetHandleName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getAppconf(t *testing.T) {
+	type args struct {
+		str   string
+		index int
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		// TODO: Add test cases.
+		{name: "1", args: args{str: "http://sso.100bm.cn:8089|en01kslkl233l|coupon", index: 1}, want: ""},
+		{name: "2", args: args{str: "http://sso.100bm.cn:8089|en01kslkl233l|coupon", index: 2}, want: ""},
+		{name: "3", args: args{str: "http://sso.100bm.cn:8089|en01kslkl233l", index: 3}, want: ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getAppconf(tt.args.str, tt.args.index); got != tt.want {
+				t.Errorf("getAppconf() = %v, want %v", got, tt.want)
 			}
 		})
 	}

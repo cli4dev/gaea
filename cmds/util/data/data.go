@@ -257,21 +257,32 @@ func getFilterName(t string, f string) string {
 
 func makeFunc() map[string]interface{} {
 	return map[string]interface{}{
-		"aname":    fGetAName,
-		"cname":    fGetCName,
-		"pname":    fGetPName,
-		"ctype":    fGetType,
-		"cstype":   fsGetType,
-		"lname":    fGetLastName,
-		"lower":    fToLower,
-		"vname":    vName,
-		"humpName": fGetHumpName,           //多个单词首字符大写
-		"spkgName": fGetServicePackageName, //包路径
-		"mpkgName": fGetModulePackageName,  //包路径
-		"lName":    fGetLastName,           //取最后一个单词
-		"fName":    fGetFirstName,          //取第一个单词
-		"fServer":  fServer,                //判断是否有这个服务
+		"aname":      fGetAName,
+		"cname":      fGetCName,
+		"pname":      fGetPName,
+		"ctype":      fGetType,
+		"cstype":     fsGetType,
+		"lname":      fGetLastName,
+		"lower":      fToLower,
+		"vname":      vName,
+		"humpName":   fGetHumpName,           //多个单词首字符大写
+		"spkgName":   fGetServicePackageName, //包路径
+		"mpkgName":   fGetModulePackageName,  //包路径
+		"lName":      fGetLastName,           //取最后一个单词
+		"fName":      fGetFirstName,          //取第一个单词
+		"fServer":    fServer,                //判断是否有这个服务
+		"getAppconf": getAppconf,
 	}
+}
+func getAppconf(str string, index int) string {
+	strArray := strings.Split(str, "|")
+	if len(strArray) < index {
+		return ""
+	}
+	if ok := strArray[index-1]; ok != "" {
+		return ok
+	}
+	return ""
 }
 
 func vName(v string) string {
