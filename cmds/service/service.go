@@ -86,9 +86,14 @@ func (p *serviceCmd) action(cli *cli.Context) (err error) {
 	t := cli.String("t")
 	o := cli.String("o")
 	f := cli.StringSlice("f")
+
 	if cli.Bool("crud") {
 		c, r, u, d = true, true, true, true
 		add = true
+	}
+	fmt.Println(cli)
+	for k, v := range cli.FlagNames() {
+		fmt.Println(k, v)
 	}
 
 	//查找*.md文件
