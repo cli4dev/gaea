@@ -41,15 +41,23 @@ func GetRouterPath(tabName string) string {
 }
 
 //GetHandleName .
-func GetHandleName(name string) string {
-	strArray := strings.Split(name, "_")
+func GetHandleName(name string, ident string) string {
+	strArray := strings.Split(name, ident)
 	var strPre string
 	if len(strArray) > 1 {
 		strPre = strArray[len(strArray)-2]
 	} else {
 		strPre = strArray[0]
 	}
-	return strPre + ".New" + fGetCName(name) + "Handler"
+	return strPre + ".New" + fGetCNameByIdent(name, ident) + "Handler"
+}
+func fGetCNameByIdent(name, ident string) string {
+	items := strings.Split(name, ident)
+	nitems := make([]string, 0, len(items))
+	for _, i := range items {
+		nitems = append(nitems, strings.ToUpper(i[0:1])+i[1:])
+	}
+	return strings.Join(nitems, "")
 }
 
 func getCreateColumns(tb *conf.Table) []map[string]interface{} {

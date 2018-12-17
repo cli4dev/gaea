@@ -216,7 +216,7 @@ func (p *serviceCmd) writeRouter(tables []*conf.Table, filters []string) error {
 			}
 		}
 
-		out[data.GetRouterPath(tb.Name)] = data.GetHandleName(tb.Name)
+		out[data.GetRouterPath(tb.Name)] = data.GetHandleName(tb.Name, "_")
 	}
 
 	srcf, err := os.OpenFile("./init.go", os.O_RDWR, os.ModePerm)
