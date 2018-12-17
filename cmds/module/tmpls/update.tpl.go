@@ -5,7 +5,7 @@ const UpdateTmpl = `
 //Update{{.name|cname}} 更新{{.desc}}
 const Update{{.name|cname}} = 'update {{.name}} set
 {{range $i,$c:=.updatecolumns}}{{$c.name}}=@{{$c.name}}{{if $c.end}},{{end}}{{end}}
-where {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
+where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 `
 
 //UpdateFunc update 函数模板

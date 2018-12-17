@@ -17,6 +17,7 @@ func TestGetLeftString(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{name: "1", args: args{str: "ora:sso/123456@orcl136", s: ":", def: []string{"mysql"}}, want: "ora"},
+		{name: "1", args: args{str: "mysql:vts:vts45678@tcp(192.168.0.36)/vts", s: ":", def: []string{"mysql"}}, want: "mysql"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -40,6 +41,7 @@ func TestGetRightString(t *testing.T) {
 	}{
 		// TODO: Add test cases.
 		{name: "1", args: args{str: "ora:sso/123456@orcl136", s: ":", def: []string{"mysql"}}, want: "sso/123456@orcl136"},
+		{name: "1", args: args{str: "mysql:vts:vts45678@tcp(192.168.0.36)/vts", s: ":", def: []string{"mysql"}}, want: "vts:vts45678@tcp(192.168.0.36)/vts"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

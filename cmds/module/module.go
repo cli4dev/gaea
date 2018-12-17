@@ -87,7 +87,7 @@ func (p *moduleCmd) action(c *cli.Context) (err error) {
 		c.Bool("r") || c.Bool("crud") || c.Bool("cru"),
 		c.Bool("u") || c.Bool("crud") || c.Bool("cru"),
 		c.Bool("d") || c.Bool("crud"),
-		c.Bool("add"),
+		c.Bool("add") || c.Bool("crud"),
 		c.Bool("cover"),
 		c.String("t"),
 		c.String("o"),
@@ -235,7 +235,7 @@ func (p *moduleCmd) makeSQL(c, r, u, d, add, cover bool, db string, tables []*co
 		cover = false
 	}
 	if r {
-		tmpls, err := p.makeSelectSQL(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeSelectSQL(add, cover, db, tables, filters, modulePath)
 		if err != nil {
 			return err
 		}

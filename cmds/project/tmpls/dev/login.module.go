@@ -88,6 +88,16 @@ func NewUser(c component.IContainer) *User {
 //Login 远程登录
 func (u *User) Login(m db.QueryRow) (*LoginState, int, error) {
 	state, code, err := u.remoteLogin(m)
+	switch code {
+	case 411:
+		err = fmt.Errorf("用户被禁用请联系管理员(411)")
+	case 412:
+		err = fmt.Errorf("用户名或密码错误(412)")
+	case 414,415:
+		err = fmt.Errorf("不允许登录系统(414)")
+	case 423:
+		err = fmt.Errorf("用户被锁定暂时无法登录(423)")
+	}
 	return state, code, err
 }
 

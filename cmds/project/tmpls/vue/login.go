@@ -49,11 +49,8 @@ const LoginTpl = `
 
           })
           .catch(err => {
-            if (err.response.status == 403 || err.response.status == 406){
-              this.$refs.loginItem.showMsg("用户名或密码错误");
-            }else{
-              this.$refs.loginItem.showMsg("系统繁忙")
-            }
+            console.log(err.response)
+            this.$refs.loginItem.showMsg(err.response.data)
           })
       }
     }

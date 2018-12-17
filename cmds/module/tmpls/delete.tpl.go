@@ -3,7 +3,7 @@ package tmpls
 //DeleteTmpl delete sql 模板
 const DeleteTmpl = `
 //Delete{{.name|cname}} 删除{{.desc}}
-const Delete{{.name|cname}} = 'delete from {{.name}} where {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
+const Delete{{.name|cname}} = 'delete from {{.name}} where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 `
 
 //DeleteFunc delete 函数模板

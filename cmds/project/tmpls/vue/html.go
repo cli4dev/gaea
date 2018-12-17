@@ -173,8 +173,15 @@ export default {
       console.log(this.addData)
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          alert('submit!');
-          this.dialogAddVisible = false;
+          this.$post("{{.path}}", this.addData)
+          .then(res => {
+            this.dialogAddVisible = false;
+            this.query()
+          })
+          .catch(err => {
+              console.log(err)
+          })
+          
         } else {
           console.log('error submit!!');
           return false;
@@ -199,6 +206,7 @@ export default {
       this.$put("{{.path}}", this.editData)
       .then(res => {
         this.dialogFormVisible = false;
+        this.query()
       })
       .catch(err => {
           console.log(err)
@@ -217,17 +225,19 @@ export default {
         type: "warning"
       }).then(() => {
         console.log(val);
-        this.$del("{{.path}}", {data:val})
+        this.$del("{{.path}}", val)
         .then(res => {
+          this.$message({
+            type: "success",
+            message: "删除成功!"
+          });
           this.dialogFormVisible = false;
+          this.query()
         })
         .catch(err => {
             console.log(err)
         })
-        this.$message({
-          type: "success",
-          message: "删除成功!"
-        });
+       
       }).catch(() => {
         this.$message({
           type: "info",

@@ -32,9 +32,14 @@ func (p *moduleCmd) makeInsertSQL(add, cover bool, db string, tables []*conf.Tab
 
 //makeSelectSQL .
 //生成select sql语句
-func (p *moduleCmd) makeSelectSQL(add, cover bool, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
+func (p *moduleCmd) makeSelectSQL(add, cover bool, db string, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 
-	tmpls, err := data.GetTmples("select sql", tmpls.SelectTmpl, tables, filters, false, modulePath)
+	tplName := tmpls.SelectOracleTmpl
+	if db == "mysql" {
+		tplName = tmpls.SelectMysqlTmpl
+	}
+
+	tmpls, err := data.GetTmples("select sql", tplName, tables, filters, false, modulePath)
 
 	if err != nil {
 		cmds.Log.Error(err)

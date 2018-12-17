@@ -1,18 +1,33 @@
 package tmpls
 
-//SelectTmpl Select sql 模板
-const SelectTmpl = `
+//SelectOracleTmpl Select oracle sql 模板
+const SelectOracleTmpl = `
 //Get{{.name|cname}} 查询单条数据{{.desc}}
 const Get{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
-from {{.name}} where {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
+from {{.name}} where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 
 //Query{{.name|cname}}Count 获取{{.desc}}列表条数
 const Query{{.name|cname}}Count = 'select count(1)
-from {{.name}} where {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}}'
+from {{.name}} where 1=1 {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}}'
 
 //Query{{.name|cname}} 查询{{.desc}}列表数据
 const Query{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
-from {{.name}} where {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}}'
+from {{.name}} where 1=1 {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}}'
+`
+
+//SelectMysqlTmpl Select mysql sql 模板
+const SelectMysqlTmpl = `
+//Get{{.name|cname}} 查询单条数据{{.desc}}
+const Get{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
+from {{.name}} where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
+
+//Query{{.name|cname}}Count 获取{{.desc}}列表条数
+const Query{{.name|cname}}Count = 'select count(1)
+from {{.name}} where 1=1 {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}}'
+
+//Query{{.name|cname}} 查询{{.desc}}列表数据
+const Query{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}}  
+from {{.name}} where 1=1 {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}} limit (@pi-1)*@ps,@ps'
 `
 
 //SelectFunc select 函数模板

@@ -15,7 +15,7 @@ func GetPrefixString(str string, s string) string {
 
 //GetLeftString .
 func GetLeftString(str string, s string, def ...string) string {
-	index := strings.LastIndex(str, s)
+	index := strings.Index(str, s)
 	if index >= 0 {
 		return str[:index]
 	}
@@ -27,7 +27,7 @@ func GetLeftString(str string, s string, def ...string) string {
 
 //GetRightString .
 func GetRightString(str string, s string, def ...string) string {
-	index := strings.LastIndex(str, s)
+	index := strings.Index(str, s)
 	if index >= 0 {
 		return str[index+1:]
 	}

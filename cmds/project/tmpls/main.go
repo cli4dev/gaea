@@ -4,6 +4,10 @@ const mainTmpl = `
 package main
 
 import "github.com/micro-plat/hydra/hydra"
+{{$mysql := "mysql" -}}
+{{if eq .dbname $mysql -}}
+import _ "github.com/go-sql-driver/mysql"
+{{- end}}
 
 type {{.projectName|lName}} struct {
 	*hydra.MicroApp

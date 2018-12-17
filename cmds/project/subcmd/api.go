@@ -80,7 +80,7 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 		Usage: "启用appconf配置",
 	}, cli.StringFlag{
 		Name:  "login",
-		Usage: `启用 login 模块,参数例如: "http://sso.100bm.cn:8089|en01kslkl233l|coupon"`,
+		Usage: `启用 login 模块,参数例如: "http://192.168.5.93:6688|B128F779D5741E701923346F7FA9F95C|coupon"`,
 	}, cli.BoolFlag{
 		Name:  "menu",
 		Usage: "启用 menu 模块",

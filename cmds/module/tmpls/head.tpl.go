@@ -36,7 +36,7 @@ type Update{{.name|cname}} struct {
 type Query{{.name|cname}} struct {		
 	{{range $i,$c:=.querycolumns}}
 	//{{$c.name|cname}} {{$c.desc|cname}}
-	{{$c.name|cname}} {{$c.type|cstype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}" valid:"required"'
+	{{$c.name|cname}} {{$c.type|cstype}} 'json:"{{$c.name|lower}}" form:"{{$c.name|lower}}" m2s:"{{$c.name|lower}}"'
 	{{end}}
 	Pi string 'json:"pi" form:"pi" m2s:"pi" valid:"required"'
 	Ps string 'json:"ps" form:"ps" m2s:"ps" valid:"required"'

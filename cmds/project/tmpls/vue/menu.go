@@ -117,16 +117,16 @@ const MenuTpl = `
           this.systemName =res.name;
           this.logo = res.logo;
           this.themes = res.theme;
-          if (res.path) {
-            this.indexUrl  = res.path
+          if (res.index_url){
+            this.indexUrl  = res.index_url
           }
+          this.$refs.NewTap.add("首页", this.indexUrl ,{});   //设置默认页面
       }).catch(err=>{
           console.log(err)
       });
 
       this.userinfo = JSON.parse(sessionStorage.getItem("userinfo"));
       document.title = "{{.projectName}} 系统";
-      this.$refs.NewTap.add("首页",this.indexUrl,{});   //设置默认页面
     },
     methods:{
       pwd(val){
