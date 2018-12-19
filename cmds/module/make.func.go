@@ -28,9 +28,13 @@ func (p *moduleCmd) makeInsertFunc(add, cover bool, tables []*conf.Table, filter
 
 //makeSelectFunc .
 //生成select 函数
-func (p *moduleCmd) makeSelectFunc(add, cover bool, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
+func (p *moduleCmd) makeSelectFunc(add, cover bool, db string, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
+	tplName := tmpls.SelectOracleFunc
+	if db == "mysql" {
+		tplName = tmpls.SelectMysqlFunc
+	}
 
-	tmpls, err := data.GetTmples("select func", tmpls.SelectFunc, tables, filters, true, modulePath)
+	tmpls, err := data.GetTmples("select func", tplName, tables, filters, true, modulePath)
 
 	if err != nil {
 		cmds.Log.Error(err)

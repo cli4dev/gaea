@@ -157,7 +157,7 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 			return err
 		}
 		//生成crud函数
-		err = p.makeCrudFunc(c, r, u, d, add, cover, tables, f, modulePath)
+		err = p.makeCrudFunc(c, r, u, d, add, cover, db, tables, f, modulePath)
 		if err != nil {
 			return err
 		}
@@ -165,7 +165,7 @@ func (p *moduleCmd) createModules(c, r, u, d, add, cover bool, t, o string, f []
 	return nil
 }
 
-func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, tables []*conf.Table, filters []string, modulePath string) (err error) {
+func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, db string, tables []*conf.Table, filters []string, modulePath string) (err error) {
 
 	if c {
 		tmpls, err := p.makeInsertFunc(add, cover, tables, filters, modulePath)
@@ -181,7 +181,7 @@ func (p *moduleCmd) makeCrudFunc(c, r, u, d, add, cover bool, tables []*conf.Tab
 		cover = false
 	}
 	if r {
-		tmpls, err := p.makeSelectFunc(add, cover, tables, filters, modulePath)
+		tmpls, err := p.makeSelectFunc(add, cover, db, tables, filters, modulePath)
 		if err != nil {
 			return err
 		}
