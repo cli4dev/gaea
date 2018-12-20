@@ -3,7 +3,7 @@ package tmpls
 //DbHeadTpl Db文件头模板
 const DbHeadTpl = `
 package %s
-
+{{ $empty := "" -}}
 import (
 	"fmt"
 	"%smodules/const/sql"
@@ -59,6 +59,11 @@ type IDb{{.name|cname}} interface {
 
 	//Delete 删除
 	Delete({{range $i,$c:=.pk -}}{{$c.name|aname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) (err error)
+
+	{{if ne .di $empty -}}
+	//Get{{.name|cname}}Dictionary() 获取数据字典
+	Get{{.name|cname}}Dictionary() (db.QueryRows,error)
+	{{- end}}
 }
 
 //Db{{.name|cname}} {{.desc}}对象
@@ -72,4 +77,17 @@ func NewDb{{.name|cname}}(c component.IContainer) *Db{{.name|cname}} {
 		c: c,
 	}
 }
+
+{{if ne .di $empty -}}
+//Get{{.name|cname}}Dictionary() 获取数据字典
+func(d *Db{{.name|cname}}) Get{{.name|cname}}Dictionary() (db.QueryRows,error) {
+
+	db := d.c.GetRegularDB()
+	data, _, _, err := db.Query(sql.Get{{.name|cname}}Dictionary, nil)
+	if err != nil {
+		return nil, fmt.Errorf('获取{{.desc}}数据字典发生错误')
+	}
+	return data, nil
+}
+{{- end}}
 `

@@ -52,7 +52,6 @@ const LoginTpl = `
 
           })
           .catch(err => {
-            console.log(err.response)
             this.$refs.loginItem.showMsg(err.response.data)
           })
       }

@@ -30,9 +30,35 @@ func getInputData(tb *conf.Table) map[string]interface{} {
 		"pk":            getPks(tb),
 		"seqs":          getSeqs(tb),
 		"path":          GetRouterPath(tb.Name),
+		"di":            getDictionariesID(tb),
+		"dn":            getDictionariesName(tb),
 	}
 
 	return input
+}
+
+func getDictionariesID(tb *conf.Table) string {
+	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic(tb.Cons[i] + "数据表没有指定约束")
+		}
+		if strings.Contains(tb.Cons[i], "DI") {
+			return v
+		}
+	}
+	return ""
+}
+
+func getDictionariesName(tb *conf.Table) string {
+	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic(tb.Cons[i] + "数据表没有指定约束")
+		}
+		if strings.Contains(tb.Cons[i], "DN") {
+			return v
+		}
+	}
+	return ""
 }
 
 //GetRouterPath .
@@ -102,6 +128,7 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
 			}
+			var domType string
 			row := map[string]interface{}{
 				"name":       v,
 				"descsimple": descsimple,
@@ -109,6 +136,7 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 				"type":       tb.Types[i],
 				"len":        tb.Lens[i],
 				"end":        i != len(tb.CNames)-1,
+				"domType":    domType,
 			}
 			columns = append(columns, row)
 		}
@@ -448,6 +476,11 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 			modulePath = "modules/const/sql"
 
 			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
+			sq, err := Translate("head sql", tmpls.DicTpl, input)
+			if err != nil {
+				return nil, err
+			}
+			c["sql"] = strings.Replace(sq, "'", "`", -1)
 			out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = c
 		}
 		if err != nil {
@@ -592,10 +625,12 @@ func createFile(add bool, ms string, data map[string]map[string]string) error {
 					return err
 				}
 				defer f.Close()
-
-				headStr := "package sql"
-				if strings.Contains(k, "vue") {
-					headStr = ""
+				headStr, ok := v["sql"]
+				if !ok {
+					headStr = "package sql"
+					if strings.Contains(k, "vue") {
+						headStr = ""
+					}
 				}
 				_, err = f.WriteString(headStr)
 				if err != nil {

@@ -15,7 +15,7 @@ const gitignoreTmpl = `
 *.out
 .DS_Store
 node_modules
-/dist
+dist/
 
 # local env files
 

@@ -101,7 +101,6 @@ func init() {
 	vueTemplates = make(map[string]string)
 	vueTemplates["public/index.html"] = vue.IndexHTML
 	vueTemplates["package.json"] = vue.PackAgeJSON
-	vueTemplates["package-lock.json"] = vue.PackAgeLock
 	vueTemplates["postcss.config.js"] = vue.PostCss
 	vueTemplates["babel.config.js"] = vue.Babel
 	vueTemplates["src/main.js"] = vue.MainJS
