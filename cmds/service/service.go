@@ -91,10 +91,6 @@ func (p *serviceCmd) action(cli *cli.Context) (err error) {
 		c, r, u, d = true, true, true, true
 		add = true
 	}
-	fmt.Println(cli)
-	for k, v := range cli.FlagNames() {
-		fmt.Println(k, v)
-	}
 
 	//查找*.md文件
 	mdList := []string{t}

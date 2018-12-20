@@ -12,7 +12,8 @@ const APISubCros = `//api.cros#//
 		'Access-Control-Allow-Origin': '*', 
 		'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS', 
 		'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type,__jwt__',
-		'Access-Control-Allow-Credentials': 'true'
+		'Access-Control-Allow-Credentials': 'true',
+		'Access-Control-Expose-Headers':'__jwt__'
 	}")
 	//#api.cros//`
 
@@ -20,11 +21,13 @@ const APISubCros = `//api.cros#//
 const APISubAuth = `//api.jwt#//
 	s.Conf.API.SetSubConf('auth', "{
 		'jwt': {
-			'exclude': ['/{{.projectName|lName}}/login'],
+			'exclude': ['/member/login'],
+			'source':'H',
 			'expireAt': 36000,
 			'mode': 'HS512',
-			'name': '{{.projectName|lName}}_sid',
-			'secret': '{{.devSecret}}'
+			'name': '__jwt__',
+			'secret': '{{.devSecret}}',
+			'domain':'{{.ip}}'
 		}
 	}")	
 	//#api.jwt//`
@@ -33,11 +36,13 @@ const APISubAuth = `//api.jwt#//
 const APISubAuthProd = `//api.jwt.prod#//
 	s.Conf.API.SetSubConf('auth', "{
 		'jwt': {
-			'exclude': ['/{{.projectName|lName}}/login'],
+			'exclude': ['/member/login'],
+			'source':'H',
 			'expireAt': 36000,
 			'mode': 'HS512',
-			'name': '{{.projectName|lName}}_sid',
-			'secret': '{{.prodSecret}}'
+			'name': '__jwt__',
+			'secret': '{{.prodSecret}}',
+			'domain':'#domain'
 		}
 	}")	
 	//#api.jwt.prod//`

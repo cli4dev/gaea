@@ -48,7 +48,8 @@ const PackAgeJSON = `
     "nav-menu":"^1.2.9",
     "login-with-up":"^1.1.1",
     "axios":"^0.18.0",
-    "qs":"^6.6.0"
+    "qs":"^6.6.0",
+    "vue-cookies": "^1.5.12",
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.2.0",
@@ -101,7 +102,7 @@ const PostCss = `module.exports = {
 const MainGo = `package main
 
 import (
-	"github.com/micro-plat/hydra/hydra"
+	'github.com/micro-plat/hydra/hydra'
 )
 
 type mgrweb struct {
@@ -209,6 +210,25 @@ const AppVue = `<template>
     <router-view/>
   </div>
 </template>
+
+<script>
+ import VueCookies from 'vue-cookies'
+export default {
+  methods: {
+    beforeunloadHandler (e) {
+      
+      sessionStorage.removeItem("__jwt__")
+      VueCookies.remove("__jwt__")
+    }
+  },
+  mounted() {
+  window.addEventListener('beforeunload', e => this.beforeunloadHandler(e))
+  },
+  destroyed() {
+  window.removeEventListener('beforeunload', e => this.beforeunloadHandler(e))
+  }
+}
+</script>
 
 <style>
 

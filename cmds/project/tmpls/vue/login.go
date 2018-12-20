@@ -16,7 +16,7 @@ const LoginTpl = `
 </template>
 
 <script>
-
+  import VueCookies from 'vue-cookies'
   import loginWithUp from 'login-with-up'; // 引入
   export default {
     name: 'app',
@@ -32,7 +32,10 @@ const LoginTpl = `
     },
     mounted(){
       document.title = "登录 - gaea 系统"
-      //sessionStorage.removeItem("__jwt__")
+      //jwt放在header中
+      sessionStorage.removeItem("__jwt__")
+      //jwt放在cookie中
+      VueCookies.remove("__jwt__")
     },
     methods: {
       call: function (code) {

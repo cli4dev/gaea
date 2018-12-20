@@ -51,7 +51,8 @@ func (s *{{.projectName|lName}}) install() {
 			'Access-Control-Allow-Origin': '*', 
 			'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS', 
 			'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type,__jwt__',
-			'Access-Control-Allow-Credentials': 'true'
+			'Access-Control-Allow-Credentials': 'true',
+			'Access-Control-Expose-Headers':'__jwt__'
 		}")
 	//#api.cros//	
 		{{- else -}}
@@ -69,10 +70,12 @@ func (s *{{.projectName|lName}}) install() {
 		s.Conf.API.SetSubConf('auth', "{
 			'jwt': {
 				'exclude': ['/member/login'],
+				'source':'H',
 				'expireAt': 36000,
 				'mode': 'HS512',
 				'name': '__jwt__',
-				'secret': '{{.devSecret}}'
+				'secret': '{{.devSecret}}',
+				'domian':'{{.ip}}'
 			}
 		}")	
 	//#api.jwt//

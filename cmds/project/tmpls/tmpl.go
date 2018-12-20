@@ -272,6 +272,7 @@ func makeParams(input map[string]interface{}) map[string]interface{} {
 
 	input["devSecret"] = utility.GetGUID()
 	input["prodSecret"] = utility.GetGUID()
+	input["ip"] = util.GetLocalhostIP()
 
 	return input
 }

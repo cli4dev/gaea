@@ -59,6 +59,7 @@ func (p *moduleCmd) geStartFlags() []cli.Flag {
 		Usage: "指定数据表 md 文件",
 	}, cli.StringFlag{
 		Name:  "db",
+		Value: "mysql",
 		Usage: "指定生成 mysql 或 oracle 的函数和sql,默认为 mysql",
 	}, cli.StringFlag{
 		Name:  "o",

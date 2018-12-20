@@ -51,7 +51,8 @@ func (s *{{.projectName|lName}}) install() {
 			'Access-Control-Allow-Origin': '*', 
 			'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,PATCH,OPTIONS', 
 			'Access-Control-Allow-Headers': 'X-Requested-With,Content-Type,__jwt__',
-			'Access-Control-Allow-Credentials': 'true'
+			'Access-Control-Allow-Credentials': 'true',
+			'Access-Control-Expose-Headers':'__jwt__'
 		}")
 	//#api.cros//	
 		{{- else -}}
@@ -70,9 +71,11 @@ func (s *{{.projectName|lName}}) install() {
 			'jwt': {
 				'exclude': ['/{{.projectName|lName}}/login'],
 				'expireAt': 36000,
+				'source':'H',
 				'mode': 'HS512',
 				'name': '__jwt__',
-				'secret': '{{.prodSecret}}'
+				'secret': '{{.prodSecret}}',
+				'domain':'#domain'
 			}
 		}")	
 	//#api.jwt.prod//

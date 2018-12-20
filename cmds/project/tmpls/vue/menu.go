@@ -75,10 +75,10 @@ const MenuTpl = `
       return {
         headpic: "http://sso2.100bm.cn:6888/static/img/a0.jpg",
         logo: "http://sso2.100bm.cn:6888/static/img/d663155de6dc8e060415bbcd891cb9d4.png",
-        copyright: "2018 gaea", //版权信息
+        copyright: "2018 {{.projectName}}", //版权信息
         themes: "bg-danger|bg-danger|bg-dark light-danger", //顶部左侧背景颜色,顶部右侧背景颜色,右边菜单背景颜色
         menus: [{}],  //菜单数据
-        systemName: "gaea 系统",  //系统名称
+        systemName: "{{.projectName}} 系统",  //系统名称
         userinfo: {},
         indexUrl: "/",
         dialogAddVisible:false,     //添加表单显示隐藏
