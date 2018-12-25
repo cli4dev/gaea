@@ -160,6 +160,9 @@ func fGetType(n string) string {
 			return fmt.Sprintf("varchar(%s)", tps[1])
 		case "number":
 			num := types.GetInt(tps[1], -1)
+			if num <= 1 {
+				return "tinyint(1)"
+			}
 			if num <= 10 {
 				return "int"
 			}

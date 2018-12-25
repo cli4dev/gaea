@@ -62,3 +62,9 @@ func Test_getAppconf(t *testing.T) {
 		})
 	}
 }
+
+func Test_getSource(t *testing.T) {
+
+	got := getSource("atv_id", "IQS,DD(atv_activity_info)")
+	fmt.Println(got)
+}

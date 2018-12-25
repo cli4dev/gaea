@@ -18,23 +18,86 @@ import (
 	"github.com/micro-plat/gaea/cmds/util/conf"
 )
 
+const (
+	IN = "input"       //输入框
+	DD = "select"      //下拉框
+	CB = "checkbox"    //复选框
+	RB = "radio"       //单选框
+	TA = "textarea"    //文本域
+	DT = "date-picker" //日期选择器
+)
+
 //GetInputData 获取模板数据
-func getInputData(tb *conf.Table) map[string]interface{} {
+func getInputData(tb *conf.Table, tbs []*conf.Table) map[string]interface{} {
 	input := map[string]interface{}{
 		"name":          tb.Name,
 		"desc":          tb.Desc,
-		"createcolumns": getCreateColumns(tb), //创建数据必需的字段
-		"querycolumns":  getQueryColumns(tb),  //查询字段
-		"updatecolumns": getUpdateColumns(tb), //可更新的字段
-		"selectcolumns": getSelectColumns(tb), //要显示的字段
+		"createcolumns": getCreateColumns(tb),      //创建数据必需的字段
+		"querycolumns":  getQueryColumns(tb),       //查询字段
+		"updatecolumns": getUpdateColumns(tb),      //可更新的字段
+		"selectcolumns": getSelectColumns(tb, tbs), //要显示的字段
 		"pk":            getPks(tb),
 		"seqs":          getSeqs(tb),
 		"path":          GetRouterPath(tb.Name),
 		"di":            getDictionariesID(tb),
 		"dn":            getDictionariesName(tb),
+		"joinCondition": getJoinCondition(tb),
+		"joinField":     getJoinField(tb, tbs),
 	}
 
 	return input
+}
+func getJoinField(tb *conf.Table, tbs []*conf.Table) []string {
+	joinField := []string{}
+	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic("数据表没有指定约束")
+		}
+		source := getSource(v, tb.Cons[i])
+		if len(source) != 0 {
+			s := strings.Index(tb.Cons[i], "(")
+			e := strings.Index(tb.Cons[i], ")")
+
+			for _, tb2 := range tbs {
+				if tb2.Name == tb.Cons[i][s+1:e] {
+					for i, v := range tb2.CNames {
+						if tb2.Cons[i] == "" || tb2.Cons[i] == "-" {
+							panic("数据表没有指定约束")
+						}
+						if strings.Contains(tb2.Cons[i], "DN") {
+							joinField = append(joinField, tb2.Name+"."+v+",")
+						}
+
+					}
+				}
+			}
+		}
+	}
+	if len(joinField) > 0 {
+		joinField[len(joinField)-1] = strings.Replace(joinField[len(joinField)-1], ",", "", -1)
+	}
+
+	return joinField
+}
+
+func getJoinCondition(tb *conf.Table) []string {
+	join := []string{}
+	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic("数据表没有指定约束")
+		}
+
+		source := getSource(v, tb.Cons[i])
+		if len(source) != 0 {
+			s := strings.Index(tb.Cons[i], "(")
+			e := strings.Index(tb.Cons[i], ")")
+
+			str := "left join " + tb.Cons[i][s+1:e] + " on " + tb.Name + "." + v + " = " + tb.Cons[i][s+1:e] + "." + v
+			join = append(join, str)
+		}
+	}
+	return join
+
 }
 
 func getDictionariesID(tb *conf.Table) string {
@@ -105,6 +168,8 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 				"type":       tb.Types[i],
 				"len":        tb.Lens[i],
 				"end":        i != len(tb.CNames)-1,
+				"domType":    getDomType(tb.Cons[i]),
+				"source":     getSource(v, tb.Cons[i]),
 			}
 			columns = append(columns, row)
 		}
@@ -114,6 +179,53 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 		columns[len(columns)-1]["end"] = false
 	}
 	return columns
+}
+
+func getDomType(cons string) string {
+
+	if strings.Contains(cons, "DD") {
+		return DD
+	}
+	if strings.Contains(cons, "CB") {
+		return CB
+	}
+	if strings.Contains(cons, "RB") {
+		return RB
+	}
+	if strings.Contains(cons, "TA") {
+		return TA
+	}
+	if strings.Contains(cons, "DT") {
+		return DT
+	}
+
+	return IN
+}
+
+func getSource(name, cons string) map[string]interface{} {
+	m := make(map[string]interface{})
+	if !strings.Contains(cons, "(") {
+		return nil
+	}
+	s := strings.Index(cons, "(")
+	e := strings.Index(cons, ")")
+	path := GetRouterPath(cons[s+1:e]) + "/getdictionary"
+	m[name] = path
+	return m
+}
+
+func getName(v, d, tbName string, tbs []*conf.Table) (name, desc string) {
+	for _, tb := range tbs {
+		if tb.Name == tbName {
+			for i := range tb.CNames {
+				if strings.Contains(tb.Cons[i], "DN") {
+					fmt.Println(tb.CNames[i], tb.Descs[i])
+					return tb.CNames[i], tb.Descs[i]
+				}
+			}
+		}
+	}
+	return v, d
 }
 
 func getQueryColumns(tb *conf.Table) []map[string]interface{} {
@@ -128,7 +240,7 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
 			}
-			var domType string
+
 			row := map[string]interface{}{
 				"name":       v,
 				"descsimple": descsimple,
@@ -136,7 +248,8 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 				"type":       tb.Types[i],
 				"len":        tb.Lens[i],
 				"end":        i != len(tb.CNames)-1,
-				"domType":    domType,
+				"domType":    getDomType(tb.Cons[i]),
+				"source":     getSource(v, tb.Cons[i]),
 			}
 			columns = append(columns, row)
 		}
@@ -167,6 +280,8 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 				"type":       tb.Types[i],
 				"len":        tb.Lens[i],
 				"end":        i != len(tb.CNames)-1,
+				"domType":    getDomType(tb.Cons[i]),
+				"source":     getSource(v, tb.Cons[i]),
 			}
 			columns = append(columns, row)
 		}
@@ -178,7 +293,7 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 	return columns
 }
 
-func getSelectColumns(tb *conf.Table) []map[string]interface{} {
+func getSelectColumns(tb *conf.Table, tbs []*conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
@@ -187,11 +302,20 @@ func getSelectColumns(tb *conf.Table) []map[string]interface{} {
 		}
 		if strings.Contains(tb.Cons[i], "S") {
 			descsimple := tb.Descs[i]
+			name := v
+
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
 			}
+			if strings.Contains(tb.Cons[i], "(") {
+
+				s := strings.Index(tb.Cons[i], "(")
+				e := strings.Index(tb.Cons[i], ")")
+				name, descsimple = getName(name, tb.Descs[i], tb.Cons[i][s+1:e], tbs)
+			}
 			row := map[string]interface{}{
-				"name":       v,
+				"name":       name,
+				"pname":      v,
 				"descsimple": descsimple,
 				"desc":       tb.Descs[i],
 				"type":       tb.Types[i],
@@ -451,7 +575,7 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 			}
 		}
 		//获取模板数据
-		input := getInputData(tb)
+		input := getInputData(tb, tbs)
 		//翻译模板
 		content, err := Translate(tag, tplName, input)
 
@@ -513,7 +637,7 @@ func GetServerTmples(tag, tplName string, tbs []*conf.Table, filters []string, s
 			}
 		}
 		//获取模板数据
-		input := getInputData(tb)
+		input := getInputData(tb, tbs)
 		//翻译模板
 		content, err := Translate(tag, tplName, input)
 
@@ -562,7 +686,7 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, pro
 			}
 		}
 		//获取模板数据
-		input := getInputData(tb)
+		input := getInputData(tb, tbs)
 		//翻译模板
 		content, err := Translate(tag, tplName, input)
 		if err != nil {

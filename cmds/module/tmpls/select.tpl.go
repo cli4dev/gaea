@@ -25,16 +25,32 @@ where L.rn > (@pi - 1) * @ps) TAB1'
 //SelectMysqlTmpl Select mysql sql 模板
 const SelectMysqlTmpl = `
 //Get{{.name|cname}} 查询单条数据{{.desc}}
+{{$tbname := .name -}}
 const Get{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
 from {{.name}} where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 
 //Query{{.name|cname}}Count 获取{{.desc}}列表条数
 const Query{{.name|cname}}Count = 'select count(1)
-from {{.name}} where 1=1 {{range $i,$c:=.querycolumns}}and if(#{{$c.name}},{{$c.name}}=@{{$c.name}},1=1) {{end}}'
+from {{.name}} 
+{{range $i,$c:=.joinCondition}}
+{{$c}}
+{{end}}
+where 1=1 {{range $i,$c:=.querycolumns}}and if(@{{$c.name}} <> "",{{$tbname}}.{{$c.name}}=@{{$c.name}},1=1) {{end}}'
 
 //Query{{.name|cname}} 查询{{.desc}}列表数据
-const Query{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}}  
-from {{.name}} where 1=1 {{range $i,$c:=.querycolumns}}and if(#{{$c.name}},{{$c.name}}=@{{$c.name}},1=1) {{end}} limit #pageSize offset #currentPage'
+const Query{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$tbname}}.{{$c.pname}}{{if $c.end}},{{end}}{{end}} 
+{{if ne (.joinField|len) 0 -}}
+,{{range $i,$c:=.joinField -}}
+{{$c}}
+{{- end}}
+{{- end}}
+from {{.name}} 
+{{range $i,$c:=.joinCondition}}
+{{$c}}
+{{end}}
+where 1=1 {{range $i,$c:=.querycolumns}}and if(@{{$c.name}} <> "",{{$tbname}}.{{$c.name}}=@{{$c.name}},1=1) {{end}} 
+order by {{range $i,$c:=.pk}}{{$tbname}}.{{$c.name}} desc {{if $c.end}},{{end}}{{end}}
+limit #pageSize offset #currentPage'
 `
 
 //SelectOracleFunc select 函数模板

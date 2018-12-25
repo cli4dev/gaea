@@ -2,31 +2,84 @@ package vue
 
 //HTMLTpl vue 页面模板
 const HTMLTpl = `
+{{$select := "select" -}}
+{{$textarea := "textarea" -}}
 <template>
   <div class="panel panel-default">
     <div class="panel-body">
-      <el-form ref="form"  :inline="true" class="form-inline pull-left add-qx-bottom">
+      <el-form ref="form"  :inline="true" class="form-inline pull-left">
 		    {{range $i,$c:=.querycolumns}}
-        <div class="form-group">
-          <el-input clearable v-model="queryData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}"></el-input>
-        </div>
+      
+          {{if eq $c.domType $textarea -}}
+          <el-form-item >
+            <el-input
+            type="textarea"
+            :rows="2"
+            placeholder="请输入{{$c.descsimple}}"
+            v-model="queryData.{{$c.name}}">
+            </el-input>
+            </el-form-item >
+          {{- else -}}
+          <el-form-item >
+          <el-{{$c.domType}} clearable  v-model="queryData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+
+          {{if ne $c.domType $select -}}
+          {{$c.descsimple}}
+          {{- end -}}
+
+          {{if eq $c.domType $select -}}
+            <el-option
+              v-for="item in {{$c.name}}"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id">
+            </el-option>
+          {{- end}}
+          </el-{{$c.domType}}>
+          </el-form-item>
+          {{- end}}
+        
         {{end}}
-        <div class="form-group">
+
+        <el-form-item >
           <el-button type="primary" @click="query" size="small">查询</el-button>
-        </div>
-        <div class="form-group">
+        </el-form-item >
+        <el-form-item >
           <el-button type="success" size="small" @click="addShow">添加</el-button>
-        </div>
+        </el-form-item >
       </el-form>
 
       <!-- Add Form -->
-      <el-dialog title="添加{{.desc}}" width="40%" :visible.sync="dialogAddVisible">
-        <el-form :model="addData" :rules="rules" ref="addForm">
+      <el-dialog title="添加{{.desc}}" {{if gt (.createcolumns|len) 4 -}} width="35%" {{else}} width="26%" {{- end}} :visible.sync="dialogAddVisible">
+        <el-form :model="addData" {{if gt (.createcolumns|len) 4 -}}:inline="true"{{- end}} :rules="rules" ref="addForm">
           {{range $i,$c:=.createcolumns}}
-          <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
-            <el-input v-model="addData.{{$c.name}}"  autocomplete="off"></el-input>
-          </el-form-item>
+
+            {{if eq $c.domType $textarea -}}
+            <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
+              <el-input
+              type="textarea"
+              :rows="2"
+              placeholder="请输入{{$c.descsimple}}"
+              v-model="addData.{{$c.name}}">
+              </el-input>
+            </el-form-item>
+            {{- else -}}
+            <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
+            <el-{{$c.domType}} clearable  v-model="addData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+            {{if eq $c.domType $select -}}
+              <el-option
+                v-for="item in {{$c.name}}"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            {{- end}}
+            </el-{{$c.domType}}>
+            </el-form-item>
+            {{- end}}
+          
           {{end}}
+          
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="small" @click="resetForm('addForm')">取 消</el-button>
@@ -48,15 +101,38 @@ const HTMLTpl = `
         </el-table-column>
       </el-table>
       <!-- edit Form -->
-      <el-dialog title="编辑{{.desc}}" width="30%" @closed="closed" :visible.sync="dialogFormVisible">
-        <el-form :model="editData">
+      <el-dialog title="编辑{{.desc}}" {{if gt (.updatecolumns|len) 4 -}} width="35%" {{else}} width="26%" {{- end}}  @closed="closed" :visible.sync="dialogFormVisible">
+        <el-form :model="editData" {{if gt (.updatecolumns|len) 4 -}}:inline="true"{{- end}} label-width="80px" >
 
           {{range $i,$c:=.updatecolumns}}
-          <el-form-item label="{{$c.descsimple}}">
-            <el-input v-model="editData.{{$c.name}}"  autocomplete="off"></el-input>
-          </el-form-item>
-          {{end}}
+  
+            {{if eq $c.domType $textarea -}}
+            <el-form-item label="{{$c.descsimple}}">
+              <el-input
+              type="textarea"
+              :rows="2"
+              placeholder="请输入{{$c.descsimple}}"
+              v-model="editData.{{$c.name}}">
+              </el-input>
+            </el-form-item>
+            {{- else -}}
 
+            <el-form-item label="{{$c.descsimple}}">
+            <el-{{$c.domType}} clearable  v-model="editData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+            {{if eq $c.domType $select -}}
+              <el-option
+                v-for="item in {{$c.name}}"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            {{- end}}
+            </el-{{$c.domType}}>
+            </el-form-item>
+            {{- end}}
+          
+          {{end}}
+  
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
@@ -92,6 +168,11 @@ export default {
     editData:{},                //编辑数据对象
     addData:{},                 //添加数据对象 
     queryData:{},
+    {{range $i,$c:=.querycolumns -}}
+    {{range $k,$v := $c.source -}}
+    {{$k}}:[],
+    {{- end -}}
+    {{- end}}
     rules: {                    //数据验证规则
       {{range $i,$c:=.createcolumns -}}
       {{$c.name}}: [
@@ -106,8 +187,22 @@ export default {
 		}]
 		}
   },
+  created(){
+    {{range $i,$c:=.querycolumns -}}
+    {{range $k,$v:= $c.source}}
+      this.$get("{{$v}}")
+      .then(res => {
+        this.{{$k}}= res
+      })
+      .catch(err => {
+          console.log(err)
+      });
+    {{end}}
+    {{- end}}
+  },
   mounted(){
     this.init()
+   
   },
 	methods:{
     /*
@@ -158,6 +253,7 @@ export default {
     */
     closed(){
       console.log("colsed")
+      this.query()
     },
     /*
     *添加表单显示
@@ -194,7 +290,6 @@ export default {
     *@val 当前行的数据对象
     */
     editShow(val){
-      console.log(val);
       this.editData = val
       this.dialogFormVisible = true;
     },
@@ -209,7 +304,10 @@ export default {
         this.query()
       })
       .catch(err => {
-          console.log(err)
+        this.$message({
+          type: "error",
+          message: err.response.data
+        });
       })
       
     },

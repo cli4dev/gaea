@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"github.com/micro-plat/gaea/cmds/create/sql/mysql"
@@ -29,12 +30,18 @@ func (p *mySqlCmd) geStartFlags() []cli.Flag {
 	flags = append(flags, cli.BoolFlag{
 		Name:  "cover,c",
 		Usage: "覆盖已存在的文件",
+	}, cli.StringFlag{
+		Name:  "t",
+		Usage: "指定文件",
 	})
 	return flags
 }
 
 func (p *mySqlCmd) action(c *cli.Context) (err error) {
-	mdFilePath := path.GetMDPath()
+	mdFilePath, err := getMdList(c.String("t"))
+	if err != nil {
+		return err
+	}
 	outPath := filepath.Join(path.GetModulePath(), "const/sql/mysql")
 	if c.NArg() > 0 {
 		mdFilePath = []string{c.Args().Get(0)}
@@ -43,4 +50,17 @@ func (p *mySqlCmd) action(c *cli.Context) (err error) {
 		outPath = c.Args().Get(1)
 	}
 	return create(mysql.GetTmples, mdFilePath, outPath, c.Bool("cover"), c.StringSlice("filter")...)
+}
+
+func getMdList(t string) (mdList []string, err error) {
+	if t == "" {
+		mdList = path.GetMDPath()
+	}
+	mdList = append(mdList, t)
+	//判断是否有文件
+	if len(mdList) == 0 {
+		err = fmt.Errorf("未找到任何 *.md 文件")
+		return nil, err
+	}
+	return mdList, nil
 }
