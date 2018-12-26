@@ -116,6 +116,7 @@ func init() {
 	vueTemplates["vue.config.js"] = vue.VueConfig
 	vueTemplates["main.go"] = strings.Replace(strings.Replace(vue.MainGo, "\"", "`", -1), "'", "\"", -1)
 	vueTemplates["build.sh"] = vue.Build
+	vueTemplates["menuConf.js"] = vue.MenuConf
 }
 
 const (

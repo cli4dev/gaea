@@ -225,7 +225,7 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 				"type":       tb.Types[i],
 				"len":        tb.Lens[i],
 				"end":        i != len(tb.CNames)-1,
-				"domType":    getDomType(tb.Cons[i]),
+				"domType":    getDomType(tb.Cons[i], tb.Types[i]),
 				"source":     getSource(v, tb.Cons[i]),
 			}
 			columns = append(columns, row)
@@ -238,8 +238,10 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 	return columns
 }
 
-func getDomType(cons string) string {
-
+func getDomType(cons, t string) string {
+	if strings.Contains(t, "date") || strings.Contains(cons, "DT") {
+		return DT
+	}
 	if strings.Contains(cons, "DD") {
 		return DD
 	}
@@ -251,9 +253,6 @@ func getDomType(cons string) string {
 	}
 	if strings.Contains(cons, "TA") {
 		return TA
-	}
-	if strings.Contains(cons, "DT") {
-		return DT
 	}
 
 	return IN
@@ -314,7 +313,7 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 				"type":       tb.Types[i],
 				"len":        tb.Lens[i],
 				"end":        i != len(tb.CNames)-1,
-				"domType":    getDomType(tb.Cons[i]),
+				"domType":    getDomType(tb.Cons[i], tb.Types[i]),
 				"source":     getSource(v, tb.Cons[i]),
 			}
 			columns = append(columns, row)
@@ -346,7 +345,7 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 				"type":       tb.Types[i],
 				"len":        tb.Lens[i],
 				"end":        i != len(tb.CNames)-1,
-				"domType":    getDomType(tb.Cons[i]),
+				"domType":    getDomType(tb.Cons[i], tb.Types[i]),
 				"source":     getSource(v, tb.Cons[i]),
 			}
 			columns = append(columns, row)

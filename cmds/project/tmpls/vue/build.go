@@ -11,3 +11,5 @@ cd dist
 #cp -r /root/work/img ./static/static/
 #scp -r static root@192.168.106.129:/home/ums/ums
 `
+
+const MenuConf = ``

@@ -125,6 +125,12 @@ func (p *VueCmd) makeHTML(tables []*conf.Table) (err error) {
 		cmds.Log.Error(err)
 		return err
 	}
+	//生成配置文件
+	err = p.writeMenuConf(tables)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -189,6 +195,23 @@ func (p *VueCmd) writeRouter(d map[string]map[string]string) error {
 		return err
 	}
 	err = data.ReplaceFileStr("page.router", filepath.Join(p.projectPath, "/src/router.js"), str)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (p *VueCmd) writeMenuConf(tables []*conf.Table) error {
+	f, err := path.CreatePath(filepath.Join(p.projectName, "/menuConf.js"), true)
+	defer f.Close()
+	if err != nil {
+		return err
+	}
+	var s string
+	for _, v := range tables {
+		s += v.Desc + "  " + data.GetRouterPath(v.Name) + "\n"
+	}
+	_, err = f.WriteString(s)
 	if err != nil {
 		return err
 	}
