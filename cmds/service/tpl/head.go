@@ -30,8 +30,11 @@ func New{{.name|cname}}Handler(container component.IContainer) (u *{{.name|cname
 func (u *{{.name|cname}}Handler) GetDictionaryHandle(ctx *context.Context) (r interface{}) {
 
 	ctx.Log.Info("--------获取{{.desc}}数据字典--------")
+	{{if ne .dp $empty -}}
+	t := ctx.Request.GetString("{{.dp}}")
+	{{- end}}
 	ctx.Log.Info("1.执行操作")
-	data, err := u.{{.name|cname}}Lib.Get{{.name|cname}}Dictionary()
+	data, err := u.{{.name|cname}}Lib.Get{{.name|cname}}Dictionary({{if ne .dp $empty -}}t{{- end}})
 	if err != nil {
 		return context.NewError(context.ERR_NOT_IMPLEMENTED, err)
 	}

@@ -19,6 +19,7 @@ const DicTpl = `package sql
 {{$empty := "" -}}
 {{if ne .di $empty -}}
 //Get{{.name|cname}}Dictionary  获取数据字典
-const Get{{.name|cname}}Dictionary = 'select {{.di}} as id,{{.dn}} as name from {{.name}}'
+const Get{{.name|cname}}Dictionary = 'select {{.di}} as id,{{.dn}} as name from {{.name}} where 1=1 
+{{if ne .dp $empty}} &{{.dp}} {{end}}'
 {{- end}}
 `

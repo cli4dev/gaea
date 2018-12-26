@@ -4,6 +4,7 @@ package vue
 const HTMLTpl = `
 {{$select := "select" -}}
 {{$textarea := "textarea" -}}
+{{$empty := "" -}}
 <template>
   <div class="panel panel-default">
     <div class="panel-body">
@@ -92,6 +93,7 @@ const HTMLTpl = `
       <el-table :data="tableData" border style="width: 100%">
         {{range $i,$c:=.selectcolumns}}
         <el-table-column prop="{{$c.name}}" label="{{$c.descsimple}}" ></el-table-column>
+       
         {{end}}
         <el-table-column  label="操作">
           <template slot-scope="scope">
@@ -190,7 +192,7 @@ export default {
   created(){
     {{range $i,$c:=.querycolumns -}}
     {{range $k,$v:= $c.source}}
-      this.$get("{{$v}}")
+      this.$get("{{$v.path}}",{{if ne $v.params "" -}} {{$v.params}} {{- else -}} {} {{- end}})
       .then(res => {
         this.{{$k}}= res
       })

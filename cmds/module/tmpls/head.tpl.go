@@ -63,7 +63,7 @@ type IDb{{.name|cname}} interface {
 
 	{{if ne .di $empty -}}
 	//Get{{.name|cname}}Dictionary() 获取数据字典
-	Get{{.name|cname}}Dictionary() (db.QueryRows,error)
+	Get{{.name|cname}}Dictionary({{if ne .dp $empty -}}t string{{- end}}) (db.QueryRows,error)
 	{{- end}}
 }
 
@@ -81,10 +81,12 @@ func NewDb{{.name|cname}}(c component.IContainer) *Db{{.name|cname}} {
 
 {{if ne .di $empty -}}
 //Get{{.name|cname}}Dictionary() 获取数据字典
-func(d *Db{{.name|cname}}) Get{{.name|cname}}Dictionary() (db.QueryRows,error) {
+func(d *Db{{.name|cname}}) Get{{.name|cname}}Dictionary({{if ne .dp $empty -}}t string{{- end}}) (db.QueryRows,error) {
 
 	db := d.c.GetRegularDB()
-	data, _, _, err := db.Query(sql.Get{{.name|cname}}Dictionary, nil)
+	data, _, _, err := db.Query(sql.Get{{.name|cname}}Dictionary, map[string]interface{}{
+		{{if ne .dp $empty -}}"{{.dp}}": t,{{- end}}
+	})
 	if err != nil {
 		return nil, fmt.Errorf('获取{{.desc}}数据字典发生错误')
 	}
