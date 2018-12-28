@@ -5,6 +5,7 @@ const HTMLTpl = `
 {{$select := "select" -}}
 {{$textarea := "textarea" -}}
 {{$empty := "" -}}
+{{$dt := "date-picker" -}}
 <template>
   <div class="panel panel-default">
     <div class="panel-body">
@@ -21,7 +22,7 @@ const HTMLTpl = `
             </el-form-item >
           {{- else -}}
           <el-form-item >
-          <el-{{$c.domType}} clearable  v-model="queryData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+          <el-{{$c.domType}} clearable  v-model="queryData.{{$c.name}}" {{if eq $c.domType $dt -}} value-format="yyyy-MM-dd" {{- end}} placeholder="请输入{{$c.descsimple}}">
 
           {{if ne $c.domType $select -}}
           {{$c.descsimple}}
@@ -65,7 +66,7 @@ const HTMLTpl = `
             </el-form-item>
             {{- else -}}
             <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
-            <el-{{$c.domType}} clearable  v-model="addData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+            <el-{{$c.domType}} clearable  v-model="addData.{{$c.name}}" {{if eq $c.domType $dt -}} value-format="yyyy-MM-dd HH:mm:ss" {{- end}}   placeholder="请输入{{$c.descsimple}}">
             {{if eq $c.domType $select -}}
               <el-option
                 v-for="item in {{$c.name}}"
@@ -117,7 +118,7 @@ const HTMLTpl = `
             {{- else -}}
            
             <el-form-item label="{{$c.descsimple}}">
-            <el-{{$c.domType}} clearable  v-model="editData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+            <el-{{$c.domType}} clearable  v-model="editData.{{$c.name}}" {{if eq $c.domType $dt -}} value-format="yyyy-MM-dd HH:mm:ss" {{- end}}   placeholder="请输入{{$c.descsimple}}">
             {{if eq $c.domType $select -}}
               <el-option
                 v-for="item in {{$c.name}}"
@@ -302,8 +303,14 @@ export default {
       console.log(this.editData);
       this.$put("{{.path}}", this.editData)
       .then(res => {
+        this.$message({
+          type: "success",
+          message: "修改成功!"
+        });
         this.dialogFormVisible = false;
         this.query()
+
+
       })
       .catch(err => {
         this.$message({
