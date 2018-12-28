@@ -178,8 +178,10 @@ export default new Router({
       path: '/',
       name: 'menu',
       component: () => import('./pages/menu/menu.vue'),
-      children:[//page.router#//
-        //#page.router//]
+      children:[
+        //page.router#//
+        //#page.router//
+      ]
     },{
       path:'/login',
       name:'login',

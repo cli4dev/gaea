@@ -12,6 +12,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
+
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/module/tmpls"
 	"github.com/micro-plat/gaea/cmds/service/tpl"
@@ -32,10 +34,11 @@ func getInputData(tb *conf.Table, tbs []*conf.Table) map[string]interface{} {
 	input := map[string]interface{}{
 		"name":          tb.Name,
 		"desc":          tb.Desc,
-		"createcolumns": getCreateColumns(tb),      //创建数据必需的字段
-		"querycolumns":  getQueryColumns(tb),       //查询字段
-		"updatecolumns": getUpdateColumns(tb),      //可更新的字段
-		"selectcolumns": getSelectColumns(tb, tbs), //要显示的字段
+		"createcolumns": getCreateColumns(tb),     //创建数据必需的字段
+		"getcolumns":    getSingleDetail(tb, tbs), //单条数据要显示的字段
+		"querycolumns":  getQueryColumns(tb),      //查询字段
+		"updatecolumns": getUpdateColumns(tb),     //可更新的字段
+		"selectcolumns": getListColumns(tb, tbs),  //列表要显示的字段
 		"pk":            getPks(tb),
 		"seqs":          getSeqs(tb),
 		"path":          GetRouterPath(tb.Name),
@@ -206,6 +209,46 @@ func fGetCNameByIdent(name, ident string) string {
 	return strings.Join(nitems, "")
 }
 
+func getSingleDetail(tb *conf.Table, tbs []*conf.Table) []map[string]interface{} {
+	columns := make([]map[string]interface{}, 0, len(tb.CNames))
+
+	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic("数据表没有指定约束")
+		}
+		if strings.Contains(tb.Cons[i], "R") {
+			descsimple := tb.Descs[i]
+			name := v
+
+			if strings.Contains(tb.Descs[i], "(") {
+				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+			}
+			if strings.Contains(tb.Cons[i], "(") {
+
+				s := strings.Index(tb.Cons[i], "(")
+				e := strings.Index(tb.Cons[i], ")")
+				p := strings.Split(tb.Cons[i][s+1:e], ",")
+				name, descsimple = getNameAndDescsimple(name, tb.Descs[i], p[0], tbs)
+			}
+			row := map[string]interface{}{
+				"name":       name,
+				"pname":      v,
+				"descsimple": descsimple,
+				"desc":       tb.Descs[i],
+				"type":       tb.Types[i],
+				"len":        tb.Lens[i],
+				"end":        i != len(tb.CNames)-1,
+			}
+			columns = append(columns, row)
+		}
+
+	}
+	if len(columns) > 0 {
+		columns[len(columns)-1]["end"] = false
+	}
+	return columns
+}
+
 func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
@@ -213,7 +256,7 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
 			panic("数据表没有指定约束")
 		}
-		if strings.Contains(tb.Cons[i], "I") && !strings.Contains(tb.Cons[i], "SEQ") {
+		if strings.Contains(tb.Cons[i], "C") && !strings.Contains(tb.Cons[i], "SEQ") {
 			descsimple := tb.Descs[i]
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
@@ -358,14 +401,15 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 	return columns
 }
 
-func getSelectColumns(tb *conf.Table, tbs []*conf.Table) []map[string]interface{} {
+//获取列表字段
+func getListColumns(tb *conf.Table, tbs []*conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
 		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
 			panic("数据表没有指定约束")
 		}
-		if strings.Contains(tb.Cons[i], "S") {
+		if strings.Contains(tb.Cons[i], "L") {
 			descsimple := tb.Descs[i]
 			name := v
 
@@ -764,6 +808,15 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, pro
 		}
 		c[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
 		out[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
+
+		view, err := Translate(tag, vue.Tpl, input)
+		if err != nil {
+			return nil, err
+		}
+
+		c[fmt.Sprintf(projectPath+"/%s.view.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(view, "'", "`", -1)
+		out[fmt.Sprintf(projectPath+"/%s.view.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
+
 	}
 	return out, nil
 }

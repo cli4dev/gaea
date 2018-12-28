@@ -10,7 +10,6 @@ const HTMLTpl = `
     <div class="panel-body">
       <el-form ref="form"  :inline="true" class="form-inline pull-left">
 		    {{range $i,$c:=.querycolumns}}
-      
           {{if eq $c.domType $textarea -}}
           <el-form-item >
             <el-input
@@ -52,17 +51,17 @@ const HTMLTpl = `
 
       <!-- Add Form -->
       <el-dialog title="添加{{.desc}}" {{if gt (.createcolumns|len) 4 -}} width="35%" {{else}} width="26%" {{- end}} :visible.sync="dialogAddVisible">
-        <el-form :model="addData" {{if gt (.createcolumns|len) 4 -}}:inline="true"{{- end}} :rules="rules" ref="addForm">
-          {{range $i,$c:=.createcolumns}}
-
+        <el-form :model="addData"  {{if gt (.createcolumns|len) 4 -}}:inline="true"{{- end}} :rules="rules" ref="addForm">
+       
+        {{range $i,$c:=.createcolumns}}
             {{if eq $c.domType $textarea -}}
-            <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
-              <el-input
-              type="textarea"
-              :rows="2"
-              placeholder="请输入{{$c.descsimple}}"
-              v-model="addData.{{$c.name}}">
-              </el-input>
+            <el-form-item label="{{$c.descsimple}}" prop="{{$c.pname}}">
+            <el-input
+            type="textarea"
+            :rows="2"
+            placeholder="请输入{{$c.descsimple}}"
+            v-model="addData.{{$c.name}}">
+            </el-input>
             </el-form-item>
             {{- else -}}
             <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
@@ -78,9 +77,8 @@ const HTMLTpl = `
             </el-{{$c.domType}}>
             </el-form-item>
             {{- end}}
-          
           {{end}}
-          
+      
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="small" @click="resetForm('addForm')">取 消</el-button>
@@ -93,32 +91,31 @@ const HTMLTpl = `
       <el-table :data="tableData" border style="width: 100%">
         {{range $i,$c:=.selectcolumns}}
         <el-table-column prop="{{$c.name}}" label="{{$c.descsimple}}" ></el-table-column>
-       
         {{end}}
         <el-table-column  label="操作">
           <template slot-scope="scope">
             <el-button type="text" size="small" @click="editShow(scope.row)">编辑</el-button>
+            <el-button type="text" size="small" @click="detailShow(scope.row)">详情</el-button>
             <el-button type="text" size="small" @click="del(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- edit Form -->
       <el-dialog title="编辑{{.desc}}" {{if gt (.updatecolumns|len) 4 -}} width="35%" {{else}} width="26%" {{- end}}  @closed="closed" :visible.sync="dialogFormVisible">
-        <el-form :model="editData" {{if gt (.updatecolumns|len) 4 -}}:inline="true"{{- end}} label-width="80px" >
-
+        <el-form :model="editData" {{if gt (.updatecolumns|len) 4 -}}:inline="true"{{- end}} >
+        
           {{range $i,$c:=.updatecolumns}}
-  
             {{if eq $c.domType $textarea -}}
             <el-form-item label="{{$c.descsimple}}">
-              <el-input
-              type="textarea"
-              :rows="2"
-              placeholder="请输入{{$c.descsimple}}"
-              v-model="editData.{{$c.name}}">
-              </el-input>
+            <el-input
+            type="textarea"
+            :rows="2"
+            placeholder="请输入{{$c.descsimple}}"
+            v-model="editData.{{$c.name}}">
+            </el-input>
             </el-form-item>
             {{- else -}}
-
+           
             <el-form-item label="{{$c.descsimple}}">
             <el-{{$c.domType}} clearable  v-model="editData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
             {{if eq $c.domType $select -}}
@@ -132,9 +129,8 @@ const HTMLTpl = `
             </el-{{$c.domType}}>
             </el-form-item>
             {{- end}}
-          
           {{end}}
-  
+     
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
@@ -212,6 +208,10 @@ export default {
     */
     init(){
       this.query()
+    },
+    detailShow(val){
+      val.getpath ="{{.path}}"
+      this.$emit('addTab',"详情"+val.id,"{{.path}}.view",val);
     },
     /*
     *查询数据并赋值

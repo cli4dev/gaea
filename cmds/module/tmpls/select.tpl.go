@@ -3,7 +3,7 @@ package tmpls
 //SelectOracleTmpl Select oracle sql 模板
 const SelectOracleTmpl = `
 //Get{{.name|cname}} 查询单条数据{{.desc}}
-const Get{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
+const Get{{.name|cname}} = 'select {{range $i,$c:=.getcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
 from {{.name}} where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 
 //Query{{.name|cname}}Count 获取{{.desc}}列表条数
@@ -26,8 +26,23 @@ where L.rn > (@pi - 1) * @ps) TAB1'
 const SelectMysqlTmpl = `
 //Get{{.name|cname}} 查询单条数据{{.desc}}
 {{$tbname := .name -}}
-const Get{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
-from {{.name}} where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
+const Get{{.name|cname}} = 'select {{range $i,$c:=.getcolumns}}{{$tbname}}.{{$c.pname}}{{if $c.end}},{{end}}{{end}} 
+{{if ne (.joinField|len) 0 -}}
+,{{range $i,$c:=.joinField -}}
+{{$c}}
+{{- end}}
+{{- end}}
+from {{.name}} 
+{{range $i,$c:=.joinCondition}}
+{{$c}}
+{{end}}
+where 1=1 
+{{if ne (.joinWhere|len) 0 -}}
+{{range $i,$c:=.joinWhere -}}
+{{$c}}
+{{- end}}
+{{- end}}
+{{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 
 //Query{{.name|cname}}Count 获取{{.desc}}列表条数
 const Query{{.name|cname}}Count = 'select count(1)
