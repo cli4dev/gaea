@@ -22,7 +22,7 @@ const InsertFunc = `
 func(d *Db{{.name|cname}}) Create(input *Create{{.name|cname}}) error {
 
 	db := d.c.GetRegularDB()
-	lastInsertId, affectedRow, q, a, err := db.Executes(sql.Insert{{.name|cname}}, map[string]interface{}{
+	lastInsertID, affectedRow, q, a, err := db.Executes(sql.Insert{{.name|cname}}, map[string]interface{}{
 		{{range $i,$c:=.createcolumns -}}
 		"{{$c.name}}": input.{{$c.name|cname}},
 		{{end -}}

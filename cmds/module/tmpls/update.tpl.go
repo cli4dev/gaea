@@ -14,7 +14,7 @@ const UpdateFunc = `
 func(d *Db{{.name|cname}}) Update(input *Update{{.name|cname}}) error {
 
 	db := d.c.GetRegularDB()
-	lastInsertId, affectedRow, q, a, err := db.Executes(sql.Update{{.name|cname}}, map[string]interface{}{
+	lastInsertID, affectedRow, q, a, err := db.Executes(sql.Update{{.name|cname}}, map[string]interface{}{
 		{{range $i,$c:=.pk -}}
 		"{{$c.name}}": input.{{$c.name|cname}},
 		{{end -}}

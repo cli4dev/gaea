@@ -53,6 +53,17 @@ func getInputData(tb *conf.Table, tbs []*conf.Table) map[string]interface{} {
 	return input
 }
 
+//GetMDInputData 获取模板数据
+func GetMDInputData(tb *conf.Table) map[string]interface{} {
+	input := map[string]interface{}{
+		"name":    tb.Name,
+		"desc":    tb.Desc,
+		"columns": getColumns(tb),
+	}
+
+	return input
+}
+
 func getJoinWhere(tb *conf.Table, tbs []*conf.Table) []string {
 	join := []string{}
 	for i, v := range tb.CNames {
@@ -281,6 +292,30 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 	return columns
 }
 
+func getColumns(tb *conf.Table) []map[string]interface{} {
+	columns := make([]map[string]interface{}, 0, len(tb.CNames))
+
+	for i, v := range tb.CNames {
+
+		row := map[string]interface{}{
+			"name":   v,
+			"def":    tb.Defs[i],
+			"type":   tb.Types[i],
+			"isnull": tb.IsNulls[i],
+			"cons":   tb.Cons[i],
+			"len":    tb.Lens[i],
+			"desc":   tb.Descs[i],
+			"end":    i != len(tb.CNames)-1,
+		}
+		columns = append(columns, row)
+
+	}
+	if len(columns) > 0 {
+		columns[len(columns)-1]["end"] = false
+	}
+	return columns
+}
+
 func getDomType(cons, t string) string {
 	if strings.Contains(t, "date") || strings.Contains(cons, "DT") {
 		return DT
@@ -316,7 +351,7 @@ func getSource(name, cons string) map[string]interface{} {
 	c["path"] = path
 	c["params"] = ""
 	if len(p) > 1 {
-		c["params"] = "{t:\"" + p[1] + "\"}"
+		c["params"] = "{type:\"" + p[1] + "\"}"
 	}
 	m[name] = c
 	return m
@@ -720,6 +755,24 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 		if err != nil {
 			return nil, err
 		}
+	}
+	return out, nil
+}
+
+//GetMDTmples 获取生成md文件的模板
+func GetMDTmples(tag, tplName string, tbs []*conf.Table) (out map[string]string, err error) {
+	out = map[string]string{}
+	for _, tb := range tbs {
+		//获取模板数据
+		input := GetMDInputData(tb)
+		//翻译模板
+		content, err := Translate(tag, tplName, input)
+		if err != nil {
+			return nil, err
+		}
+
+		out[tb.Name] = content
+
 	}
 	return out, nil
 }

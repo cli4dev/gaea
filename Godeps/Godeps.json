@@ -5,31 +5,43 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/micro-plat/lib4go/concurrent/cmap",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/db",
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/db/tpl",
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
 		},
 		{
 			"ImportPath": "github.com/micro-plat/lib4go/file",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
 		},
 		{
 			"ImportPath": "github.com/micro-plat/lib4go/jsons",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
 		},
 		{
 			"ImportPath": "github.com/micro-plat/lib4go/logger",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
 		},
 		{
 			"ImportPath": "github.com/micro-plat/lib4go/net",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
 		},
 		{
 			"ImportPath": "github.com/micro-plat/lib4go/security/md5",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
+		},
+		{
+			"ImportPath": "github.com/micro-plat/lib4go/types",
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
 		},
 		{
 			"ImportPath": "github.com/micro-plat/lib4go/utility",
-			"Rev": "d0fe8809a4f82ebda4443134ee4c4717327a0f83"
+			"Rev": "cc5859d4ea9dc3629c77d53522267833a7952a03"
 		},
 		{
 			"ImportPath": "github.com/urfave/cli",

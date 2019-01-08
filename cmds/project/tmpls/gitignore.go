@@ -24,8 +24,7 @@ dist/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-log/
-conf/
+
 # Editor directories and files
 .idea
 .vscode

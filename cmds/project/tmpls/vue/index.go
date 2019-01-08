@@ -123,6 +123,7 @@ func main() {
 }
 
 func (s *mgrweb) install() {
+  s.IsDebug = false
 	s.Conf.WEB.SetMainConf("{'address':':8089'}")
 	s.Conf.WEB.SetSubConf('static', "{
 			'dir':'./static',
