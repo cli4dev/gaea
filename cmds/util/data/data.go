@@ -140,7 +140,8 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 			s := strings.Index(tb.Cons[i], "(")
 			e := strings.Index(tb.Cons[i], ")")
 			p := strings.Split(tb.Cons[i][s+1:e], ",")
-			if len(p) > 1 {
+			var str string
+			if len(p) >= 1 {
 				for _, tb2 := range tbs {
 					if tb2.Name == p[0] {
 						for k := range tb2.CNames {
@@ -150,11 +151,13 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 						}
 					}
 				}
+				str = "left join " + p[0] + " on " + tb.Name + "." + tb.CNames[i] + " = " + p[0] + "." + v
 			}
-			str := "left join " + p[0] + " on " + tb.Name + "." + tb.CNames[i] + " = " + p[0] + "." + v
+
 			join = append(join, str)
 		}
 	}
+	fmt.Println(join)
 	return join
 
 }
@@ -362,7 +365,7 @@ func getNameAndDescsimple(v, d, tbName string, tbs []*conf.Table) (name, desc st
 		if tb.Name == tbName {
 			for i := range tb.CNames {
 				if strings.Contains(tb.Cons[i], "DN") {
-					fmt.Println(tb.CNames[i], tb.Descs[i])
+
 					return tb.CNames[i], tb.Descs[i]
 				}
 			}
