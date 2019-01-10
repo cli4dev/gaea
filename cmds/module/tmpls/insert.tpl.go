@@ -29,7 +29,7 @@ func(d *Db{{.name|cname}}) Create(input *Create{{.name|cname}}) error {
 	})
 	fmt.Println(lastInsertID, affectedRow)
 	if err != nil {
-		return fmt.Errorf("添加{{.desc}}数据发生错误(err:%v),sql:%s,参数：%v,lastInsertId:%v,受影响的行数：%v", err, q, a, lastInsertId,affectedRow)
+		return fmt.Errorf("添加{{.desc}}数据发生错误(err:%v),sql:%s,参数：%v,lastInsertID:%v,受影响的行数：%v", err, q, a, lastInsertID,affectedRow)
 	}
 	return nil
 }
