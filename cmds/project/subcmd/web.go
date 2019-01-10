@@ -55,6 +55,7 @@ func (p *WebCmd) getStartFlags() []cli.Flag {
 		Usage: "项目名称",
 	}, cli.StringFlag{
 		Name:  "port,p,web.port",
+		Value: ":8090",
 		Usage: "web port配置",
 	}, cli.BoolFlag{
 		Name:  "static,web.static",
