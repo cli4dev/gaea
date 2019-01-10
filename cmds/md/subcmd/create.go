@@ -46,12 +46,6 @@ func (m *Table2MD) getCreateFlags() []cli.Flag {
 		cli.StringFlag{
 			Name:  "db",
 			Usage: "数据库链接串",
-		}, cli.BoolFlag{
-			Name:  "mysql",
-			Usage: "数据类型：mysql",
-		}, cli.BoolFlag{
-			Name:  "oracle",
-			Usage: "数据类型: oracle",
 		},
 	)
 	return flags
@@ -83,7 +77,7 @@ func (m *Table2MD) init(c *cli.Context) (err error) {
 	}
 	m.db = c.String("db")
 
-	if c.Bool("mysql") {
+	if strings.Contains(m.db, "mysql") {
 		m.provider = "mysql"
 	} else {
 		m.provider = "ora"
