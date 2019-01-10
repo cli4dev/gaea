@@ -172,7 +172,7 @@ func (m *Table2MD) createOracleMD() (err error) {
 	d := map[string]*conf.Table{}
 	for _, v := range datas {
 		if _, ok := d[v.GetString("table_name")]; !ok {
-			d[v.GetString("table_name")] = conf.NewTable(v.GetString("table_name"), v.GetString("table_comment"))
+			d[v.GetString("table_name")] = conf.NewTable(strings.ToLower(v.GetString("table_name")), v.GetString("table_comment"))
 		}
 		d[v.GetString("table_name")].AppendColumn(
 			strings.ToLower(v.GetString("column_name")),

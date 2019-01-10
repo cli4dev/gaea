@@ -130,6 +130,7 @@ func (p *MQCCmd) action(c *cli.Context) (err error) {
 			"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
 			"cache":       c.Bool("cache"),
 			"queue":       c.Bool("queue"),
+			"login":       "",
 		})
 		if err != nil {
 			cmds.Log.Error(err)
