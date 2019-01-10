@@ -50,7 +50,13 @@ from {{.name}}
 {{range $i,$c:=.joinCondition}}
 {{$c}}
 {{end}}
-where 1=1 {{range $i,$c:=.querycolumns}} and if(@{{$c.name}} <> "",{{$tbname}}.{{$c.name}}=@{{$c.name}},1=1) {{end}}'
+where 1=1 
+{{if ne (.joinWhere|len) 0 -}}
+{{range $i,$c:=.joinWhere -}}
+{{$c}}
+{{- end}}
+{{- end}}
+{{range $i,$c:=.querycolumns}} and if(@{{$c.name}} <> "",{{$tbname}}.{{$c.name}}=@{{$c.name}},1=1) {{end}}'
 
 //Query{{.name|cname}} 查询{{.desc}}列表数据
 const Query{{.name|cname}} = 'select {{range $i,$c:=.selectcolumns}}{{$tbname}}.{{$c.pname}}{{if $c.end}},{{end}}{{end}} 
