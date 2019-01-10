@@ -150,6 +150,7 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 						}
 					}
 				}
+
 			}
 			str := "left join " + p[0] + " on " + tb.Name + "." + tb.CNames[i] + " = " + p[0] + "." + v
 			join = append(join, str)

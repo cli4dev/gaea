@@ -109,7 +109,7 @@ func (m *Table2MD) createMD() (err error) {
 
 func (m *Table2MD) getDB() (err error) {
 
-	m.obj, err = db.NewDB(m.provider, m.db, 5, 1, 600)
+	m.obj, err = db.NewDB(m.provider, m.db, 20, 10, 20000)
 	if err != nil {
 		return err
 	}
@@ -164,26 +164,24 @@ func (m *Table2MD) createMysqlMD() (err error) {
 
 func (m *Table2MD) createOracleMD() (err error) {
 
-	datas, q, a, err := m.obj.Query(QueryMysql, map[string]interface{}{
-		"schema": m.getSchema(),
-	})
+	datas, q, a, err := m.obj.Query(QueryOracle, map[string]interface{}{})
 	if err != nil {
 		return fmt.Errorf("oracle(err:%v),sql:%s,输入参数:%v,", err, q, a)
 	}
 
 	d := map[string]*conf.Table{}
 	for _, v := range datas {
-		if _, ok := d[v["table_name"].(string)]; !ok {
-			d[v["table_name"].(string)] = conf.NewTable(v["table_name"].(string), v["table_comment"].(string))
+		if _, ok := d[v.GetString("table_name")]; !ok {
+			d[v.GetString("table_name")] = conf.NewTable(v.GetString("table_name"), v.GetString("table_comment"))
 		}
-		d[v["table_name"].(string)].AppendColumn(
-			v["column_name"].(string),
-			v["column_type"].(string),
-			v["data_length"].(string),
-			v["data_default"].(string),
+		d[v.GetString("table_name")].AppendColumn(
+			strings.ToLower(v.GetString("column_name")),
+			strings.ToLower(v.GetString("column_type")),
+			v.GetString("data_length"),
+			"",
 			m.getBool(v["nullable"]),
-			v["column_key"].(string),
-			v["column_comment"].(string),
+			"",
+			v.GetString("column_comment"),
 		)
 	}
 	tbs := []*conf.Table{}
@@ -191,7 +189,7 @@ func (m *Table2MD) createOracleMD() (err error) {
 		tbs = append(tbs, v)
 	}
 
-	out, err := data.GetMDTmples("md", mdTPL, tbs)
+	out, err := data.GetMDTmples("md", mdOracleTPL, tbs)
 	if err != nil {
 		return err
 	}

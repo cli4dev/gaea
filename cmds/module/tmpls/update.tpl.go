@@ -22,7 +22,7 @@ func(d *Db{{.name|cname}}) Update(input *Update{{.name|cname}}) error {
 		"{{$c.name}}":input.{{$c.name|cname}},
 		{{end -}}
 	})
-	fmt.Println(lastInsertId, affectedRow)
+	fmt.Println(lastInsertID, affectedRow)
 	if err != nil {
 		return fmt.Errorf("更新{{.desc}}数据发生错误(err:%v),sql:%s,参数：%v,受影响的行数：%v", err, q, a, affectedRow)
 	}

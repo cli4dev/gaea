@@ -12,7 +12,7 @@ gaea api create -login "http://192.168.5.93:6688|B128F779D5741E701923346F7FA9F95
 cd apiserver
 
 //配置db
-gaea api cover -db "mysql:convoy:MsqlDb4567$%^&@tcp(192.168.0.36)/convoy"
+gaea api cover -db "mysql:convoy:MsqlDb4567$%^&@tcp(192.168.0.36)/convoy?charset=utf8"
 
 ```
 ### 1.2 生成module,sql和services
