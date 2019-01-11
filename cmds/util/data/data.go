@@ -381,7 +381,10 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
 			panic("数据表没有指定约束")
 		}
-		if strings.Contains(tb.Cons[i], "Q") && !strings.Contains(tb.Cons[i], "SEQ") && !strings.Contains(tb.Cons[i], "UNQ") {
+		if strings.Contains(tb.Cons[i], "Q") && !strings.Contains(tb.Cons[i], "SEQ") {
+			if strings.Count(tb.Cons[i], "Q") == 1 && strings.Contains(tb.Cons[i], "UNQ") {
+				continue
+			}
 			descsimple := tb.Descs[i]
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
@@ -414,7 +417,10 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
 			panic("数据表没有指定约束")
 		}
-		if strings.Contains(tb.Cons[i], "U") && !strings.Contains(tb.Cons[i], "SEQ") && !strings.Contains(tb.Cons[i], "PK") && !strings.Contains(tb.Cons[i], "UNQ") {
+		if strings.Contains(tb.Cons[i], "U") && !strings.Contains(tb.Cons[i], "SEQ") && !strings.Contains(tb.Cons[i], "PK") {
+			if strings.Count(tb.Cons[i], "U") == 1 && strings.Contains(tb.Cons[i], "UNQ") {
+				continue
+			}
 			descsimple := tb.Descs[i]
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
