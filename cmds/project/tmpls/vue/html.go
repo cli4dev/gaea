@@ -170,8 +170,8 @@ export default {
     {{range $i,$c:=.querycolumns -}}
     {{range $k,$v := $c.source -}}
     {{$k}}:[],
+    {{end -}}
     {{- end -}}
-    {{- end}}
     rules: {                    //数据验证规则
       {{range $i,$c:=.createcolumns -}}
       {{$c.name}}: [

@@ -88,7 +88,7 @@ func getJoinWhere(tb *conf.Table, tbs []*conf.Table) []string {
 				}
 			}
 			if len(p) > 1 {
-				str := "and " + p[0] + "." + v + "= \"" + p[1] + "\""
+				str := " and t" + strconv.Itoa(i) + "." + v + "= \"" + p[1] + "\""
 				join = append(join, str)
 			}
 		}
@@ -109,12 +109,12 @@ func getJoinField(tb *conf.Table, tbs []*conf.Table) []string {
 			p := strings.Split(tb.Cons[i][s+1:e], ",")
 			for _, tb2 := range tbs {
 				if tb2.Name == p[0] {
-					for i, v := range tb2.CNames {
-						if tb2.Cons[i] == "" || tb2.Cons[i] == "-" {
+					for k, v2 := range tb2.CNames {
+						if tb2.Cons[k] == "" || tb2.Cons[k] == "-" {
 							panic("数据表没有指定约束")
 						}
-						if strings.Contains(tb2.Cons[i], "DN") {
-							joinField = append(joinField, tb2.Name+"."+v+",")
+						if strings.Contains(tb2.Cons[k], "DN") {
+							joinField = append(joinField, "t"+strconv.Itoa(i)+"."+v2+" as name_"+v+",")
 						}
 					}
 				}
@@ -151,7 +151,7 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 						}
 					}
 				}
-				str = "left join " + p[0] + " on " + tb.Name + "." + tb.CNames[i] + " = " + p[0] + "." + v
+				str = "left join " + p[0] + " AS t" + strconv.Itoa(i) + " on t." + tb.CNames[i] + " = t" + strconv.Itoa(i) + "." + v
 			}
 
 			join = append(join, str)
@@ -242,7 +242,7 @@ func getSingleDetail(tb *conf.Table, tbs []*conf.Table) []map[string]interface{}
 				s := strings.Index(tb.Cons[i], "(")
 				e := strings.Index(tb.Cons[i], ")")
 				p := strings.Split(tb.Cons[i][s+1:e], ",")
-				name, descsimple = getNameAndDescsimple(name, tb.Descs[i], p[0], tbs)
+				name, descsimple = getNameAndDescsimple(name, descsimple, p, tbs)
 			}
 			row := map[string]interface{}{
 				"name":       name,
@@ -360,13 +360,21 @@ func getSource(name, cons string) map[string]interface{} {
 	return m
 }
 
-func getNameAndDescsimple(v, d, tbName string, tbs []*conf.Table) (name, desc string) {
+func getNameAndDescsimple(v, d string, tbName []string, tbs []*conf.Table) (name, desc string) {
 	for _, tb := range tbs {
-		if tb.Name == tbName {
+		if tb.Name == tbName[0] {
 			for i := range tb.CNames {
 				if strings.Contains(tb.Cons[i], "DN") {
-
-					return tb.CNames[i], tb.Descs[i]
+					name = tb.CNames[i] + "_" + v
+					if len(tbName) > 1 {
+						desc = d
+						return
+					}
+					desc = tb.Descs[i]
+					if strings.Contains(tb.Descs[i], "(") {
+						desc = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+					}
+					return
 				}
 			}
 		}
@@ -465,7 +473,9 @@ func getListColumns(tb *conf.Table, tbs []*conf.Table) []map[string]interface{} 
 				s := strings.Index(tb.Cons[i], "(")
 				e := strings.Index(tb.Cons[i], ")")
 				p := strings.Split(tb.Cons[i][s+1:e], ",")
-				name, descsimple = getNameAndDescsimple(name, tb.Descs[i], p[0], tbs)
+
+				name, descsimple = getNameAndDescsimple(name, descsimple, p, tbs)
+
 			}
 			row := map[string]interface{}{
 				"name":       name,
