@@ -22,13 +22,14 @@ const InsertFunc = `
 func(d *Db{{.name|cname}}) Create(input *Create{{.name|cname}}) error {
 
 	db := d.c.GetRegularDB()
-	_, q, a, err := db.Execute(sql.Insert{{.name|cname}}, map[string]interface{}{
+	lastInsertID, affectedRow, q, a, err := db.Executes(sql.Insert{{.name|cname}}, map[string]interface{}{
 		{{range $i,$c:=.createcolumns -}}
 		"{{$c.name}}": input.{{$c.name|cname}},
 		{{end -}}
 	})
+	fmt.Println(lastInsertID, affectedRow)
 	if err != nil {
-		return fmt.Errorf("添加{{.desc}}数据发生错误(err:%v),sql:%s,参数：%v", err, q, a)
+		return fmt.Errorf("添加{{.desc}}数据发生错误(err:%v),sql:%s,参数：%v,lastInsertID:%v,受影响的行数：%v", err, q, a, lastInsertID,affectedRow)
 	}
 	return nil
 }

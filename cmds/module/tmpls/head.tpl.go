@@ -62,7 +62,7 @@ type IDb{{.name|cname}} interface {
 	Delete({{range $i,$c:=.pk -}}{{$c.name|aname}} {{$c.type|ctype}}{{if $c.end}},{{end}}{{end -}}) (err error)
 
 	{{if ne .di $empty -}}
-	//Get{{.name|cname}}Dictionary() 获取数据字典
+	//Get{{.name|cname}}Dictionary 获取数据字典
 	Get{{.name|cname}}Dictionary({{if ne .dp $empty -}}t string{{- end}}) (db.QueryRows,error)
 	{{- end}}
 }
@@ -80,7 +80,7 @@ func NewDb{{.name|cname}}(c component.IContainer) *Db{{.name|cname}} {
 }
 
 {{if ne .di $empty -}}
-//Get{{.name|cname}}Dictionary() 获取数据字典
+//Get{{.name|cname}}Dictionary 获取数据字典
 func(d *Db{{.name|cname}}) Get{{.name|cname}}Dictionary({{if ne .dp $empty -}}t string{{- end}}) (db.QueryRows,error) {
 
 	db := d.c.GetRegularDB()

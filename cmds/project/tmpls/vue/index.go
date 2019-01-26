@@ -123,6 +123,7 @@ func main() {
 }
 
 func (s *mgrweb) install() {
+  s.IsDebug = false
 	s.Conf.WEB.SetMainConf("{'address':':8089'}")
 	s.Conf.WEB.SetSubConf('static', "{
 			'dir':'./static',
@@ -178,8 +179,10 @@ export default new Router({
       path: '/',
       name: 'menu',
       component: () => import('./pages/menu/menu.vue'),
-      children:[//page.router#//
-        //#page.router//]
+      children:[
+        //page.router#//
+        //#page.router//
+      ]
     },{
       path:'/login',
       name:'login',
