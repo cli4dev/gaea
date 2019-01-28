@@ -8,7 +8,6 @@ import _ "github.com/micro-plat/gaea/cmds/project"
 import _ "github.com/micro-plat/gaea/cmds/md"
 import _ "github.com/micro-plat/gaea/cmds/micservice"
 import _ "github.com/go-sql-driver/mysql"
-import _ "github.com/zkfy/go-oci8"
 
 func main() {
 	cmds.Start()
