@@ -70,6 +70,7 @@ func createFile(root string, data map[string]string, cover bool) error {
 			cmds.Log.Warn("文件已存在:", path)
 			continue
 		}
+		//生成sql到一个文件,只需要修改path为db.sql,去除os.O_TRUNC
 		srcf, err := os.OpenFile(path, os.O_CREATE|os.O_TRUNC|os.O_WRONLY|os.O_APPEND, os.ModeAppend|os.ModePerm)
 		if err != nil {
 			err = fmt.Errorf("无法打开文件:%s(err:%v)", path, err)

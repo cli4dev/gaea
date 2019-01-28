@@ -212,7 +212,7 @@ export default {
     },
     detailShow(val){
       val.getpath ="{{.path}}"
-      this.$emit('addTab',"详情"+val.id,"{{.path}}.view",val);
+      this.$emit('addTab',"详情"+val.{{range $i,$c:=.pk}}{{$c.name}}{{end}},"{{.path}}.view",val);
     },
     /*
     *查询数据并赋值
