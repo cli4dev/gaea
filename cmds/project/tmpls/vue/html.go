@@ -5,12 +5,12 @@ const HTMLTpl = `
 {{$select := "select" -}}
 {{$textarea := "textarea" -}}
 {{$empty := "" -}}
+{{$dt := "date-picker" -}}
 <template>
   <div class="panel panel-default">
     <div class="panel-body">
       <el-form ref="form"  :inline="true" class="form-inline pull-left">
 		    {{range $i,$c:=.querycolumns}}
-      
           {{if eq $c.domType $textarea -}}
           <el-form-item >
             <el-input
@@ -22,7 +22,7 @@ const HTMLTpl = `
             </el-form-item >
           {{- else -}}
           <el-form-item >
-          <el-{{$c.domType}} clearable  v-model="queryData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+          <el-{{$c.domType}} clearable  v-model="queryData.{{$c.name}}" {{if eq $c.domType $dt -}} value-format="yyyy-MM-dd" {{- end}} placeholder="请输入{{$c.descsimple}}">
 
           {{if ne $c.domType $select -}}
           {{$c.descsimple}}
@@ -52,21 +52,21 @@ const HTMLTpl = `
 
       <!-- Add Form -->
       <el-dialog title="添加{{.desc}}" {{if gt (.createcolumns|len) 4 -}} width="35%" {{else}} width="26%" {{- end}} :visible.sync="dialogAddVisible">
-        <el-form :model="addData" {{if gt (.createcolumns|len) 4 -}}:inline="true"{{- end}} :rules="rules" ref="addForm">
-          {{range $i,$c:=.createcolumns}}
-
+        <el-form :model="addData"  {{if gt (.createcolumns|len) 4 -}}:inline="true"{{- end}} :rules="rules" ref="addForm">
+       
+        {{range $i,$c:=.createcolumns}}
             {{if eq $c.domType $textarea -}}
-            <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
-              <el-input
-              type="textarea"
-              :rows="2"
-              placeholder="请输入{{$c.descsimple}}"
-              v-model="addData.{{$c.name}}">
-              </el-input>
+            <el-form-item label="{{$c.descsimple}}" prop="{{$c.pname}}">
+            <el-input
+            type="textarea"
+            :rows="2"
+            placeholder="请输入{{$c.descsimple}}"
+            v-model="addData.{{$c.name}}">
+            </el-input>
             </el-form-item>
             {{- else -}}
             <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
-            <el-{{$c.domType}} clearable  v-model="addData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+            <el-{{$c.domType}} clearable  v-model="addData.{{$c.name}}" {{if eq $c.domType $dt -}} value-format="yyyy-MM-dd HH:mm:ss" {{- end}}   placeholder="请输入{{$c.descsimple}}">
             {{if eq $c.domType $select -}}
               <el-option
                 v-for="item in {{$c.name}}"
@@ -78,9 +78,8 @@ const HTMLTpl = `
             </el-{{$c.domType}}>
             </el-form-item>
             {{- end}}
-          
           {{end}}
-          
+      
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="small" @click="resetForm('addForm')">取 消</el-button>
@@ -93,34 +92,33 @@ const HTMLTpl = `
       <el-table :data="tableData" border style="width: 100%">
         {{range $i,$c:=.selectcolumns}}
         <el-table-column prop="{{$c.name}}" label="{{$c.descsimple}}" ></el-table-column>
-       
         {{end}}
         <el-table-column  label="操作">
           <template slot-scope="scope">
             <el-button type="text" size="small" @click="editShow(scope.row)">编辑</el-button>
+            <el-button type="text" size="small" @click="detailShow(scope.row)">详情</el-button>
             <el-button type="text" size="small" @click="del(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <!-- edit Form -->
       <el-dialog title="编辑{{.desc}}" {{if gt (.updatecolumns|len) 4 -}} width="35%" {{else}} width="26%" {{- end}}  @closed="closed" :visible.sync="dialogFormVisible">
-        <el-form :model="editData" {{if gt (.updatecolumns|len) 4 -}}:inline="true"{{- end}} label-width="80px" >
-
+        <el-form :model="editData" {{if gt (.updatecolumns|len) 4 -}}:inline="true"{{- end}} >
+        
           {{range $i,$c:=.updatecolumns}}
-  
             {{if eq $c.domType $textarea -}}
             <el-form-item label="{{$c.descsimple}}">
-              <el-input
-              type="textarea"
-              :rows="2"
-              placeholder="请输入{{$c.descsimple}}"
-              v-model="editData.{{$c.name}}">
-              </el-input>
+            <el-input
+            type="textarea"
+            :rows="2"
+            placeholder="请输入{{$c.descsimple}}"
+            v-model="editData.{{$c.name}}">
+            </el-input>
             </el-form-item>
             {{- else -}}
-
+           
             <el-form-item label="{{$c.descsimple}}">
-            <el-{{$c.domType}} clearable  v-model="editData.{{$c.name}}"  placeholder="请输入{{$c.descsimple}}">
+            <el-{{$c.domType}} clearable  v-model="editData.{{$c.name}}" {{if eq $c.domType $dt -}} value-format="yyyy-MM-dd HH:mm:ss" {{- end}}   placeholder="请输入{{$c.descsimple}}">
             {{if eq $c.domType $select -}}
               <el-option
                 v-for="item in {{$c.name}}"
@@ -132,9 +130,8 @@ const HTMLTpl = `
             </el-{{$c.domType}}>
             </el-form-item>
             {{- end}}
-          
           {{end}}
-  
+     
         </el-form>
         <div slot="footer" class="dialog-footer">
           <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
@@ -173,8 +170,8 @@ export default {
     {{range $i,$c:=.querycolumns -}}
     {{range $k,$v := $c.source -}}
     {{$k}}:[],
+    {{end -}}
     {{- end -}}
-    {{- end}}
     rules: {                    //数据验证规则
       {{range $i,$c:=.createcolumns -}}
       {{$c.name}}: [
@@ -212,6 +209,10 @@ export default {
     */
     init(){
       this.query()
+    },
+    detailShow(val){
+      val.getpath ="{{.path}}"
+      this.$emit('addTab',"详情"+val.id,"{{.path}}.view",val);
     },
     /*
     *查询数据并赋值
@@ -302,8 +303,14 @@ export default {
       console.log(this.editData);
       this.$put("{{.path}}", this.editData)
       .then(res => {
+        this.$message({
+          type: "success",
+          message: "修改成功!"
+        });
         this.dialogFormVisible = false;
         this.query()
+
+
       })
       .catch(err => {
         this.$message({

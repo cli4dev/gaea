@@ -14,7 +14,7 @@ const UpdateFunc = `
 func(d *Db{{.name|cname}}) Update(input *Update{{.name|cname}}) error {
 
 	db := d.c.GetRegularDB()
-	_, q, a, err := db.Execute(sql.Update{{.name|cname}}, map[string]interface{}{
+	lastInsertID, affectedRow, q, a, err := db.Executes(sql.Update{{.name|cname}}, map[string]interface{}{
 		{{range $i,$c:=.pk -}}
 		"{{$c.name}}": input.{{$c.name|cname}},
 		{{end -}}
@@ -22,8 +22,9 @@ func(d *Db{{.name|cname}}) Update(input *Update{{.name|cname}}) error {
 		"{{$c.name}}":input.{{$c.name|cname}},
 		{{end -}}
 	})
+	fmt.Println(lastInsertID, affectedRow)
 	if err != nil {
-		return fmt.Errorf("更新{{.desc}}数据发生错误(err:%v),sql:%s,参数：%v", err, q, a)
+		return fmt.Errorf("更新{{.desc}}数据发生错误(err:%v),sql:%s,参数：%v,受影响的行数：%v", err, q, a, affectedRow)
 	}
 	return nil
 }

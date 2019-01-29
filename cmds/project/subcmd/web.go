@@ -55,6 +55,7 @@ func (p *WebCmd) getStartFlags() []cli.Flag {
 		Usage: "项目名称",
 	}, cli.StringFlag{
 		Name:  "port,p,web.port",
+		Value: ":8090",
 		Usage: "web port配置",
 	}, cli.BoolFlag{
 		Name:  "static,web.static",
@@ -136,6 +137,7 @@ func (p *WebCmd) action(c *cli.Context) (err error) {
 			"db":          util.GetRightString(types.GetString(c.String("db")), ":", ""),
 			"cache":       c.Bool("cache"),
 			"queue":       c.Bool("queue"),
+			"login":       "",
 		})
 		if err != nil {
 			cmds.Log.Error(err)

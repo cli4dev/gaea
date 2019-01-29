@@ -12,6 +12,8 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
+
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/module/tmpls"
 	"github.com/micro-plat/gaea/cmds/service/tpl"
@@ -32,10 +34,11 @@ func getInputData(tb *conf.Table, tbs []*conf.Table) map[string]interface{} {
 	input := map[string]interface{}{
 		"name":          tb.Name,
 		"desc":          tb.Desc,
-		"createcolumns": getCreateColumns(tb),      //创建数据必需的字段
-		"querycolumns":  getQueryColumns(tb),       //查询字段
-		"updatecolumns": getUpdateColumns(tb),      //可更新的字段
-		"selectcolumns": getSelectColumns(tb, tbs), //要显示的字段
+		"createcolumns": getCreateColumns(tb),     //创建数据必需的字段
+		"getcolumns":    getSingleDetail(tb, tbs), //单条数据要显示的字段
+		"querycolumns":  getQueryColumns(tb),      //查询字段
+		"updatecolumns": getUpdateColumns(tb),     //可更新的字段
+		"selectcolumns": getListColumns(tb, tbs),  //列表要显示的字段
 		"pk":            getPks(tb),
 		"seqs":          getSeqs(tb),
 		"path":          GetRouterPath(tb.Name),
@@ -45,6 +48,17 @@ func getInputData(tb *conf.Table, tbs []*conf.Table) map[string]interface{} {
 		"joinCondition": getJoinCondition(tb, tbs),
 		"joinField":     getJoinField(tb, tbs),
 		"joinWhere":     getJoinWhere(tb, tbs),
+	}
+
+	return input
+}
+
+//GetMDInputData 获取模板数据
+func GetMDInputData(tb *conf.Table) map[string]interface{} {
+	input := map[string]interface{}{
+		"name":    tb.Name,
+		"desc":    tb.Desc,
+		"columns": getColumns(tb),
 	}
 
 	return input
@@ -74,7 +88,7 @@ func getJoinWhere(tb *conf.Table, tbs []*conf.Table) []string {
 				}
 			}
 			if len(p) > 1 {
-				str := "and " + p[0] + "." + v + "= \"" + p[1] + "\""
+				str := " and t" + strconv.Itoa(i) + "." + v + "= \"" + p[1] + "\""
 				join = append(join, str)
 			}
 		}
@@ -95,12 +109,12 @@ func getJoinField(tb *conf.Table, tbs []*conf.Table) []string {
 			p := strings.Split(tb.Cons[i][s+1:e], ",")
 			for _, tb2 := range tbs {
 				if tb2.Name == p[0] {
-					for i, v := range tb2.CNames {
-						if tb2.Cons[i] == "" || tb2.Cons[i] == "-" {
+					for k, v2 := range tb2.CNames {
+						if tb2.Cons[k] == "" || tb2.Cons[k] == "-" {
 							panic("数据表没有指定约束")
 						}
-						if strings.Contains(tb2.Cons[i], "DN") {
-							joinField = append(joinField, tb2.Name+"."+v+",")
+						if strings.Contains(tb2.Cons[k], "DN") {
+							joinField = append(joinField, "t"+strconv.Itoa(i)+"."+v2+" as name_"+v+",")
 						}
 					}
 				}
@@ -126,7 +140,8 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 			s := strings.Index(tb.Cons[i], "(")
 			e := strings.Index(tb.Cons[i], ")")
 			p := strings.Split(tb.Cons[i][s+1:e], ",")
-			if len(p) > 1 {
+			var str string
+			if len(p) >= 1 {
 				for _, tb2 := range tbs {
 					if tb2.Name == p[0] {
 						for k := range tb2.CNames {
@@ -136,11 +151,13 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 						}
 					}
 				}
+				str = "left join " + p[0] + " AS t" + strconv.Itoa(i) + " on t." + tb.CNames[i] + " = t" + strconv.Itoa(i) + "." + v
 			}
-			str := "left join " + p[0] + " on " + tb.Name + "." + tb.CNames[i] + " = " + p[0] + "." + v
+
 			join = append(join, str)
 		}
 	}
+	fmt.Println(join)
 	return join
 
 }
@@ -206,6 +223,46 @@ func fGetCNameByIdent(name, ident string) string {
 	return strings.Join(nitems, "")
 }
 
+func getSingleDetail(tb *conf.Table, tbs []*conf.Table) []map[string]interface{} {
+	columns := make([]map[string]interface{}, 0, len(tb.CNames))
+
+	for i, v := range tb.CNames {
+		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
+			panic("数据表没有指定约束")
+		}
+		if strings.Contains(tb.Cons[i], "R") {
+			descsimple := tb.Descs[i]
+			name := v
+
+			if strings.Contains(tb.Descs[i], "(") {
+				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+			}
+			if strings.Contains(tb.Cons[i], "(") {
+
+				s := strings.Index(tb.Cons[i], "(")
+				e := strings.Index(tb.Cons[i], ")")
+				p := strings.Split(tb.Cons[i][s+1:e], ",")
+				name, descsimple = getNameAndDescsimple(name, descsimple, p, tbs)
+			}
+			row := map[string]interface{}{
+				"name":       name,
+				"pname":      v,
+				"descsimple": descsimple,
+				"desc":       tb.Descs[i],
+				"type":       tb.Types[i],
+				"len":        tb.Lens[i],
+				"end":        i != len(tb.CNames)-1,
+			}
+			columns = append(columns, row)
+		}
+
+	}
+	if len(columns) > 0 {
+		columns[len(columns)-1]["end"] = false
+	}
+	return columns
+}
+
 func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
@@ -213,7 +270,7 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
 			panic("数据表没有指定约束")
 		}
-		if strings.Contains(tb.Cons[i], "I") && !strings.Contains(tb.Cons[i], "SEQ") {
+		if strings.Contains(tb.Cons[i], "C") && !strings.Contains(tb.Cons[i], "SEQ") {
 			descsimple := tb.Descs[i]
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
@@ -230,6 +287,30 @@ func getCreateColumns(tb *conf.Table) []map[string]interface{} {
 			}
 			columns = append(columns, row)
 		}
+
+	}
+	if len(columns) > 0 {
+		columns[len(columns)-1]["end"] = false
+	}
+	return columns
+}
+
+func getColumns(tb *conf.Table) []map[string]interface{} {
+	columns := make([]map[string]interface{}, 0, len(tb.CNames))
+
+	for i, v := range tb.CNames {
+
+		row := map[string]interface{}{
+			"name":   v,
+			"def":    tb.Defs[i],
+			"type":   tb.Types[i],
+			"isnull": tb.IsNulls[i],
+			"cons":   tb.Cons[i],
+			"len":    tb.Lens[i],
+			"desc":   tb.Descs[i],
+			"end":    i != len(tb.CNames)-1,
+		}
+		columns = append(columns, row)
 
 	}
 	if len(columns) > 0 {
@@ -273,19 +354,27 @@ func getSource(name, cons string) map[string]interface{} {
 	c["path"] = path
 	c["params"] = ""
 	if len(p) > 1 {
-		c["params"] = "{t:\"" + p[1] + "\"}"
+		c["params"] = "{type:\"" + p[1] + "\"}"
 	}
 	m[name] = c
 	return m
 }
 
-func getNameAndDescsimple(v, d, tbName string, tbs []*conf.Table) (name, desc string) {
+func getNameAndDescsimple(v, d string, tbName []string, tbs []*conf.Table) (name, desc string) {
 	for _, tb := range tbs {
-		if tb.Name == tbName {
+		if tb.Name == tbName[0] {
 			for i := range tb.CNames {
 				if strings.Contains(tb.Cons[i], "DN") {
-					fmt.Println(tb.CNames[i], tb.Descs[i])
-					return tb.CNames[i], tb.Descs[i]
+					name = tb.CNames[i] + "_" + v
+					if len(tbName) > 1 {
+						desc = d
+						return
+					}
+					desc = tb.Descs[i]
+					if strings.Contains(tb.Descs[i], "(") {
+						desc = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
+					}
+					return
 				}
 			}
 		}
@@ -301,6 +390,9 @@ func getQueryColumns(tb *conf.Table) []map[string]interface{} {
 			panic("数据表没有指定约束")
 		}
 		if strings.Contains(tb.Cons[i], "Q") && !strings.Contains(tb.Cons[i], "SEQ") {
+			if strings.Count(tb.Cons[i], "Q") == 1 && strings.Contains(tb.Cons[i], "UNQ") {
+				continue
+			}
 			descsimple := tb.Descs[i]
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
@@ -334,6 +426,9 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 			panic("数据表没有指定约束")
 		}
 		if strings.Contains(tb.Cons[i], "U") && !strings.Contains(tb.Cons[i], "SEQ") && !strings.Contains(tb.Cons[i], "PK") {
+			if strings.Count(tb.Cons[i], "U") == 1 && strings.Contains(tb.Cons[i], "UNQ") {
+				continue
+			}
 			descsimple := tb.Descs[i]
 			if strings.Contains(tb.Descs[i], "(") {
 				descsimple = tb.Descs[i][:strings.Index(tb.Descs[i], "(")]
@@ -358,14 +453,15 @@ func getUpdateColumns(tb *conf.Table) []map[string]interface{} {
 	return columns
 }
 
-func getSelectColumns(tb *conf.Table, tbs []*conf.Table) []map[string]interface{} {
+//获取列表字段
+func getListColumns(tb *conf.Table, tbs []*conf.Table) []map[string]interface{} {
 	columns := make([]map[string]interface{}, 0, len(tb.CNames))
 
 	for i, v := range tb.CNames {
 		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
 			panic("数据表没有指定约束")
 		}
-		if strings.Contains(tb.Cons[i], "S") {
+		if strings.Contains(tb.Cons[i], "L") {
 			descsimple := tb.Descs[i]
 			name := v
 
@@ -377,7 +473,9 @@ func getSelectColumns(tb *conf.Table, tbs []*conf.Table) []map[string]interface{
 				s := strings.Index(tb.Cons[i], "(")
 				e := strings.Index(tb.Cons[i], ")")
 				p := strings.Split(tb.Cons[i][s+1:e], ",")
-				name, descsimple = getNameAndDescsimple(name, tb.Descs[i], p[0], tbs)
+
+				name, descsimple = getNameAndDescsimple(name, descsimple, p, tbs)
+
 			}
 			row := map[string]interface{}{
 				"name":       name,
@@ -680,6 +778,24 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 	return out, nil
 }
 
+//GetMDTmples 获取生成md文件的模板
+func GetMDTmples(tag, tplName string, tbs []*conf.Table) (out map[string]string, err error) {
+	out = map[string]string{}
+	for _, tb := range tbs {
+		//获取模板数据
+		input := GetMDInputData(tb)
+		//翻译模板
+		content, err := Translate(tag, tplName, input)
+		if err != nil {
+			return nil, err
+		}
+
+		out[tb.Name] = content
+
+	}
+	return out, nil
+}
+
 //GetServerTmples 获取模板
 //@tag 模板标签
 //@tplName 模板名字
@@ -764,6 +880,15 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, pro
 		}
 		c[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
 		out[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
+
+		view, err := Translate(tag, vue.Tpl, input)
+		if err != nil {
+			return nil, err
+		}
+
+		c[fmt.Sprintf(projectPath+"/%s.view.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(view, "'", "`", -1)
+		out[fmt.Sprintf(projectPath+"/%s.view.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
+
 	}
 	return out, nil
 }
