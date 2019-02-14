@@ -3,12 +3,43 @@ package tmpls
 //SelectOracleTmpl Select oracle sql 模板
 const SelectOracleTmpl = `
 //Get{{.name|cname}} 查询单条数据{{.desc}}
-const Get{{.name|cname}} = 'select {{range $i,$c:=.getcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}} 
-from {{.name}} where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
+const Get{{.name|cname}} = '
+select {{range $i,$c:=.getcolumns}}t.{{$c.pname}}{{if $c.end}},{{end}}{{end}} 
+{{if ne (.joinField|len) 0 -}}
+,{{range $i,$c:=.joinField -}}
+{{$c}}
+{{- end}}
+{{- end}}
+from {{.name}} t
+{{range $i,$c:=.joinCondition}}
+{{$c}}
+{{end}}
+where 1=1 
+{{if ne (.joinWhere|len) 0 -}}
+{{range $i,$c:=.joinWhere -}}
+{{$c}}
+{{- end}}
+{{- end}}
+{{range $i,$c:=.pk}}&{{$c.name}} {{end}}
+'
 
 //Query{{.name|cname}}Count 获取{{.desc}}列表条数
-const Query{{.name|cname}}Count = 'select count(1)
-from {{.name}} where 1=1 {{range $i,$c:=.querycolumns}}&{{$c.name}} {{end}}'
+const Query{{.name|cname}}Count = '
+select count(1)
+from {{.name}} t
+{{range $i,$c:=.joinCondition}}
+{{$c}}
+{{end}}
+where 1=1 
+{{if ne (.joinWhere|len) 0 -}}
+{{range $i,$c:=.joinWhere -}}
+{{$c}}
+{{- end}}
+{{- end}}
+{{range $i,$c:=.querycolumns}} 
+ &t.{{$c.name}}
+{{end}}
+'
 
 
 //Query{{.name|cname}} 查询{{.desc}}列表数据
@@ -16,8 +47,28 @@ const Query{{.name|cname}} = '
 select {{range $i,$c:=.selectcolumns}}TAB1.{{$c.name}}{{if $c.end}},{{end}}{{end}} 
 from (select L.*  
 	from (select rownum as rn,R.* 
-		from (select t.* from {{.name}} t 
-			where 1=1 {{range $i,$c:=.querycolumns}}&t.{{$c.name}} {{end}}) R 
+		from (
+			select {{range $i,$c:=.selectcolumns}}t.{{$c.pname}}{{if $c.end}},{{end}}{{end}} 
+			{{if ne (.joinField|len) 0 -}}
+			,{{range $i,$c:=.joinField -}}
+			{{$c}}
+			{{- end}}
+			{{- end}}
+			from {{.name}} t
+			{{range $i,$c:=.joinCondition}}
+			{{$c}}
+			{{end}}
+			where 1=1 
+			{{if ne (.joinWhere|len) 0 -}}
+			{{range $i,$c:=.joinWhere -}}
+			{{$c}}
+			{{- end}}
+			{{- end}}
+			{{range $i,$c:=.querycolumns}} 
+			 &t.{{$c.name}}
+			{{end}} 
+			order by {{range $i,$c:=.pk}}t.{{$c.name}} desc {{if $c.end}},{{end}}{{end}}
+			) R 
 	where rownum <= @pi * @ps) L 
 where L.rn > (@pi - 1) * @ps) TAB1'
 `

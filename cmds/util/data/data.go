@@ -151,7 +151,7 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 						}
 					}
 				}
-				str = "left join " + p[0] + " AS t" + strconv.Itoa(i) + " on t." + tb.CNames[i] + " = t" + strconv.Itoa(i) + "." + v
+				str = "inner join " + p[0] + " t" + strconv.Itoa(i) + " on t." + tb.CNames[i] + " = t" + strconv.Itoa(i) + "." + v
 			}
 
 			join = append(join, str)
