@@ -152,7 +152,7 @@ func fGetType(n string) string {
 		case "date":
 			return "datetime"
 		case "nclob":
-			return "text"
+			return "longtext"
 		}
 	case 2:
 		switch tps[0] {
