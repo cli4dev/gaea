@@ -365,7 +365,8 @@ func getNameAndDescsimple(v, d string, tbName []string, tbs []*conf.Table) (name
 		if tb.Name == tbName[0] {
 			for i := range tb.CNames {
 				if strings.Contains(tb.Cons[i], "DN") {
-					name = tb.CNames[i] + "_" + v
+					// name = tb.CNames[i] + "_" + v
+					name = "name_" + v
 					if len(tbName) > 1 {
 						desc = d
 						return
