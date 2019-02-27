@@ -152,7 +152,7 @@ func fGetType(n string) string {
 		case "date":
 			return "datetime"
 		case "nclob":
-			return "text"
+			return "longtext"
 		}
 	case 2:
 		switch tps[0] {
@@ -171,7 +171,7 @@ func fGetType(n string) string {
 	case 3:
 		switch tps[0] {
 		case "number":
-			return fmt.Sprintf("decimal(%s,%s)", tps[1], tps[2])
+			return fmt.Sprintf("numeric(%s,%s)", tps[1], tps[2])
 		}
 	}
 	panic("未处理的类型:" + n)
