@@ -12,10 +12,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
-
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/module/tmpls"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue/src/pages"
 	"github.com/micro-plat/gaea/cmds/service/tpl"
 	"github.com/micro-plat/gaea/cmds/util/conf"
 )
@@ -882,7 +881,7 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, pro
 		c[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
 		out[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
 
-		view, err := Translate(tag, vue.Tpl, input)
+		view, err := Translate(tag, pages.Tpl, input)
 		if err != nil {
 			return nil, err
 		}

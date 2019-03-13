@@ -1,4 +1,4 @@
-package vue
+package src
 
 const HTTPTpl = `
 import axios from 'axios';

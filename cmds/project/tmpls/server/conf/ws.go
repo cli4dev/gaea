@@ -1,4 +1,4 @@
-package dev
+package conf
 
 //WSSubAPP .
 const WSSubAPP = `//ws.appconf#//

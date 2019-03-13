@@ -1,4 +1,4 @@
-package dev
+package conf
 
 //RPCMainPort .
 const RPCMainPort = `//rpc.port#//

@@ -1,6 +1,6 @@
-package tmpls
+package server
 
-const mainTmpl = `
+const MainTmpl = `
 package main
 
 import "github.com/micro-plat/hydra/hydra"

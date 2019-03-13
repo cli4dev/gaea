@@ -1,5 +1,6 @@
 package subcmd
 
+// QueryMysql .
 const QueryMysql = `
 select
    c.table_name,

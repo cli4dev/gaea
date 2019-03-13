@@ -1,4 +1,4 @@
-package dev
+package conf
 
 //CronSubApp .
 const CronSubApp = `//cron.appconf#//

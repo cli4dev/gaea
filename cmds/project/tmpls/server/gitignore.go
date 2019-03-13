@@ -1,6 +1,6 @@
-package tmpls
+package server
 
-const gitignoreTmpl = `
+const GitignoreTmpl = `
 *{{.projectName|lName}}
 # Binaries for programs and plugins
 *.exe

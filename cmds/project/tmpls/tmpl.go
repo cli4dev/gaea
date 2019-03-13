@@ -5,13 +5,17 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/micro-plat/gaea/cmds/project/tmpls/server"
 	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue/public"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue/src"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue/src/pages"
 	"github.com/micro-plat/gaea/cmds/util"
 	"github.com/micro-plat/gaea/cmds/util/data"
 
 	"github.com/micro-plat/lib4go/utility"
 
-	"github.com/micro-plat/gaea/cmds/project/tmpls/dev"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/server/conf"
 )
 
 var templateFiles map[string][]string
@@ -69,48 +73,48 @@ func init() {
 	names["ws.jwt"] = wsAuth
 
 	templates = make(map[string]string)
-	templates["api.port"] = dev.APIMainPort
-	templates["api.jwt"] = dev.APISubAuth
-	templates["api.jwt.prod"] = dev.APISubAuthProd
-	templates["db"] = dev.PlatVarDB
-	templates["cache"] = dev.PlatVarCache
-	templates["queue"] = dev.PlatVarQueue
-	templates["api.cros"] = dev.APISubCros
-	templates["api.metric"] = dev.APISubMetric
-	templates["api.appconf"] = dev.APIApp
-	templates["db.init"] = DBInit
-	templates["queue.init"] = QueueInit
-	templates["cache.init"] = CacheInit
-	templates["appconf.func"] = APPConfFunc
-	templates["handling.jwt"] = dev.HandlingJWT
-	templates["cron.appconf"] = dev.CronSubApp
-	templates["cron.task"] = dev.CronSubTask
-	templates["cron.metric"] = dev.CronSubMetric
-	templates["web.port"] = dev.WebMainPort
-	templates["web.static"] = dev.WebSubStatic
-	templates["web.metric"] = dev.WebSubMetric
-	templates["mqc.server"] = dev.MqcSubServer
-	templates["mqc.queue"] = dev.MqcSubQueue
-	templates["mqc.metric"] = dev.MqcSubQueue
-	templates["rpc.metric"] = dev.RPCSubMetric
-	templates["rpc.port"] = dev.RPCMainPort
-	templates["ws.metric"] = dev.WSSubMetric
-	templates["ws.appconf"] = dev.WSSubAPP
-	templates["ws.jwt"] = dev.WSSubAuth
+	templates["api.port"] = conf.APIMainPort
+	templates["api.jwt"] = conf.APISubAuth
+	templates["api.jwt.prod"] = conf.APISubAuthProd
+	templates["db"] = conf.PlatVarDB
+	templates["cache"] = conf.PlatVarCache
+	templates["queue"] = conf.PlatVarQueue
+	templates["api.cros"] = conf.APISubCros
+	templates["api.metric"] = conf.APISubMetric
+	templates["api.appconf"] = conf.APIApp
+	templates["db.init"] = server.DBInit
+	templates["queue.init"] = server.QueueInit
+	templates["cache.init"] = server.CacheInit
+	templates["appconf.func"] = server.APPConfFunc
+	templates["handling.jwt"] = conf.HandlingJWT
+	templates["cron.appconf"] = conf.CronSubApp
+	templates["cron.task"] = conf.CronSubTask
+	templates["cron.metric"] = conf.CronSubMetric
+	templates["web.port"] = conf.WebMainPort
+	templates["web.static"] = conf.WebSubStatic
+	templates["web.metric"] = conf.WebSubMetric
+	templates["mqc.server"] = conf.MqcSubServer
+	templates["mqc.queue"] = conf.MqcSubQueue
+	templates["mqc.metric"] = conf.MqcSubQueue
+	templates["rpc.metric"] = conf.RPCSubMetric
+	templates["rpc.port"] = conf.RPCMainPort
+	templates["ws.metric"] = conf.WSSubMetric
+	templates["ws.appconf"] = conf.WSSubAPP
+	templates["ws.jwt"] = conf.WSSubAuth
 
 	vueTemplates = make(map[string]string)
-	vueTemplates["public/index.html"] = vue.IndexHTML
+	vueTemplates["public/index.html"] = public.IndexHTML
 	vueTemplates["package.json"] = vue.PackAgeJSON
 	vueTemplates["postcss.config.js"] = vue.PostCss
 	vueTemplates["babel.config.js"] = vue.Babel
-	vueTemplates["src/main.js"] = vue.MainJS
-	vueTemplates["src/router.js"] = vue.Router
-	vueTemplates["src/App.vue"] = vue.AppVue
-	vueTemplates["src/store.js"] = vue.Store
-	vueTemplates["src/pages/menu/menu.vue"] = vue.MenuTpl
-	vueTemplates["src/pages/login/login.vue"] = vue.LoginTpl
-	vueTemplates["src/util/http.js"] = vue.HTTPTpl
-	vueTemplates[".gitignore"] = gitignoreTmpl
+	vueTemplates["src/main.js"] = src.MainJS
+	vueTemplates["src/router.js"] = src.Router
+	vueTemplates["src/App.vue"] = src.AppVue
+	vueTemplates["src/store.js"] = src.Store
+	vueTemplates["src/pages/menu/menu.vue"] = pages.MenuTpl
+	vueTemplates["src/pages/login/login.vue"] = pages.LoginTpl
+	vueTemplates["src/util/http.js"] = src.HTTPTpl
+	vueTemplates[".gitignore"] = server.GitignoreTmpl
 	vueTemplates[".env.prod"] = vue.EnvProd
 	vueTemplates[".env.dev"] = vue.EnvDev
 	vueTemplates["vue.config.js"] = vue.VueConfig

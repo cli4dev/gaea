@@ -1,6 +1,6 @@
-package tmpls
+package server
 
-const handlingTmpl = `package main
+const HandlingTmpl = `package main
 {{$empty := "" -}}
 import (
 	'github.com/micro-plat/hydra/context'

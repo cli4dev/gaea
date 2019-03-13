@@ -1,6 +1,6 @@
-package tmpls
+package server
 
-const initTmpl = `
+const InitTmpl = `
 {{$empty := "" -}}
 package main
 import (

@@ -1,6 +1,6 @@
-package tmpls
+package server
 
-const installDevTmpl = `// +build !prod
+const InstallDevTmpl = `// +build !prod
 
 package main
 

@@ -1,4 +1,4 @@
-package dev
+package conf
 
 //MqcSubServer .
 const MqcSubServer = `//mqc.server#//

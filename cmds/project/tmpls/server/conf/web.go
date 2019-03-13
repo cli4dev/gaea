@@ -1,4 +1,4 @@
-package dev
+package conf
 
 //WebMainPort .
 const WebMainPort = `//web.port#//

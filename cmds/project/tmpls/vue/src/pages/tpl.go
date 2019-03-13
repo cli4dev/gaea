@@ -1,4 +1,4 @@
-package vue
+package pages
 
 const Tpl = `<template>
 <el-table

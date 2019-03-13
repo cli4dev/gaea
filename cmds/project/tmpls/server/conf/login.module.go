@@ -1,4 +1,4 @@
-package dev
+package conf
 
 const AppModuleMemberMenu = `package member
 

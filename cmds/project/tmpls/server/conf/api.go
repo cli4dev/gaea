@@ -1,4 +1,4 @@
-package dev
+package conf
 
 //APIMainPort .
 const APIMainPort = `//api.port#//

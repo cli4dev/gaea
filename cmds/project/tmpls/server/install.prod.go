@@ -1,6 +1,6 @@
-package tmpls
+package server
 
-const installProdTmpl = `// +build prod
+const InstallProdTmpl = `// +build prod
 
 package main
 
