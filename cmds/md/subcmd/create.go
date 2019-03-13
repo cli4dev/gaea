@@ -19,7 +19,7 @@ type Table2MD struct {
 	obj      *db.DB
 }
 
-//NewMicServiceCmd .
+// NewMicServiceCmd .
 func NewTable2MDCmd() cli.Command {
 
 	m := &Table2MD{}
@@ -157,26 +157,36 @@ func (m *Table2MD) createMysqlMD() (err error) {
 }
 
 func (m *Table2MD) createOracleMD() (err error) {
-
-	datas, q, a, err := m.obj.Query(QueryOracle, map[string]interface{}{})
+	//
+	tableNames, q, a, err := m.obj.Query(GetAllTableNameInOracle, map[string]interface{}{})
 	if err != nil {
 		return fmt.Errorf("oracle(err:%v),sql:%s,输入参数:%v,", err, q, a)
 	}
 
 	d := map[string]*conf.Table{}
-	for _, v := range datas {
-		if _, ok := d[v.GetString("table_name")]; !ok {
-			d[v.GetString("table_name")] = conf.NewTable(strings.ToLower(v.GetString("table_name")), v.GetString("table_comment"))
+	for _, v := range tableNames {
+		datas, q, a, err := m.obj.Query(GetSingleTableInfoInOracle, map[string]interface{}{
+			"table_name": strings.ToUpper(v.GetString("table_name")),
+		})
+		if err != nil {
+			return fmt.Errorf("oracle(err:%v),sql:%s,输入参数:%v,", err, q, a)
 		}
-		d[v.GetString("table_name")].AppendColumn(
-			strings.ToLower(v.GetString("column_name")),
-			strings.ToLower(v.GetString("column_type")),
-			v.GetString("data_length"),
-			"",
-			m.getBool(v["nullable"]),
-			"",
-			v.GetString("column_comment"),
-		)
+
+		if _, ok := d[v.GetString("table_name")]; !ok {
+			d[v.GetString("table_name")] = conf.NewTable(strings.ToLower(v.GetString("table_name")), datas.Get(0).GetString("table_comments"))
+		}
+		for _, v2 := range datas {
+			d[v.GetString("table_name")].AppendColumn(
+				strings.ToLower(v2.GetString("column_name")),
+				strings.ToLower(v2.GetString("data_type")),
+				v2.GetString("data_length"),
+				v2.GetString("data_default"),
+				m.getBool(v2.GetString("nullable")),
+				"",
+				v2.GetString("column_comments"),
+			)
+		}
+
 	}
 	tbs := []*conf.Table{}
 	for _, v := range d {
