@@ -59,8 +59,26 @@ const HTMLAddTpl = `
 					  { required: true, message: "请输入{{$c.descsimple}}", trigger: "blur" }
 					],
 					{{end -}}
-				  },
+                  },
+                {{range $i,$c:=.querycolumns -}}
+                {{range $k,$v := $c.source -}}
+                {{$k}}:[],
+                {{end -}}
+                {{- end -}}
             }
+        },
+        created(){
+            {{range $i,$c:=.querycolumns -}}
+            {{range $k,$v:= $c.source}}
+              this.$get("{{$v.path}}",{{if ne $v.params "" -}} {{$v.params}} {{- else -}} {} {{- end}})
+              .then(res => {
+                this.{{$k}}= res
+              })
+              .catch(err => {
+                  console.log(err)
+              });
+            {{end}}
+            {{- end}}
         },
         methods: {
             resetForm(formName) {
