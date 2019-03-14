@@ -1,6 +1,6 @@
 package pages
 
-const Tpl = `<template>
+const ViewTpl = `<template>
 <el-table
 	:data="info"
 	style="width: 100%" :show-header="false" :default-expand-all="true">
@@ -16,15 +16,15 @@ const Tpl = `<template>
 		</template>
 	</el-table-column>
 	<el-table-column
-	label="商品 ID"
+	label=""
 	>
 	</el-table-column>
 	<el-table-column
-	label="商品名称"
+	label=""
 	>
 	</el-table-column>
 	<el-table-column
-	label="描述"
+	label=""
 	>
 	</el-table-column>
 	</el-table>

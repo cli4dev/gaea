@@ -8,6 +8,8 @@ const HTMLTpl = `
 {{$dt := "date-picker" -}}
 <template>
   <div class="panel panel-default">
+
+    <!-- query start -->
     <div class="panel-body">
       <el-form ref="form"  :inline="true" class="form-inline pull-left">
 		    {{range $i,$c:=.querycolumns}}
@@ -49,45 +51,10 @@ const HTMLTpl = `
           <el-button type="success" size="small" @click="addShow">添加</el-button>
         </el-form-item >
       </el-form>
-
-      <!-- Add Form -->
-      <el-dialog title="添加{{.desc}}" {{if gt (.createcolumns|len) 4 -}} width="35%" {{else}} width="26%" {{- end}} :visible.sync="dialogAddVisible">
-        <el-form :model="addData"  {{if gt (.createcolumns|len) 4 -}}:inline="true"{{- end}} :rules="rules" ref="addForm">
-       
-        {{range $i,$c:=.createcolumns}}
-            {{if eq $c.domType $textarea -}}
-            <el-form-item label="{{$c.descsimple}}" prop="{{$c.pname}}">
-            <el-input
-            type="textarea"
-            :rows="2"
-            placeholder="请输入{{$c.descsimple}}"
-            v-model="addData.{{$c.name}}">
-            </el-input>
-            </el-form-item>
-            {{- else -}}
-            <el-form-item label="{{$c.descsimple}}" prop="{{$c.name}}">
-            <el-{{$c.domType}} clearable  v-model="addData.{{$c.name}}" {{if eq $c.domType $dt -}} value-format="yyyy-MM-dd HH:mm:ss" {{- end}}   placeholder="请输入{{$c.descsimple}}">
-            {{if eq $c.domType $select -}}
-              <el-option
-                v-for="item in {{$c.name}}"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id">
-              </el-option>
-            {{- end}}
-            </el-{{$c.domType}}>
-            </el-form-item>
-            {{- end}}
-          {{end}}
-      
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button size="small" @click="resetForm('addForm')">取 消</el-button>
-          <el-button size="small" type="success" @click="add('addForm')">确 定</el-button>
-        </div>
-      </el-dialog>
-      <!--Add Form -->
     </div>
+    <!-- query end -->
+
+    <!-- list start-->
     <el-scrollbar style="height:100%">
       <el-table :data="tableData" border style="width: 100%">
         {{range $i,$c:=.selectcolumns}}
@@ -101,44 +68,19 @@ const HTMLTpl = `
           </template>
         </el-table-column>
       </el-table>
-      <!-- edit Form -->
-      <el-dialog title="编辑{{.desc}}" {{if gt (.updatecolumns|len) 4 -}} width="35%" {{else}} width="26%" {{- end}}  @closed="closed" :visible.sync="dialogFormVisible">
-        <el-form :model="editData" {{if gt (.updatecolumns|len) 4 -}}:inline="true"{{- end}} >
-        
-          {{range $i,$c:=.updatecolumns}}
-            {{if eq $c.domType $textarea -}}
-            <el-form-item label="{{$c.descsimple}}">
-            <el-input
-            type="textarea"
-            :rows="2"
-            placeholder="请输入{{$c.descsimple}}"
-            v-model="editData.{{$c.name}}">
-            </el-input>
-            </el-form-item>
-            {{- else -}}
-           
-            <el-form-item label="{{$c.descsimple}}">
-            <el-{{$c.domType}} clearable  v-model="editData.{{$c.name}}" {{if eq $c.domType $dt -}} value-format="yyyy-MM-dd HH:mm:ss" {{- end}}   placeholder="请输入{{$c.descsimple}}">
-            {{if eq $c.domType $select -}}
-              <el-option
-                v-for="item in {{$c.name}}"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id">
-              </el-option>
-            {{- end}}
-            </el-{{$c.domType}}>
-            </el-form-item>
-            {{- end}}
-          {{end}}
-     
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button size="small" @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="success" size="small" @click="edit">确 定</el-button>
-        </div>
-      </el-dialog>
     </el-scrollbar>
+    <!-- list end-->
+
+    <!-- Add Form -->
+    <Add ref="Add"></Add>
+    <!--Add Form -->
+
+    <!-- edit Form start-->
+    <Edit ref="Edit" :refresh="query"></Edit>
+    <!-- edit Form end-->
+
+
+    <!-- pagination start -->
     <div class="page-pagination">
       <el-pagination
         @size-change="handleSizeChange"
@@ -150,17 +92,23 @@ const HTMLTpl = `
         :total="totalcount">
       </el-pagination>
     </div>
+    <!-- pagination end -->
+
 
   </div>
 </template>
 
 <script>
+import Add from "./{{.name|lName}}.add"
+import Edit from "./{{.name|lName}}.edit"
 export default {
-	name: "{{.name|cname}}",
+  name: "{{.name|cname}}",
+  components: {
+    Add,
+    Edit
+  },
 	data () {
 		return {
-    dialogAddVisible:false,     //添加表单显示隐藏
-    dialogFormVisible:false,    //编辑表单显示隐藏
 		pageSizes: [10, 20, 50, 100], 
 		params:{pi:1,ps:10},        //页码，页容量控制
     totalcount: 0,              //数据总条数
@@ -172,13 +120,6 @@ export default {
     {{$k}}:[],
     {{end -}}
     {{- end -}}
-    rules: {                    //数据验证规则
-      {{range $i,$c:=.createcolumns -}}
-      {{$c.name}}: [
-        { required: true, message: "请输入{{$c.descsimple}}", trigger: "blur" }
-      ],
-      {{end -}}
-    },
 		tableData: [{                //表数据
       {{range $i,$c:=.selectcolumns -}}
       {{$c.name}}: "{{$c.name}}1",
@@ -251,79 +192,13 @@ export default {
       this.dialogAddVisible = false
       this.$refs[formName].resetFields();
     },
-    /*
-    *编辑表单关闭事件
-    */
-    closed(){
-      console.log("colsed")
-      this.query()
+    addShow() {
+      this.$refs.Add.show();
     },
-    /*
-    *添加表单显示
-    */
-    addShow(){
-      this.addData = {}
-      this.dialogAddVisible = true;
+    editShow(val) {
+        this.$refs.Edit.editData = val
+        this.$refs.Edit.show();
     },
-    /*
-    *添加数据提交操作
-    */
-    add(formName){
-      console.log(this.addData)
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          this.$post("{{.path}}", this.addData)
-          .then(res => {
-            this.dialogAddVisible = false;
-            this.query()
-          })
-          .catch(err => {
-              console.log(err)
-          })
-          
-        } else {
-          console.log('error submit!!');
-          return false;
-        }
-      });
-      
-    },
-    /**
-    *编辑表单显示
-    *@val 当前行的数据对象
-    */
-    editShow(val){
-      this.editData = val
-      this.dialogFormVisible = true;
-    },
-    /*
-    *编辑数据提交
-    */
-    edit(){
-      console.log(this.editData);
-      this.$put("{{.path}}", this.editData)
-      .then(res => {
-        this.$message({
-          type: "success",
-          message: "修改成功!"
-        });
-        this.dialogFormVisible = false;
-        this.query()
-
-
-      })
-      .catch(err => {
-        this.$message({
-          type: "error",
-          message: err.response.data
-        });
-      })
-      
-    },
-    /**
-    *删除数据
-    *@val 要删除的数据对象
-    */
     del(val){
       console.log(val)
       this.$confirm("此操作将永久删除该数据, 是否继续?", "提示", {

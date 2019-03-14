@@ -68,3 +68,25 @@ func Test_getSource(t *testing.T) {
 	got := getSource("atv_id", "IQS,DD(atv_activity_info)")
 	fmt.Println(got)
 }
+
+func Test_fGetLastName(t *testing.T) {
+	type args struct {
+		n string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		// TODO: Add test cases.
+		{name: "1", args: args{n: "user_base_info"}, want: "info"},
+		{name: "2", args: args{n: "/user/base/info"}, want: "info"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := fGetLastName(tt.args.n); got != tt.want {
+				t.Errorf("fGetLastName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

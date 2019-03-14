@@ -694,7 +694,12 @@ func fsGetType(n string) string {
 }
 
 func fGetLastName(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
+	sp := "/"
+	if strings.Contains(n, "_") {
+		sp = "_"
+	}
+
+	names := strings.Split(strings.Trim(n, sp), sp)
 	return names[len(names)-1]
 }
 
@@ -881,14 +886,26 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, pro
 		c[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
 		out[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
 
-		view, err := Translate(tag, pages.Tpl, input)
+		view, err := Translate(tag, pages.ViewTpl, input)
 		if err != nil {
 			return nil, err
 		}
-
 		c[fmt.Sprintf(projectPath+"/%s.view.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(view, "'", "`", -1)
 		out[fmt.Sprintf(projectPath+"/%s.view.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
 
+		add, err := Translate(tag, pages.HTMLAddTpl, input)
+		if err != nil {
+			return nil, err
+		}
+		c[fmt.Sprintf(projectPath+"/%s.add.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(add, "'", "`", -1)
+		out[fmt.Sprintf(projectPath+"/%s.add.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
+
+		edit, err := Translate(tag, pages.HTMLEditTpl, input)
+		if err != nil {
+			return nil, err
+		}
+		c[fmt.Sprintf(projectPath+"/%s.edit.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(edit, "'", "`", -1)
+		out[fmt.Sprintf(projectPath+"/%s.edit.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
 	}
 	return out, nil
 }
