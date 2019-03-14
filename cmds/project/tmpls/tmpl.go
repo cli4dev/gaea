@@ -158,38 +158,38 @@ const (
 func GetTmpls(projectName string, input map[string]interface{}) (out map[string]string, err error) {
 	input = makeParams(input)
 	out = make(map[string]string)
-	if out["main.go"], err = data.Translate("main.go.tpl", mainTmpl, input); err != nil {
+	if out["main.go"], err = data.Translate("main.go.tpl", server.MainTmpl, input); err != nil {
 		return nil, err
 	}
-	if out["init.go"], err = data.Translate("init.go.tpl", initTmpl, input); err != nil {
+	if out["init.go"], err = data.Translate("init.go.tpl", server.InitTmpl, input); err != nil {
 		return nil, err
 	}
-	if out["install.dev.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(installDevTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
+	if out["install.dev.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(server.InstallDevTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
-	if out["install.prod.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(installProdTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
+	if out["install.prod.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(server.InstallProdTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
-	if out["handling.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(handlingTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
+	if out["handling.go"], err = data.Translate("tpl", strings.Replace(strings.Replace(server.HandlingTmpl, "\"", "`", -1), "'", "\"", -1), input); err != nil {
 		return nil, err
 	}
-	if out[".gitignore"], err = data.Translate("tpl", gitignoreTmpl, input); err != nil {
+	if out[".gitignore"], err = data.Translate("tpl", server.GitignoreTmpl, input); err != nil {
 		return nil, err
 	}
 	out["modules/const/sql/sql.go"] = "package sql"
 	out["services/server.go"] = "package server"
 	if input["login"] != "" {
-		out["services/member/info.go"], _ = data.Translate("tpl", dev.Info, input)
-		out["services/member/login.go"], _ = data.Translate("tpl", dev.Login, input)
-		out["services/member/menu.go"], _ = data.Translate("tpl", dev.Menu, input)
-		out["services/member/changepwd.go"], _ = data.Translate("tpl", dev.ChangePwd, input)
-		out["services/member/user.go"], _ = data.Translate("tpl", dev.User, input)
+		out["services/member/info.go"], _ = data.Translate("tpl", conf.Info, input)
+		out["services/member/login.go"], _ = data.Translate("tpl", conf.Login, input)
+		out["services/member/menu.go"], _ = data.Translate("tpl", conf.Menu, input)
+		out["services/member/changepwd.go"], _ = data.Translate("tpl", conf.ChangePwd, input)
+		out["services/member/user.go"], _ = data.Translate("tpl", conf.User, input)
 
-		out["modules/app/conf.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(dev.AppModuleConf, "\"", "`", -1), "'", "\"", -1), input)
-		out["modules/member/user.go"], _ = data.Translate("tpl", dev.AppModuleMemberUser, input)
-		out["modules/member/menu.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(dev.AppModuleMemberMenu, "\"", "`", -1), "'", "\"", -1), input)
-		out["modules/member/state.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(dev.AppModuleMemberState, "\"", "`", -1), "'", "\"", -1), input)
-		out["modules/util/util.go"], _ = data.Translate("tpl", dev.Util, input)
+		out["modules/app/conf.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(conf.AppModuleConf, "\"", "`", -1), "'", "\"", -1), input)
+		out["modules/member/user.go"], _ = data.Translate("tpl", conf.AppModuleMemberUser, input)
+		out["modules/member/menu.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(conf.AppModuleMemberMenu, "\"", "`", -1), "'", "\"", -1), input)
+		out["modules/member/state.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(conf.AppModuleMemberState, "\"", "`", -1), "'", "\"", -1), input)
+		out["modules/util/util.go"], _ = data.Translate("tpl", conf.Util, input)
 	}
 
 	return out, nil
