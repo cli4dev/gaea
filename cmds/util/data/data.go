@@ -101,6 +101,7 @@ func getJoinField(tb *conf.Table, tbs []*conf.Table) []string {
 		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
 			panic("数据表没有指定约束")
 		}
+		//TODO:
 		source := getSource(v, tb.Cons[i])
 		if len(source) != 0 {
 			s := strings.Index(tb.Cons[i], "(")
@@ -150,7 +151,7 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 						}
 					}
 				}
-				str = "inner join " + p[0] + " t" + strconv.Itoa(i) + " on t." + tb.CNames[i] + " = t" + strconv.Itoa(i) + "." + v
+				str = "inner join " + p[0] + " t" + strconv.Itoa(i) + " on t" + strconv.Itoa(i) + "." + v + " = t." + tb.CNames[i]
 			}
 
 			join = append(join, str)
