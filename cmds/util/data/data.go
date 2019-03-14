@@ -87,7 +87,7 @@ func getJoinWhere(tb *conf.Table, tbs []*conf.Table) []string {
 				}
 			}
 			if len(p) > 1 {
-				str := " and t" + strconv.Itoa(i) + "." + v + "= \"" + p[1] + "\""
+				str := " and t" + strconv.Itoa(i) + "." + v + "= !" + p[1] + "!"
 				join = append(join, str)
 			}
 		}
@@ -768,12 +768,12 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 
 			modulePath = "modules/const/sql"
 
-			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
+			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(strings.Replace(content, "'", "`", -1), "!", "'", -1)
 			sq, err := Translate("head sql", tmpls.DicTpl, input)
 			if err != nil {
 				return nil, err
 			}
-			c["sql"] = strings.Replace(sq, "'", "`", -1)
+			c["sql"] = strings.Replace(strings.Replace(sq, "'", "`", -1), "!", "'", -1)
 			out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = c
 		}
 		if err != nil {
