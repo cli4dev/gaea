@@ -134,7 +134,7 @@ func (m *Table2MD) createMysqlMD() (err error) {
 		d := map[string]*conf.Table{}
 		for _, v := range datas {
 			if _, ok := d[v["table_name"].(string)]; !ok {
-				d[v["table_name"].(string)] = conf.NewTable(v["table_name"].(string), v["table_comment"].(string))
+				d[v["table_name"].(string)] = conf.NewTable(v["table_name"].(string), v["table_comment"].(string), "")
 			}
 			d[v["table_name"].(string)].AppendColumn(
 				v["column_name"].(string),
@@ -191,7 +191,7 @@ func (m *Table2MD) createOracleMD() (err error) {
 			}
 
 			if _, ok := d[v.GetString("table_name")]; !ok {
-				d[v.GetString("table_name")] = conf.NewTable(strings.ToLower(v.GetString("table_name")), datas.Get(0).GetString("table_comments"))
+				d[v.GetString("table_name")] = conf.NewTable(strings.ToLower(v.GetString("table_name")), datas.Get(0).GetString("table_comments"), "")
 			}
 			for _, v2 := range datas {
 				d[v.GetString("table_name")].AppendColumn(

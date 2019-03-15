@@ -3,7 +3,7 @@ package tmpls
 //UpdateTmpl update sql 模板
 const UpdateTmpl = `
 //Update{{.name|cname}} 更新{{.desc}}
-const Update{{.name|cname}} = 'update {{.name}} set
+const Update{{.name|cname}} = 'update {{.name}}{{.dblink}} set
 {{range $i,$c:=.updatecolumns}}{{$c.name}}=@{{$c.name}}{{if $c.end}},{{end}}{{end}}
 where 1=1 {{range $i,$c:=.pk}}&{{$c.name}} {{end}}'
 `

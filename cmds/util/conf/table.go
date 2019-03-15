@@ -3,6 +3,7 @@ package conf
 type Table struct {
 	Name    string   //表名
 	Desc    string   //表描述
+	DBLink  string   //dblink
 	CNames  []string //字段名
 	Lens    []string //长度
 	Types   []string //类型
@@ -12,10 +13,11 @@ type Table struct {
 	Descs   []string //描述
 }
 
-func NewTable(name string, desc string) *Table {
+func NewTable(name, desc, dblink string) *Table {
 	return &Table{
 		Name:    name,
 		Desc:    desc,
+		DBLink:  dblink,
 		CNames:  make([]string, 0, 4),
 		Lens:    make([]string, 0, 4),
 		Types:   make([]string, 0, 4),

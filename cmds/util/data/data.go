@@ -33,6 +33,7 @@ func getInputData(tb *conf.Table, tbs []*conf.Table) map[string]interface{} {
 	input := map[string]interface{}{
 		"name":          tb.Name,
 		"desc":          tb.Desc,
+		"dblink":        tb.DBLink,
 		"createcolumns": getCreateColumns(tb),     //创建数据必需的字段
 		"getcolumns":    getSingleDetail(tb, tbs), //单条数据要显示的字段
 		"querycolumns":  getQueryColumns(tb),      //查询字段
@@ -101,7 +102,6 @@ func getJoinField(tb *conf.Table, tbs []*conf.Table) []string {
 		if tb.Cons[i] == "" || tb.Cons[i] == "-" {
 			panic("数据表没有指定约束")
 		}
-		//TODO:
 		source := getSource(v, tb.Cons[i])
 		if len(source) != 0 {
 			s := strings.Index(tb.Cons[i], "(")
@@ -141,9 +141,11 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 			e := strings.Index(tb.Cons[i], ")")
 			p := strings.Split(tb.Cons[i][s+1:e], ",")
 			var str string
+			var dblink string
 			if len(p) >= 1 {
 				for _, tb2 := range tbs {
 					if tb2.Name == p[0] {
+						dblink = tb2.DBLink
 						for k := range tb2.CNames {
 							if strings.Contains(tb2.Cons[k], "DI") {
 								v = tb2.CNames[k]
@@ -151,7 +153,7 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 						}
 					}
 				}
-				str = "inner join " + p[0] + " t" + strconv.Itoa(i) + " on t" + strconv.Itoa(i) + "." + v + " = t." + tb.CNames[i]
+				str = "inner join " + p[0] + dblink + " t" + strconv.Itoa(i) + " on t" + strconv.Itoa(i) + "." + v + " = t." + tb.CNames[i]
 			}
 
 			join = append(join, str)
