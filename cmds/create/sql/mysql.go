@@ -38,10 +38,7 @@ func (p *mySqlCmd) geStartFlags() []cli.Flag {
 }
 
 func (p *mySqlCmd) action(c *cli.Context) (err error) {
-	mdFilePath, err := getMdList(c.String("t"))
-	if err != nil {
-		return err
-	}
+	mdFilePath := path.GetMDPath()
 	outPath := filepath.Join(path.GetModulePath(), "const/sql/mysql")
 	if c.NArg() > 0 {
 		mdFilePath = []string{c.Args().Get(0)}

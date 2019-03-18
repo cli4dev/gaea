@@ -52,6 +52,11 @@ const HTMLEditTpl = `
             return {
                 dialogFormVisible: false,    //编辑表单显示隐藏
                 editData: {},                //编辑数据对象
+                {{range $i,$c:=.querycolumns -}}
+                {{range $k,$v := $c.source -}}
+                {{$k}}:[],
+                {{end -}}
+                {{- end -}}
             }
         },
         props: {
@@ -60,6 +65,19 @@ const HTMLEditTpl = `
                 default: () => {
                 },
             }
+        },
+        created(){
+            {{range $i,$c:=.querycolumns -}}
+            {{range $k,$v:= $c.source}}
+              this.$get("{{$v.path}}",{{if ne $v.params "" -}} {{$v.params}} {{- else -}} {} {{- end}})
+              .then(res => {
+                this.{{$k}}= res
+              })
+              .catch(err => {
+                  console.log(err)
+              });
+            {{end}}
+            {{- end}}
         },
         methods: {
 

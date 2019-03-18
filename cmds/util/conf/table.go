@@ -1,5 +1,7 @@
 package conf
 
+import "strings"
+
 type Table struct {
 	Name    string   //表名
 	Desc    string   //表描述
@@ -28,6 +30,9 @@ func NewTable(name, desc, dblink string) *Table {
 	}
 }
 func (t *Table) AppendColumn(name string, tp string, len string, def string, isNull bool, cons string, des string) error {
+	if strings.Contains(des, "(") {
+		des = des[:strings.Index(des, "(")]
+	}
 	t.CNames = append(t.CNames, name)
 	t.Lens = append(t.Lens, len)
 	t.Types = append(t.Types, tp)
