@@ -120,11 +120,7 @@ export default {
     {{$k}}:[],
     {{end -}}
     {{- end -}}
-		tableData: [{                //表数据
-      {{range $i,$c:=.selectcolumns -}}
-      {{$c.name}}: "{{$c.name}}1",
-      {{end -}}
-		}]
+		tableData: []
 		}
   },
   created(){

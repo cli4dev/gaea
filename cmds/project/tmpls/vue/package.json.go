@@ -19,8 +19,8 @@ const PackAgeJSON = `
     "vue": "^2.5.17",
     "vue-router": "^3.0.2",
     "vuex": "^3.0.1",
-    "nav-menu":"^1.2.9",
-    "login-with-up":"^1.1.1",
+    "nav-menu":"^1.3.2",
+    "login-with-up":"^1.1.5",
     "axios":"^0.18.0",
     "qs":"^6.6.0",
     "vue-cookies": "^1.5.12"

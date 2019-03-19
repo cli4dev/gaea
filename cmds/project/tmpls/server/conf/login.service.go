@@ -47,6 +47,7 @@ func (u *LoginHandler) Handle(ctx *context.Context) (r interface{}) {
 	//处理用户登录
 	member,code, err := u.m.Login(m)
 	if err != nil {
+		ctx.Response.SetPlain()
 		return context.NewError(code, err)
 	}
 	//设置jwt数据
@@ -88,13 +89,11 @@ func NewInfoHandler(container component.IContainer) (u *InfoHandler) {
 //Handle 获取菜单
 func (u *InfoHandler) Handle(ctx *context.Context) (r interface{}) {
 	ctx.Log.Info("--------获取系统信息----------")
-	ctx.Log.Info("1. 获取参数")
-	mem := member.Get(ctx)
 	//签名
 	var raw string
 	secret := app.GetConf(u.c).GetSecret()
 	m := make(db.QueryRow)
-	m["ident"] = mem.SysIdent
+	m["ident"] = "{{getAppconf .login 3}}"
 	m["timestamp"] = time.Now().Unix()
 	raw, m["sign"] = util.MakeSign(m, secret)
 	ctx.Log.Infof("请求系统信息数据：%v[%s]", m, raw)

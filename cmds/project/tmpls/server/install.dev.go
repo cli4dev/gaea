@@ -69,7 +69,7 @@ func (s *{{.projectName|lName}}) install() {
 		//api.jwt#//
 		s.Conf.API.SetSubConf('auth', "{
 			'jwt': {
-				'exclude': ['/member/login'],
+				'exclude': ['/member/login','/member/getsysinfo'],
 				'source':'H',
 				'expireAt': 36000,
 				'mode': 'HS512',

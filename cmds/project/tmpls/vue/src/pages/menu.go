@@ -5,12 +5,6 @@ const MenuTpl = `
   <div id="app">
     <nav-menu
       :menus="menus"
-      :copyright="copyright"
-      :themes="themes"
-      :logo="logo"
-      :systemName="systemName"
-      :headpic="headpic"
-      :userinfo="userinfo"
       :pwd="pwd"
       ref="NewTap"
     >
@@ -73,13 +67,7 @@ const MenuTpl = `
         }
       };
       return {
-        headpic: "http://sso2.100bm.cn:6888/static/img/a0.jpg",
-        logo: "http://sso2.100bm.cn:6888/static/img/d663155de6dc8e060415bbcd891cb9d4.png",
-        copyright: "2018 {{.projectName}}", //版权信息
-        themes: "bg-danger|bg-danger|bg-dark light-danger", //顶部左侧背景颜色,顶部右侧背景颜色,右边菜单背景颜色
         menus: [{}],  //菜单数据
-        systemName: "{{.projectName}} 系统",  //系统名称
-        userinfo: {},
         indexUrl: "/",
         dialogAddVisible:false,     //添加表单显示隐藏
         updateInfo:{
@@ -107,25 +95,10 @@ const MenuTpl = `
       navMenu
     },
     created(){
-      //this.getAllDictionaryData();
       this.getMenu();
     },
     mounted(){
-      this.$get("/member/getsysinfo",{})
-        .then(res=>{
-          console.log("系统信息",res)
-          this.systemName =res.name;
-          this.logo = res.logo;
-          this.themes = res.theme;
-          if (res.index_url){
-            this.indexUrl  = res.index_url
-          }
-          this.$refs.NewTap.add("首页", this.indexUrl ,{});   //设置默认页面
-      }).catch(err=>{
-          console.log(err)
-      });
-
-      this.userinfo = JSON.parse(sessionStorage.getItem("userinfo"));
+      this.$refs.NewTap.add("首页", this.indexUrl ,{});   //设置默认页面
       document.title = "{{.projectName}} 系统";
     },
     methods:{
@@ -188,21 +161,7 @@ const MenuTpl = `
       setTab(name,path,obj){
         console.log("outer",name,path,obj);
         this.$refs.NewTap.set(name,path,obj);
-      },
-      // 获取枚举字典
-      getAllDictionaryData(){
-        this.$post('/coupon/dictionary/query', {})
-          .then(response=>{
-           // console.log(response);
-            this.EnumUtility.Set(response.list);
-
-          })
-          .catch(error=>{
-            console.error("获取数据字典失败,error:",error)
-
-          });
-      },
-      
+      }   
     }
   }
 </script>
