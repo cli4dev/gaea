@@ -189,7 +189,7 @@
 
 ```sh
 ➜ cd apiserver
-➜ gaea module -crud -t ../convoy.md
+➜ gaea service -crud -t ../convoy.md
 
 可选的参数：
    -c         根据表结构生成 post handle函数
@@ -228,6 +228,17 @@
 
 参数：
    -db value  数据库链接串(自动区分mysql与oracle)
+
+在oracle默认值为LONG类型，可以通过自定义函数转换：
+   CREATE OR REPLACE FUNCTION LONG_TO_CHAR(uTABLE IN VARCHAR2,uID IN NUMBER)
+      RETURN VARCHAR2
+   AS
+      uVal VARCHAR2(32767); 
+   BEGIN
+      SELECT DATA_DEFAULT INTO uVal FROM USER_TAB_COLS WHERE TABLE_NAME = UPPER(uTABLE) AND COLUMN_ID = uID;
+      uVal := SUBSTR(uVal,1,50); 
+      RETURN uVal;  
+   END LONG_TO_CHAR;
 ```
 
 ### 7. 其他

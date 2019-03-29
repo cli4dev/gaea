@@ -7,8 +7,7 @@ import (
 	"github.com/micro-plat/gaea/cmds/util/data"
 )
 
-//makeInsertFunc .
-//生成inster 函数
+// makeInsertFunc 生成inster 函数
 func (p *moduleCmd) makeInsertFunc(add, cover bool, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 	//获取模板数据
 	tmpls, err := data.GetTmples("insert func", tmpls.InsertFunc, tables, filters, true, modulePath)
@@ -26,8 +25,7 @@ func (p *moduleCmd) makeInsertFunc(add, cover bool, tables []*conf.Table, filter
 
 }
 
-//makeSelectFunc .
-//生成select 函数
+// makeSelectFunc 生成select 函数
 func (p *moduleCmd) makeSelectFunc(add, cover bool, db string, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 	tplName := tmpls.SelectOracleFunc
 	if db == "mysql" {
@@ -49,8 +47,7 @@ func (p *moduleCmd) makeSelectFunc(add, cover bool, db string, tables []*conf.Ta
 
 }
 
-//makeUpdateFunc .
-//生成update 函数
+// makeUpdateFunc 生成update 函数
 func (p *moduleCmd) makeUpdateFunc(add, cover bool, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 
 	tmpls, err := data.GetTmples("update func", tmpls.UpdateFunc, tables, filters, true, modulePath)
@@ -68,8 +65,7 @@ func (p *moduleCmd) makeUpdateFunc(add, cover bool, tables []*conf.Table, filter
 
 }
 
-//makeDeleteFunc .
-//生成delete 函数
+// makeDeleteFunc 生成delete 函数
 func (p *moduleCmd) makeDeleteFunc(add, cover bool, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 
 	tmpls, err := data.GetTmples("delete func", tmpls.DeleteFunc, tables, filters, true, modulePath)

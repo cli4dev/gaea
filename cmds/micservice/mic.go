@@ -9,7 +9,7 @@ import (
 type mic struct {
 }
 
-//NewMicCmd .
+//NewMicCmd 创建空的module和service函数及对象
 func NewMicCmd() []cli.Command {
 	return []cli.Command{
 		subcmd.NewMicServiceCmd(),

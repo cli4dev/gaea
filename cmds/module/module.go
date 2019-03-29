@@ -19,7 +19,7 @@ import (
 type moduleCmd struct {
 }
 
-//NewModuleCmd .
+//NewModuleCmd 创建模块
 func NewModuleCmd() cli.Command {
 	p := &moduleCmd{}
 	return cli.Command{
