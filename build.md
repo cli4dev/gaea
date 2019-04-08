@@ -7,7 +7,7 @@
 //-login 参数由三部分组成，以"|"分隔，第一个参数为sso的host，第二个为签名的key,第三个为系统英文标识
 //-n  项目的名字
 //-t md文件路径
-gaea api create -login "http://192.168.5.93:6688|B128F779D5741E701923346F7FA9F95C|convoy" -n ./apiserver 
+gaea api create -login "http://192.168.5.93:6688|B128F779D5741E701923346F7FA9F95C|convoy" -n ./apiserver
 
 cd apiserver
 
@@ -15,7 +15,8 @@ cd apiserver
 gaea api cover -db "mysql:convoy:MsqlDb4567$%^&@tcp(192.168.0.36)/convoy?charset=utf8"
 
 ```
-### 1.2 生成module,sql和services
+
+### 1.2 生成 module,sql 和 services
 
 ```
 cd admin-api
@@ -32,7 +33,7 @@ godep save
 //调整冲突的包名后，编译即可运行
 ```
 
-### 2.1生成前端VUE项目
+### 2.1 生成前端 VUE 项目
 
 ```
 
