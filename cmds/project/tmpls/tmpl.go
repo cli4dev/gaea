@@ -191,6 +191,11 @@ func GetTmpls(projectName string, input map[string]interface{}) (out map[string]
 		out["modules/member/state.go"], _ = data.Translate("tpl", strings.Replace(strings.Replace(conf.AppModuleMemberState, "\"", "`", -1), "'", "\"", -1), input)
 		out["modules/util/util.go"], _ = data.Translate("tpl", conf.Util, input)
 	}
+	if input["mod"].(bool) {
+		if out["go.mod"], err = data.Translate("tpl_mod", server.TPLMod, input); err != nil {
+			return nil, err
+		}
+	}
 
 	return out, nil
 }
