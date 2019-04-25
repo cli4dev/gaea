@@ -10,7 +10,7 @@ select {{range $i,$c:=.getcolumns}}t.{{$c.pname}}{{if $c.end}},{{end}}{{end}}
 {{$c}}
 {{- end}}
 {{- end}}
-from {{.name}} t
+from {{.name}}{{.dblink}} t
 {{range $i,$c:=.joinCondition}}
 {{$c}}
 {{end}}
@@ -26,7 +26,7 @@ where 1=1
 //Query{{.name|cname}}Count 获取{{.desc}}列表条数
 const Query{{.name|cname}}Count = '
 select count(1)
-from {{.name}} t
+from {{.name}}{{.dblink}} t
 {{range $i,$c:=.joinCondition}}
 {{$c}}
 {{end}}
@@ -54,7 +54,7 @@ from (select L.*
 			{{$c}}
 			{{- end}}
 			{{- end}}
-			from {{.name}} t
+			from {{.name}}{{.dblink}} t
 			{{range $i,$c:=.joinCondition}}
 			{{$c}}
 			{{end}}

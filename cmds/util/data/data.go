@@ -12,10 +12,9 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
-
 	"github.com/micro-plat/gaea/cmds"
 	"github.com/micro-plat/gaea/cmds/module/tmpls"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue/src/pages"
 	"github.com/micro-plat/gaea/cmds/service/tpl"
 	"github.com/micro-plat/gaea/cmds/util/conf"
 )
@@ -34,6 +33,7 @@ func getInputData(tb *conf.Table, tbs []*conf.Table) map[string]interface{} {
 	input := map[string]interface{}{
 		"name":          tb.Name,
 		"desc":          tb.Desc,
+		"dblink":        tb.DBLink,
 		"createcolumns": getCreateColumns(tb),     //创建数据必需的字段
 		"getcolumns":    getSingleDetail(tb, tbs), //单条数据要显示的字段
 		"querycolumns":  getQueryColumns(tb),      //查询字段
@@ -88,7 +88,7 @@ func getJoinWhere(tb *conf.Table, tbs []*conf.Table) []string {
 				}
 			}
 			if len(p) > 1 {
-				str := " and t" + strconv.Itoa(i) + "." + v + "= \"" + p[1] + "\""
+				str := " and t" + strconv.Itoa(i) + "." + v + "= !" + p[1] + "!"
 				join = append(join, str)
 			}
 		}
@@ -141,9 +141,11 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 			e := strings.Index(tb.Cons[i], ")")
 			p := strings.Split(tb.Cons[i][s+1:e], ",")
 			var str string
+			var dblink string
 			if len(p) >= 1 {
 				for _, tb2 := range tbs {
 					if tb2.Name == p[0] {
+						dblink = tb2.DBLink
 						for k := range tb2.CNames {
 							if strings.Contains(tb2.Cons[k], "DI") {
 								v = tb2.CNames[k]
@@ -151,7 +153,7 @@ func getJoinCondition(tb *conf.Table, tbs []*conf.Table) []string {
 						}
 					}
 				}
-				str = "inner join " + p[0] + " t" + strconv.Itoa(i) + " on t." + tb.CNames[i] + " = t" + strconv.Itoa(i) + "." + v
+				str = "inner join " + p[0] + dblink + " t" + strconv.Itoa(i) + " on t" + strconv.Itoa(i) + "." + v + " = t." + tb.CNames[i]
 			}
 
 			join = append(join, str)
@@ -365,6 +367,7 @@ func getNameAndDescsimple(v, d string, tbName []string, tbs []*conf.Table) (name
 		if tb.Name == tbName[0] {
 			for i := range tb.CNames {
 				if strings.Contains(tb.Cons[i], "DN") {
+					//TODO:
 					// name = tb.CNames[i] + "_" + v
 					name = "name_" + v
 					if len(tbName) > 1 {
@@ -695,7 +698,12 @@ func fsGetType(n string) string {
 }
 
 func fGetLastName(n string) string {
-	names := strings.Split(strings.Trim(n, "/"), "/")
+	sp := "/"
+	if strings.Contains(n, "_") {
+		sp = "_"
+	}
+
+	names := strings.Split(strings.Trim(n, sp), sp)
 	return names[len(names)-1]
 }
 
@@ -764,12 +772,12 @@ func GetTmples(tag, tplName string, tbs []*conf.Table, filters []string, makeFun
 
 			modulePath = "modules/const/sql"
 
-			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(content, "'", "`", -1)
+			c[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = strings.Replace(strings.Replace(content, "'", "`", -1), "!", "'", -1)
 			sq, err := Translate("head sql", tmpls.DicTpl, input)
 			if err != nil {
 				return nil, err
 			}
-			c["sql"] = strings.Replace(sq, "'", "`", -1)
+			c["sql"] = strings.Replace(strings.Replace(sq, "'", "`", -1), "!", "'", -1)
 			out[fmt.Sprintf(modulePath+"/%s.go", strings.Replace(tb.Name, "_", ".", -1))] = c
 		}
 		if err != nil {
@@ -882,14 +890,26 @@ func GetHTMLTmples(tag, tplName string, tbs []*conf.Table, filters []string, pro
 		c[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(content, "'", "`", -1)
 		out[fmt.Sprintf(projectPath+"/%s.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
 
-		view, err := Translate(tag, vue.Tpl, input)
+		view, err := Translate(tag, pages.ViewTpl, input)
 		if err != nil {
 			return nil, err
 		}
-
 		c[fmt.Sprintf(projectPath+"/%s.view.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(view, "'", "`", -1)
 		out[fmt.Sprintf(projectPath+"/%s.view.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
 
+		add, err := Translate(tag, pages.HTMLAddTpl, input)
+		if err != nil {
+			return nil, err
+		}
+		c[fmt.Sprintf(projectPath+"/%s.add.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(add, "'", "`", -1)
+		out[fmt.Sprintf(projectPath+"/%s.add.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
+
+		edit, err := Translate(tag, pages.HTMLEditTpl, input)
+		if err != nil {
+			return nil, err
+		}
+		c[fmt.Sprintf(projectPath+"/%s.edit.vue", strings.Replace(tb.Name, "_", "/", -1))] = strings.Replace(edit, "'", "`", -1)
+		out[fmt.Sprintf(projectPath+"/%s.edit.vue", strings.Replace(tb.Name, "_", "/", -1))] = c
 	}
 	return out, nil
 }

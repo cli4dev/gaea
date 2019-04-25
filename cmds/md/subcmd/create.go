@@ -2,6 +2,7 @@ package subcmd
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/micro-plat/gaea/cmds"
@@ -14,12 +15,12 @@ import (
 
 //Table2MD .
 type Table2MD struct {
-	db       string
-	provider string
-	obj      *db.DB
+	db       []string
+	provider []string
+	obj      []*db.DB
 }
 
-//NewMicServiceCmd .
+// NewMicServiceCmd .
 func NewTable2MDCmd() cli.Command {
 
 	m := &Table2MD{}
@@ -75,13 +76,17 @@ func (m *Table2MD) init(c *cli.Context) (err error) {
 	if c.String("db") == "" {
 		return fmt.Errorf("db 参数不能为空")
 	}
-	m.db = c.String("db")
 
-	if strings.Contains(m.db, "mysql") {
-		m.provider = "mysql"
-	} else {
-		m.provider = "ora"
+	m.db = strings.Split(c.String("db"), ",")
+
+	for _, v := range m.db {
+		if strings.Contains(v, "mysql") {
+			m.provider = append(m.provider, "mysql")
+		} else {
+			m.provider = append(m.provider, "ora")
+		}
 	}
+
 	return nil
 }
 
@@ -91,66 +96,75 @@ func (m *Table2MD) createMD() (err error) {
 		return err
 	}
 
-	switch m.provider {
-	case "mysql":
-		err = m.createMysqlMD()
-	case "ora":
-		err = m.createOracleMD()
+	for _, v := range m.provider {
+		switch v {
+		case "mysql":
+			err = m.createMysqlMD()
+		case "ora":
+			err = m.createOracleMD()
+		}
 	}
 
 	return err
 }
 
 func (m *Table2MD) getDB() (err error) {
-
-	m.obj, err = db.NewDB(m.provider, m.db, 20, 10, 20000)
-	if err != nil {
-		return err
+	for k, v := range m.provider {
+		obj, err := db.NewDB(v, m.db[k], 20, 10, 20000)
+		if err != nil {
+			return err
+		}
+		m.obj = append(m.obj, obj)
 	}
 	return nil
 }
 
 func (m *Table2MD) createMysqlMD() (err error) {
-
-	datas, q, a, err := m.obj.Query(QueryMysql, map[string]interface{}{
-		"schema": m.getSchema(),
-	})
-	if err != nil {
-		return fmt.Errorf("mysql(err:%v),sql:%s,输入参数:%v,", err, q, a)
-	}
-
-	d := map[string]*conf.Table{}
-	for _, v := range datas {
-		if _, ok := d[v["table_name"].(string)]; !ok {
-			d[v["table_name"].(string)] = conf.NewTable(v["table_name"].(string), v["table_comment"].(string))
+	for k, v := range m.provider {
+		if v != "mysql" {
+			continue
 		}
-		d[v["table_name"].(string)].AppendColumn(
-			v["column_name"].(string),
-			v["column_type"].(string),
-			"",
-			v["column_default"].(string),
-			m.getBool(v["is_nullable"]),
-			v["column_key"].(string),
-			v["column_comment"].(string),
-		)
-	}
-	tbs := []*conf.Table{}
-	for _, v := range d {
-		tbs = append(tbs, v)
-	}
+		datas, q, a, err := m.obj[k].Query(QueryMysql, map[string]interface{}{
+			"schema": m.getSchema(k),
+		})
+		if err != nil {
+			return fmt.Errorf("mysql(err:%v),sql:%s,输入参数:%v,", err, q, a)
+		}
 
-	out, err := data.GetMDTmples("md", mdTPL, tbs)
-	if err != nil {
-		return err
-	}
+		d := map[string]*conf.Table{}
+		for _, v := range datas {
+			if _, ok := d[v["table_name"].(string)]; !ok {
+				d[v["table_name"].(string)] = conf.NewTable(v["table_name"].(string), v["table_comment"].(string), "")
+			}
+			d[v["table_name"].(string)].AppendColumn(
+				v["column_name"].(string),
+				v["column_type"].(string),
+				"",
+				v["column_default"].(string),
+				m.getBool(v["is_nullable"]),
+				v["column_key"].(string),
+				v["column_comment"].(string),
+			)
+		}
+		tbs := []*conf.Table{}
+		for _, v := range d {
+			tbs = append(tbs, v)
+		}
 
-	f, err := path.CreatePath("./db.md", true)
-	defer f.Close()
-	if err != nil {
-		return err
-	}
-	for _, v := range out {
-		f.WriteString(v)
+		out, err := data.GetMDTmples("md", mdTPL, tbs)
+		if err != nil {
+			return err
+		}
+
+		f, err := path.CreatePath("./db.md", true)
+		defer f.Close()
+		if err != nil {
+			return err
+		}
+		for _, v := range out {
+			f.WriteString(v)
+		}
+
 	}
 
 	return nil
@@ -158,50 +172,64 @@ func (m *Table2MD) createMysqlMD() (err error) {
 
 func (m *Table2MD) createOracleMD() (err error) {
 
-	datas, q, a, err := m.obj.Query(QueryOracle, map[string]interface{}{})
-	if err != nil {
-		return fmt.Errorf("oracle(err:%v),sql:%s,输入参数:%v,", err, q, a)
-	}
-
-	d := map[string]*conf.Table{}
-	for _, v := range datas {
-		if _, ok := d[v.GetString("table_name")]; !ok {
-			d[v.GetString("table_name")] = conf.NewTable(strings.ToLower(v.GetString("table_name")), v.GetString("table_comment"))
+	for k, v := range m.provider {
+		if v != "ora" {
+			continue
 		}
-		d[v.GetString("table_name")].AppendColumn(
-			strings.ToLower(v.GetString("column_name")),
-			strings.ToLower(v.GetString("column_type")),
-			v.GetString("data_length"),
-			"",
-			m.getBool(v["nullable"]),
-			"",
-			v.GetString("column_comment"),
-		)
-	}
-	tbs := []*conf.Table{}
-	for _, v := range d {
-		tbs = append(tbs, v)
-	}
+		tableNames, q, a, err := m.obj[k].Query(GetAllTableNameInOracle, map[string]interface{}{})
+		if err != nil {
+			return fmt.Errorf("oracle(err:%v),sql:%s,输入参数:%v,", err, q, a)
+		}
 
-	out, err := data.GetMDTmples("md", mdOracleTPL, tbs)
-	if err != nil {
-		return err
-	}
+		d := map[string]*conf.Table{}
+		for _, v := range tableNames {
+			datas, q, a, err := m.obj[k].Query(GetSingleTableInfoInOracle, map[string]interface{}{
+				"table_name": strings.ToUpper(v.GetString("table_name")),
+			})
+			if err != nil {
+				return fmt.Errorf("oracle(err:%v),sql:%s,输入参数:%v,", err, q, a)
+			}
 
-	f, err := path.CreatePath("./db.md", true)
-	defer f.Close()
-	if err != nil {
-		return err
-	}
-	for _, v := range out {
-		f.WriteString(v)
+			if _, ok := d[v.GetString("table_name")]; !ok {
+				d[v.GetString("table_name")] = conf.NewTable(strings.ToLower(v.GetString("table_name")), datas.Get(0).GetString("table_comments"), "")
+			}
+			for _, v2 := range datas {
+				d[v.GetString("table_name")].AppendColumn(
+					strings.ToLower(v2.GetString("column_name")),
+					strings.ToLower(v2.GetString("data_type")),
+					v2.GetString("data_length"),
+					v2.GetString("data_default"),
+					m.getBool(v2.GetString("nullable")),
+					"",
+					v2.GetString("column_comments"),
+				)
+			}
+		}
+		tbs := []*conf.Table{}
+		for _, v := range d {
+			tbs = append(tbs, v)
+		}
+
+		out, err := data.GetMDTmples("md", mdOracleTPL, tbs)
+		if err != nil {
+			return err
+		}
+
+		f, err := path.CreatePath("./db"+strconv.Itoa(k)+".md", true)
+		defer f.Close()
+		if err != nil {
+			return err
+		}
+		for _, v := range out {
+			f.WriteString(v)
+		}
 	}
 
 	return nil
 }
 
-func (m *Table2MD) getSchema() string {
-	strArray := strings.Split(m.db, "/")
+func (m *Table2MD) getSchema(k int) string {
+	strArray := strings.Split(m.db[k], "/")
 	return strArray[len(strArray)-1]
 }
 

@@ -1,5 +1,6 @@
 package subcmd
 
+// QueryMysql .
 const QueryMysql = `
 select
    c.table_name,
@@ -16,49 +17,49 @@ from
 where c.table_schema = @schema
 `
 
-const QueryOracle = `
+// GetAllTableNameInOracle .
+const GetAllTableNameInOracle = `
 select
-  t .database_name as database_name,
-  t .table_name as table_name,
-  t .column_name as column_name,
-  t .column_type as column_type,
-  t .data_length as data_length,
-  t .nullable as nullable,
-  -- t.data_default as data_default, 
-  t .column_comment as column_comment,
- -- b.constraint_type as constraint_type,
-   t.table_comment as table_comment
+  ub.table_name
 from
-  (
-    select
-      ub.tablespace_name as database_name,
-      utc.table_name as table_name,
-      utc.column_name as column_name,
-      utc.data_type as column_type,
-      utc.data_length as data_length,
-      utc.nullable  as nullable,
-      utc.data_default   as data_default,
-      utcm.comments as table_comment,
-      ucc.comments as column_comment
-    from
-      user_tables ub
-    inner join user_tab_columns utc on ub.table_name = utc.table_name
-    inner join user_col_comments ucc on utc.column_name = ucc.column_name
-    inner join user_tab_comments utcm on ub.table_name = utcm.table_name
-    and utc.table_name = ucc.table_name
-  ) t
-left join (
-  select
-    ucc.table_name as table_name,
-    ucc.column_name as column_name,
-    wm_concat (uc.constraint_type) as constraint_type
-  from
-    user_cons_columns ucc
-  left join user_constraints uc on ucc.constraint_name = uc.constraint_name
-  group by
-    ucc.table_name,
-    ucc.column_name
-) b on t .table_name = b.table_name
-and t .column_name = b.column_name
-order by  t .table_name , t .column_name
+  user_tables ub
+order by 
+  ub.table_name
+`
+
+// GetSingleTableInfoInOracle .
+const GetSingleTableInfoInOracle = `
+select
+    a.column_name,
+    a.data_type,
+    case upper(a.data_type)
+    when upper('number') then
+    decode(a.data_scale,
+            0,
+            to_char(a.data_precision),
+            a.data_precision || ',' || a.data_scale)
+    when upper('date') then
+      ''
+    else
+     to_char(a.data_length)
+    end data_length,
+    a.data_precision,
+    a.data_scale,
+    a.nullable,
+    long_to_char(a.table_name,a.column_id) data_default,
+    b.comments column_comments,
+    d.comments table_comments
+from
+    user_tab_columns a,
+    user_col_comments b,
+    (select column_name from user_ind_columns where table_name = @table_name) c,
+    user_tab_comments d
+where
+    a.table_name = b.table_name
+    and a.table_name = d.table_name
+    and a.column_name = b.column_name
+    and a.column_name = c.column_name(+)
+    and a.table_name = @table_name
+order by 
+    a.column_id
 `

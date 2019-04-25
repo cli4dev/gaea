@@ -1,8 +1,11 @@
 package conf
 
+import "strings"
+
 type Table struct {
 	Name    string   //表名
 	Desc    string   //表描述
+	DBLink  string   //dblink
 	CNames  []string //字段名
 	Lens    []string //长度
 	Types   []string //类型
@@ -12,10 +15,11 @@ type Table struct {
 	Descs   []string //描述
 }
 
-func NewTable(name string, desc string) *Table {
+func NewTable(name, desc, dblink string) *Table {
 	return &Table{
 		Name:    name,
 		Desc:    desc,
+		DBLink:  dblink,
 		CNames:  make([]string, 0, 4),
 		Lens:    make([]string, 0, 4),
 		Types:   make([]string, 0, 4),
@@ -26,6 +30,9 @@ func NewTable(name string, desc string) *Table {
 	}
 }
 func (t *Table) AppendColumn(name string, tp string, len string, def string, isNull bool, cons string, des string) error {
+	if strings.Contains(des, "(") {
+		des = des[:strings.Index(des, "(")]
+	}
 	t.CNames = append(t.CNames, name)
 	t.Lens = append(t.Lens, len)
 	t.Types = append(t.Types, tp)

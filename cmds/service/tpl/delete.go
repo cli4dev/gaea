@@ -1,6 +1,6 @@
 package tpl
 
-//DeleteTpl .
+//DeleteTpl
 const DeleteTpl = `
 //DeleteHandle 删除{{.desc}}数据
 func (u *{{.name|cname}}Handler) DeleteHandle(ctx *context.Context) (r interface{}) {

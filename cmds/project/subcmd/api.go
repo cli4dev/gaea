@@ -84,6 +84,9 @@ func (p *APICmd) getStartFlags() []cli.Flag {
 	}, cli.BoolFlag{
 		Name:  "menu",
 		Usage: "启用 menu 模块",
+	}, cli.BoolFlag{
+		Name:  "mod",
+		Usage: "是否使用 go mod",
 	})
 	return flags
 }
@@ -160,6 +163,7 @@ func (p *APICmd) action(c *cli.Context) (err error) {
 			"appconf":     c.Bool("appconf") || c.IsSet("login"),
 			"metric":      c.Bool("metric"),
 			"login":       c.String("login"),
+			"mod":         c.Bool("mod"),
 		})
 		if err != nil {
 			cmds.Log.Error(err)

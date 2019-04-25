@@ -8,7 +8,8 @@ import (
 
 	"github.com/micro-plat/gaea/cmds"
 
-	"github.com/micro-plat/gaea/cmds/project/tmpls/vue"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue/src"
+	"github.com/micro-plat/gaea/cmds/project/tmpls/vue/src/pages"
 	"github.com/micro-plat/gaea/cmds/util/conf"
 	"github.com/micro-plat/gaea/cmds/util/data"
 	"github.com/micro-plat/gaea/cmds/util/md"
@@ -138,7 +139,7 @@ func (p *VueCmd) makeHTML(tables []*conf.Table) (err error) {
 //获取生成 vue所需的数据
 func (p *VueCmd) getHTMLData(tables []*conf.Table) (out map[string]map[string]string, err error) {
 	//获取模板数据
-	tmpls, err := data.GetHTMLTmples("html", vue.HTMLTpl, tables, p.filters, p.projectPath)
+	tmpls, err := data.GetHTMLTmples("html", pages.HTMLTpl, tables, p.filters, p.projectPath)
 
 	if err != nil {
 		cmds.Log.Error(err)
@@ -188,7 +189,7 @@ func (p *VueCmd) writeRouter(d map[string]map[string]string) error {
 		dot := strings.LastIndex(k, ".")
 		router[k[i+6:dot]] = k[i+6:]
 	}
-	str, err := data.Translate("router", vue.RouterString, map[string]interface{}{
+	str, err := data.Translate("router", src.RouterString, map[string]interface{}{
 		"router": router,
 	})
 	if err != nil {

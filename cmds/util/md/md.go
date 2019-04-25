@@ -92,7 +92,9 @@ func strings2Tables(tbs [][]*Line) ([]*conf.Table, error) {
 				if des, err = getTableDesc(line); err != nil {
 					return nil, err
 				}
-				table = conf.NewTable(name, des)
+				dbLink := getDBLink(line)
+
+				table = conf.NewTable(name, des, dbLink)
 				continue
 			}
 			if i < 3 {
@@ -135,6 +137,16 @@ func getTableName(line *Line) (string, error) {
 	}
 	return strings.TrimRight(strings.TrimLeft(names[0], "["), "]"), nil
 }
+
+func getDBLink(line *Line) string {
+	reg := regexp.MustCompile(`\([\s\S]+\)`)
+	names := reg.FindAllString(line.Text, -1)
+	if len(names) == 0 {
+		return ""
+	}
+	return strings.TrimRight(strings.TrimLeft(names[0], "("), ")")
+}
+
 func getType(line *Line) (string, string, error) {
 	colums := strings.Split(strings.Trim(line.Text, "|"), "|")
 	if colums[0] == "" {

@@ -3,7 +3,7 @@ package tmpls
 //InsertMysqlTmpl mysql insert sql 模板
 const InsertMysqlTmpl = `
 //Insert{{.name|cname}} 添加{{.desc}}
-const Insert{{.name|cname}} = 'insert into {{.name}}
+const Insert{{.name|cname}} = 'insert into {{.name}}{{.dblink}}
 ({{range $i,$c:=.createcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}})
 values({{range $i,$c:=.createcolumns}}@{{$c.name}}{{if $c.end}},{{end}}{{end}})'
 `
@@ -11,7 +11,7 @@ values({{range $i,$c:=.createcolumns}}@{{$c.name}}{{if $c.end}},{{end}}{{end}})'
 //InsertOracleTmpl oracle insert sql 模板
 const InsertOracleTmpl = `
 //Create{{.name|cname}} 添加{{.desc}}
-const Insert{{.name|cname}} = 'insert into {{.name}}
+const Insert{{.name|cname}} = 'insert into {{.name}}{{.dblink}}
 ({{range $i,$c:=.seqs}}{{$c.name}},{{end}}{{range $i,$c:=.createcolumns}}{{$c.name}}{{if $c.end}},{{end}}{{end}})
 values({{range $i,$c:=.seqs}}{{$c.seqname}}.nextval,{{end}}{{range $i,$c:=.createcolumns}}@{{$c.name}}{{if $c.end}},{{end}}{{end}})'
 `

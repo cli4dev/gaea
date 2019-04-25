@@ -8,8 +8,7 @@ import (
 	"github.com/micro-plat/gaea/cmds/util/data"
 )
 
-//makeInsertSQL .
-//生成inster sql语句
+// makeInsertSQL 生成inster sql语句
 func (p *moduleCmd) makeInsertSQL(add, cover bool, db string, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 
 	tplName := tmpls.InsertMysqlTmpl
@@ -30,8 +29,7 @@ func (p *moduleCmd) makeInsertSQL(add, cover bool, db string, tables []*conf.Tab
 	return tmpls, nil
 }
 
-//makeSelectSQL .
-//生成select sql语句
+// makeSelectSQL 生成select sql语句
 func (p *moduleCmd) makeSelectSQL(add, cover bool, db string, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 
 	tplName := tmpls.SelectOracleTmpl
@@ -53,8 +51,7 @@ func (p *moduleCmd) makeSelectSQL(add, cover bool, db string, tables []*conf.Tab
 	return tmpls, nil
 }
 
-//makeUpdateSQL .
-//生成update sql语句
+// makeUpdateSQL 生成update sql语句
 func (p *moduleCmd) makeUpdateSQL(add, cover bool, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 
 	tmpls, err := data.GetTmples("update sql", tmpls.UpdateTmpl, tables, filters, false, modulePath)
@@ -71,8 +68,7 @@ func (p *moduleCmd) makeUpdateSQL(add, cover bool, tables []*conf.Table, filters
 	return tmpls, nil
 }
 
-//makeDeleteSQL .
-//生成delete sql语句
+// makeDeleteSQL 生成delete sql语句
 func (p *moduleCmd) makeDeleteSQL(add, cover bool, tables []*conf.Table, filters []string, modulePath string) (out map[string]map[string]string, err error) {
 
 	tmpls, err := data.GetTmples("delete sql", tmpls.DeleteTmpl, tables, filters, false, modulePath)
