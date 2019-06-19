@@ -6,5 +6,12 @@ github.com/micro-plat/lib4go v0.0.0-20190605061326-fc17b7276bae h1:0KvcWyaVhfMN3
 github.com/micro-plat/lib4go v0.0.0-20190605061326-fc17b7276bae/go.mod h1:zrC6IThH4iNBu3XkjduKLC+TulO/h3XZ6sWEsFx+YQY=
 github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
 github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
+github.com/zkfy/go-oci8 v0.0.0-20180327092318-ad9f59dedff0 h1:jTkoGemWKwQ/TQ+y6nX6LoN2dkV1UW9edx9vIaEt4OQ=
+github.com/zkfy/go-oci8 v0.0.0-20180327092318-ad9f59dedff0/go.mod h1:eC3OkCVU+lyyoySDy2npkH2xLZ3N55SyWrxUc97BgPU=
 github.com/zkfy/log v0.0.0-20180312054228-b2704c3ef896 h1:nktyhX5ycnu+WA489Ei7SUi00bF+LW8TF2N7se5gQ/o=
 github.com/zkfy/log v0.0.0-20180312054228-b2704c3ef896/go.mod h1:Aiq66eXWCthZ9RAkNFSTXdq4WxeH3IFsHO3/3oAwFJs=
+golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
+golang.org/x/net v0.0.0-20190603091049-60506f45cf65 h1:+rhAzEzT3f4JtomfC371qB+0Ola2caSKcY69NUBZrRQ=
+golang.org/x/net v0.0.0-20190603091049-60506f45cf65/go.mod h1:HSz+uSET+XFnRR8LxR5pz3Of3rY3CfYBVs4xY44aLks=
+golang.org/x/sys v0.0.0-20190215142949-d0b11bdaac8a/go.mod h1:STP8DvDyc/dI5b8T5hshtkjS+E42TnysNCUPdjciGhY=
+golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
