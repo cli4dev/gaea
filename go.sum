@@ -1,0 +1,10 @@
+github.com/go-sql-driver/mysql v1.4.1 h1:g24URVg0OFbNUTx9qqY1IRZ9D9z3iPyi5zKhQZpNwpA=
+github.com/go-sql-driver/mysql v1.4.1/go.mod h1:zAC/RDZ24gD3HViQzih4MyKcchzm+sOG5ZlKdlhCg5w=
+github.com/micro-plat/gaea v0.0.0-20190425060643-d7f657944781 h1:1yzGLBka4qP8Q+3rf0kbPH9TEFUGZprbG6hzOV67hFA=
+github.com/micro-plat/gaea v0.0.0-20190425060643-d7f657944781/go.mod h1:FdcXNZr9mEy9haLMrszEvVDU4mYmmVhOA/4htRiDTDQ=
+github.com/micro-plat/lib4go v0.0.0-20190605061326-fc17b7276bae h1:0KvcWyaVhfMN349482H9dS83RFH6+XIIAJ/oXBO48LI=
+github.com/micro-plat/lib4go v0.0.0-20190605061326-fc17b7276bae/go.mod h1:zrC6IThH4iNBu3XkjduKLC+TulO/h3XZ6sWEsFx+YQY=
+github.com/urfave/cli v1.20.0 h1:fDqGv3UG/4jbVl/QkFwEdddtEDjh/5Ov6X+0B/3bPaw=
+github.com/urfave/cli v1.20.0/go.mod h1:70zkFmudgCuE/ngEzBv17Jvp/497gISqfk5gWijbERA=
+github.com/zkfy/log v0.0.0-20180312054228-b2704c3ef896 h1:nktyhX5ycnu+WA489Ei7SUi00bF+LW8TF2N7se5gQ/o=
+github.com/zkfy/log v0.0.0-20180312054228-b2704c3ef896/go.mod h1:Aiq66eXWCthZ9RAkNFSTXdq4WxeH3IFsHO3/3oAwFJs=
