@@ -1,0 +1,57 @@
+# github.com/go-sql-driver/mysql v1.4.1
+github.com/go-sql-driver/mysql
+# github.com/micro-plat/gaea v0.0.0-20190425060643-d7f657944781
+github.com/micro-plat/gaea/cmds
+github.com/micro-plat/gaea/cmds/create
+github.com/micro-plat/gaea/cmds/md
+github.com/micro-plat/gaea/cmds/micservice
+github.com/micro-plat/gaea/cmds/module
+github.com/micro-plat/gaea/cmds/project
+github.com/micro-plat/gaea/cmds/service
+github.com/micro-plat/gaea/cmds/create/sql
+github.com/micro-plat/gaea/cmds/create/sql/mysql
+github.com/micro-plat/gaea/cmds/create/sql/oracle
+github.com/micro-plat/gaea/cmds/util/conf
+github.com/micro-plat/gaea/cmds/util/md
+github.com/micro-plat/gaea/cmds/util/path
+github.com/micro-plat/gaea/cmds/md/subcmd
+github.com/micro-plat/gaea/cmds/util/data
+github.com/micro-plat/gaea/cmds/micservice/subcmd
+github.com/micro-plat/gaea/cmds/micservice/tpl
+github.com/micro-plat/gaea/cmds/module/tmpls
+github.com/micro-plat/gaea/cmds/new/sql
+github.com/micro-plat/gaea/cmds/new/sql/mysql
+github.com/micro-plat/gaea/cmds/project/subcmd
+github.com/micro-plat/gaea/cmds/project/tmpls
+github.com/micro-plat/gaea/cmds/project/tmpls/vue/src
+github.com/micro-plat/gaea/cmds/project/tmpls/vue/src/pages
+github.com/micro-plat/gaea/cmds/util
+github.com/micro-plat/gaea/cmds/project/tmpls/server
+github.com/micro-plat/gaea/cmds/project/tmpls/server/conf
+github.com/micro-plat/gaea/cmds/project/tmpls/vue
+github.com/micro-plat/gaea/cmds/project/tmpls/vue/public
+github.com/micro-plat/gaea/cmds/service/tpl
+# github.com/micro-plat/hydra v0.9.3
+github.com/micro-plat/hydra/registry
+# github.com/micro-plat/lib4go v0.1.1
+github.com/micro-plat/lib4go/logger
+github.com/micro-plat/lib4go/types
+github.com/micro-plat/lib4go/db
+github.com/micro-plat/lib4go/utility
+github.com/micro-plat/lib4go/concurrent/cmap
+github.com/micro-plat/lib4go/file
+github.com/micro-plat/lib4go/jsons
+github.com/micro-plat/lib4go/net
+github.com/micro-plat/lib4go/db/tpl
+github.com/micro-plat/lib4go/security/md5
+github.com/micro-plat/lib4go/registry
+# github.com/urfave/cli v1.20.0
+github.com/urfave/cli
+# github.com/zkfy/go-oci8 v0.0.0-20180327092318-ad9f59dedff0
+github.com/zkfy/go-oci8
+# github.com/zkfy/log v0.0.0-20180312054228-b2704c3ef896
+github.com/zkfy/log
+# golang.org/x/net v0.0.0-20190603091049-60506f45cf65
+golang.org/x/net/context
+# google.golang.org/appengine v1.6.1
+google.golang.org/appengine/cloudsql
