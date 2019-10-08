@@ -213,7 +213,11 @@
 `6.1 生成数据库建表语句`
 
 ```sh
-➜ gaea create [mysql;oracle] -t ./convoy.md
+oracle方式:
+➜ gaea create oracle -c ./convoy.md
+mysql方式:
+gaea create mysql -t ./convoy.md
+
 
 可选参数：
    -f value       过滤表名
